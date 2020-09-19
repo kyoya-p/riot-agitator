@@ -5,11 +5,13 @@
 ## SDK導入
 
 1. flutter SDKの設置(略)  
- https://flutter.dev/docs/get-started/install  
- DartSDKも含まれるようだ
-   
+  https://flutter.dev/docs/get-started/install  
+  DartSDKも含まれるようだ  
+  pathを設定
+  
 2. flutterのターゲットにwebを追加
     > flutter config --enable-web
+
     この設定は $HOME/.flutter_settings に格納される
 
 ## Intelli-J設定(使うなら)
@@ -19,7 +21,8 @@
 
 # 開発履歴
 # Flutterプロジェクトのテンプレ準備
-> set path=%FLUTTERDIR%;%path%
-> flutter create .
+> flutter create --project-name=riotagitator .
+
+Flutterのプロジェクトファイルは `pubspec.yaml`
 
 
