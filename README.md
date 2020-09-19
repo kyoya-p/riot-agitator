@@ -17,7 +17,9 @@
 ## Intelli-J設定(使うなら)
 1. Flutter plugin導入
 2. Flutter SDK pathを設定
+3. Module にライブラリ`Fluuter plugin`、`Dart SDK` を追加
 
+Intellijのモジュール定義ファイルは `*.iml` 
 
 # 開発履歴
 # Flutterプロジェクトのテンプレ準備
