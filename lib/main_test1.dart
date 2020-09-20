@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import './main_test1.dart' as test1;
 
-void main() {
-  runApp(test1.MyApp()); //一時的にtest用のコード
-}
+
+
+
 
 class MyApp extends StatelessWidget {
   @override
