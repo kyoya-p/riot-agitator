@@ -41,3 +41,15 @@ Deviceを選択し、(Chromeまたはその他)
 Flutterのプロジェクトファイルは `pubspec.yaml`
 
 
+# cloud firestore を有効に
+(参考)https://pub.dev/packages/cloud_firestore
+- pubspec.yaml
+  - 依存関係をdependancesに追記
+- index.html
+  - ライブラリのロード追加
+  - Firestore API-Key情報追加
+
+## Cloud firestore 備考
+- アクセスルール初期設定では、期限が制限30日に制限されている(すぐ開発できるよう)
+久しぶりに使う場合はルールを見直すこと
+
