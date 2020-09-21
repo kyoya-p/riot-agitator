@@ -15,13 +15,14 @@ class FS_Count {
         .collection("devSettings")
         .doc("Counter1")
         .snapshots();
-    return ss.asyncMap(
-        (DocumentSnapshot ds) => FS_Count(int.parse(ds.get("count").toString())));
+    return ss.asyncMap((DocumentSnapshot ds) =>
+        FS_Count(int.parse(ds.get("count").toString())));
   }
 
   // Sample: transaction
   static void increment() {
-    DocumentReference docRef = FirebaseFirestore.instance.collection("devSettings").doc("Counter1");
+    DocumentReference docRef =
+        FirebaseFirestore.instance.collection("devSettings").doc("Counter1");
     FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentSnapshot snapshot = await transaction.get(docRef);
       int count = snapshot.data()['count'] + 1;
@@ -40,17 +41,6 @@ class TestApp extends StateNotifier<int> {
       state = value.get('count');
     }).catchError((e) => print("Error $e"));
   }
-
-  void increment() {
-    // Sample: transaction
-    DocumentReference docRef = fs.collection("devSettings").doc("Counter1");
-    fs.runTransaction((transaction) async {
-      DocumentSnapshot snapshot = await transaction.get(docRef);
-      int count = snapshot.data()['count'] + 1;
-      transaction.update(docRef, {'count': count});
-      state = count;
-    });
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -59,7 +49,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter/CloudFirestore Demo',
       theme: ThemeData(
-        primarySwatch: Colors.lightGreen,
+        primarySwatch: Colors.indigo,
         // This makes the visual density adapt to the platform that you run
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
@@ -145,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Consumer<FS_Count>(
                 builder: (_, app, __) => Text(
-                      app.count.toString(),
+                      (app != null) ? app.count.toString() : "Loading...",
                       style: Theme.of(context).textTheme.headline4,
                     )),
           ],
