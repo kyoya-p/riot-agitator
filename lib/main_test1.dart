@@ -1,14 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:state_notifier/state_notifier.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+class FS_Count {
+  FS_Count(this.count);
 
+  int count = 0;
 
+  // Sample: Stream (Firestore Realtime Update)
+  static Stream<FS_Count> get stream {
+    Stream<DocumentSnapshot> ss = FirebaseFirestore.instance
+        .collection("devSettings")
+        .doc("Counter1")
+        .snapshots();
+    return ss.asyncMap(
+        (DocumentSnapshot ds) => FS_Count(int.parse(ds.get("count").toString())));
+  }
 
+  // Sample: transaction
+  static void increment() {
+    DocumentReference docRef = FirebaseFirestore.instance.collection("devSettings").doc("Counter1");
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(docRef);
+      int count = snapshot.data()['count'] + 1;
+      transaction.update(docRef, {'count': count});
+    });
+  }
+}
+
+class TestApp extends StateNotifier<int> {
+  FirebaseFirestore fs = FirebaseFirestore.instance;
+
+  TestApp() : super(0) {
+    // 取得後に1回だけ通知
+    fs.collection('devSettings').doc("Counter1").get().then((value) {
+      print(value.data());
+      state = value.get('count');
+    }).catchError((e) => print("Error $e"));
+  }
+
+  void increment() {
+    // Sample: transaction
+    DocumentReference docRef = fs.collection("devSettings").doc("Counter1");
+    fs.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(docRef);
+      int count = snapshot.data()['count'] + 1;
+      transaction.update(docRef, {'count': count});
+      state = count;
+    });
+  }
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter/CloudFirestore Demo',
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
         // This makes the visual density adapt to the platform that you run
@@ -16,7 +65,10 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: StreamProvider<FS_Count>(
+        create: (_) => FS_Count.stream,
+        child: MyHomePage(title: 'Flutter/CloudFirestore Demo'),
+      ),
     );
   }
 }
@@ -49,7 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      //_counter++;
+      FS_Count.increment();
     });
   }
 
@@ -90,10 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            Consumer<FS_Count>(
+                builder: (_, app, __) => Text(
+                      app.count.toString(),
+                      style: Theme.of(context).textTheme.headline4,
+                    )),
           ],
         ),
       ),
