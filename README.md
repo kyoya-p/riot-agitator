@@ -35,12 +35,12 @@ Deviceを選択し、(Chromeまたはその他)
 実行ボタンクリック
 
 # 開発履歴
-# Flutterプロジェクトのテンプレ準備
+## Flutterプロジェクトのテンプレ準備
 > flutter create --project-name=riotagitator .
 
 Flutterのプロジェクトファイルは `pubspec.yaml`
 
-# Cloud Firestore を有効に
+## Cloud Firestore
 (参考)https://pub.dev/packages/cloud_firestore
 - pubspec.yaml
   - 依存関係をdependancesに追記
@@ -48,9 +48,18 @@ Flutterのプロジェクトファイルは `pubspec.yaml`
   - ライブラリのロード追加
   - Firestore API-Key情報追加
 
-# Cloud Firestore Realtime
+## Cloud Firestore Realtime
+サンプルアプリ作成 - main_test1.dart
 
+## ユーザ認証
+ - サンプルコード: https://github.com/firebase/firebaseui-web
+ - ガイド: https://www.flutter-study.dev/firebase/authentication/
+   - pubspec.yaml: dependanciesに
+     - firebase_auth: 0.18.0+1 追加
+   - indxe.html:　追加
+     - <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
 
+ 
 ## Cloud firestore 備考
 - アクセスルール初期設定では、期限が制限30日に制限されている(すぐ開発できるよう)
   - 久しぶりに使う場合はルールを見直すこと

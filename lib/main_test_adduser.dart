@@ -27,9 +27,14 @@ class MyAuthPage extends StatefulWidget {
 }
 
 class _MyAuthPageState extends State<MyAuthPage> {
-  String loginUserEmail = "";
-  String loginUserPassword = "";
-  String debugMsg = "";
+  // 入力されたメールアドレス
+  String newUserEmail = "";
+
+  // 入力されたパスワード
+  String newUserPassword = "";
+
+  // 登録・ログインに関する情報を表示
+  String infoText = "";
 
   @override
   Widget build(BuildContext context) {
@@ -39,47 +44,51 @@ class _MyAuthPageState extends State<MyAuthPage> {
           padding: EdgeInsets.all(32),
           child: Column(
             children: <Widget>[
-              Container(height: 32),
               TextFormField(
+                // テキスト入力のラベルを設定
                 decoration: InputDecoration(labelText: "Login ID (Mail Address)"),
                 onChanged: (String value) {
                   setState(() {
-                    loginUserEmail = value;
+                    newUserEmail = value;
                   });
                 },
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Password"),
+                // パスワードが見えないようにする
                 obscureText: true,
                 onChanged: (String value) {
                   setState(() {
-                    loginUserPassword = value;
+                    newUserPassword = value;
                   });
                 },
               ),
               RaisedButton(
                 onPressed: () async {
                   try {
+                    // メール/パスワードでユーザー登録
                     final FirebaseAuth auth = FirebaseAuth.instance;
                     final UserCredential result =
-                        await auth.signInWithEmailAndPassword(
-                      email: loginUserEmail,
-                      password: loginUserPassword,
+                        await auth.createUserWithEmailAndPassword(
+                      email: newUserEmail,
+                      password: newUserPassword,
                     );
-                    final User user = result.user;
+
+                    // 登録したユーザー情報
+                    final FirebaseUser user = result.user;
                     setState(() {
-                      debugMsg = "Success: ${user.email}";
+                      infoText = "Success: ${user.email}";
                     });
                   } catch (e) {
+                    // 登録に失敗した場合
                     setState(() {
-                      debugMsg = "Failed: ${e}";
-                      print(debugMsg);
+                      infoText = "Failed: ${e}";
                     });
                   }
                 },
-                child: Text("Login"),
+                child: Text("Add User"),
               ),
-              Text(debugMsg),
+              Text(infoText)
             ],
           ),
         ),
