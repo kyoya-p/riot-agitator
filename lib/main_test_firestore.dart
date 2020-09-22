@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:state_notifier/state_notifier.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 
 class FS_Count {
   FS_Count(this.count);
