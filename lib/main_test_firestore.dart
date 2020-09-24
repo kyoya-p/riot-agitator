@@ -26,8 +26,18 @@ class FS_Count {
       DocumentSnapshot snapshot = await transaction.get(docRef);
       int count = snapshot.data()['count'] + 1;
       transaction.update(docRef, {'count': count});
+      print(count);
     });
   }
+}
+
+// Sample: Stream (Firestore Realtime Update)
+Stream<int> streamRunCommand() {
+  return FirebaseFirestore.instance
+      .collection("devSettings")
+      .doc("AG1")
+      .snapshots()
+      .asyncMap((DocumentSnapshot ds) => int.parse(ds.get("run")));
 }
 
 class TestApp extends StateNotifier<int> {
@@ -45,8 +55,14 @@ class TestApp extends StateNotifier<int> {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    streamRunCommand().skip(1).forEach((runCount) {
+      for (var i = 0; i < runCount; ++i) {
+        FS_Count.increment();
+      }
+    });
+
     return MaterialApp(
-      title: 'Flutter/CloudFirestore Demo',
+      title: 'RIOT Mob',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         // This makes the visual density adapt to the platform that you run
@@ -56,7 +72,7 @@ class MyApp extends StatelessWidget {
       ),
       home: StreamProvider<FS_Count>(
         create: (_) => FS_Count.stream,
-        child: MyHomePage(title: 'Flutter/CloudFirestore Demo'),
+        child: MyHomePage(title: 'RIOT Mob'),
       ),
     );
   }
@@ -85,12 +101,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     //setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      //_counter++;
+    // This call to setState tells the Flutter framework that something has
+    // changed in this State, which causes it to rerun the build method below
+    // so that the display can reflect the updated values. If we changed
+    // _counter without calling setState(), then the build method would not be
+    // called again, and so nothing would appear to happen.
+    //_counter++;
     FS_Count.increment();
     FS_Count.increment();
     FS_Count.increment();

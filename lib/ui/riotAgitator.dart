@@ -4,12 +4,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RIOT Agitator',
+      title: 'RIOT Mob',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'RIOT Agitator'),
+      home: MyHomePage(title: 'RIOT Mob'),
     );
   }
 }

@@ -5,9 +5,10 @@ import 'package:riotagitator/firestore_access.dart';
 
 class logViewWidget extends StatelessWidget {
   @override
-  Query devList =
+  Query qrDevList =
       FirebaseFirestore.instance.collection("devLogs").orderBy("time");
 
+  List<DocumentSnapshot> devList;
 
   Widget build(BuildContext context) {
     return StreamProvider<QuerySnapshot>(
@@ -15,8 +16,12 @@ class logViewWidget extends StatelessWidget {
       child: GridView.builder(
           reverse: false,
           itemBuilder: (context, index) {
-            // とにかくMutableなWidgetを先に返し、内容は後で埋める
-            devList.get().then((value) => null);
+            while (index >= devList.length) {
+              if (!devList.isEmpty) {
+                qrDevList = qrDevList.startAfter([devList[devList.length - 1]]);
+              }
+              qrDevList.get().then((value) => null);
+            }
           }),
     );
   }
