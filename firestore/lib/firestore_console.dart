@@ -26,14 +26,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  FirestoreForm firestoreForm = FirestoreForm('devLogs');
+  FirestoreForm queryForm = FirestoreForm('devLog');
   Stream<QuerySnapshot> dbSnapshot;
 
   @override
   Widget build(BuildContext context) {
-    dbSnapshot = FirebaseFirestore.instance
-        .collection(firestoreForm.fsCollection.text)
-        .snapshots();
+    Query q = FirebaseFirestore.instance.collection(queryForm.collName.text);
+    if (queryForm.where1.fsWhereField.text.isNotEmpty) {
+      q = q.where(queryForm.where1.fsWhereField.text, isEqualTo: queryForm.where1.fsWhereValue.text);
+    }
+    dbSnapshot = q.snapshots();
     ObserverWidget observer = ObserverWidget(dbSnapshot);
 
     return Scaffold(
@@ -43,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Container(
-            child: firestoreForm,
+            child: queryForm,
             padding: EdgeInsets.all(10),
           ),
           Expanded(
@@ -55,15 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.send),
         onPressed: () {
           setState(() {
-            dbSnapshot = FirebaseFirestore.instance
-                .collection(firestoreForm.fsCollection.text)
-                .snapshots();
-            var query = FirebaseFirestore.instance
-                .collection(firestoreForm.fsCollection.text);
-
-            if (firestoreForm.fsWhere.text.isNotEmpty) {
-//              dbSnapshot = dbSnapshot.where((event) => false)
-            }
+            //dbSnapshot = FirebaseFirestore.instance
+            //    .collection(firestoreForm.fsCollection.text)
+            //    .snapshots();
           });
         },
       ),
@@ -72,24 +68,21 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class FirestoreForm extends StatelessWidget {
-  TextEditingController fsCollection;
+  TextEditingController collName;
 
-  TextEditingController fsWhere = TextEditingController(text: '');
   TextEditingController fsOrderBy = TextEditingController(text: '');
 
   FirestoreForm(collectionName) {
-    fsCollection = TextEditingController(text: collectionName);
+    collName = TextEditingController(text: collectionName);
   }
+
+  FsWhereForm where1 = FsWhereForm();
 
   @override
   Widget build(BuildContext context) {
     Widget collectionForm = TextField(
-      controller: fsCollection,
+      controller: collName,
       decoration: InputDecoration(labelText: "collection"),
-    );
-    Widget whereForm = TextFormField(
-      initialValue: '',
-      decoration: InputDecoration(labelText: "where"),
     );
     Widget orderByForm = TextFormField(
       initialValue: '',
@@ -99,10 +92,46 @@ class FirestoreForm extends StatelessWidget {
       child: Column(
         children: [
           collectionForm,
-          whereForm,
+          where1,
           orderByForm,
         ],
       ),
+    );
+  }
+}
+
+class FsWhereForm extends StatelessWidget {
+  TextEditingController fsWhereField = TextEditingController(text: '');
+  TextEditingController fsWhereOp = TextEditingController(text: '==');
+  TextEditingController fsWhereValue = TextEditingController(text: '');
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 200,
+          child: TextFormField(
+            controller: fsWhereField,
+            decoration: InputDecoration(labelText: 'Field Name'),
+          ),
+        ),
+        SizedBox(
+          width: 200,
+          child: TextFormField(
+            controller: fsWhereOp,
+            decoration: InputDecoration(
+                labelText: 'Operator(<,<=,==,>,>=,array-contains)'),
+          ),
+        ),
+        Expanded(
+//          width: 100,
+          child: TextFormField(
+            controller: fsWhereValue,
+            decoration: InputDecoration(labelText: 'Value'),
+          ),
+        ),
+      ],
     );
   }
 }
