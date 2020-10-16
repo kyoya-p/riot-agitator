@@ -6,9 +6,15 @@
 
 1. flutter SDKの設置
   https://flutter.dev/docs/get-started/install  
-  DartSDKも含まれるようだ  
+  (DartSDKも含まれるようだ)   
   pathを設定
-  
+
+```
+# Linux一般の場合
+#git clone https://github.com/flutter/flutter.git -b stable --depth 1
+git clone https://github.com/flutter/flutter.git -b stable --depth 1 --no-single-branch
+export PATH="`pwd`/flutter/bin:$PATH"
+```
 2. flutterのターゲットにwebを追加し Web(beta)を有効に
 ```
 flutter config --enable-web  (*1)
@@ -38,7 +44,8 @@ Intellijのモジュール定義ファイルは `*.iml`
 
 # テスト実行
 - CLI
-> flutter run -d chrome
+> flutter run -d chrome 
+> flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
 
 - [intelliJ]デバッグ実行  
 Deviceを選択し、(Chromeまたはその他)
