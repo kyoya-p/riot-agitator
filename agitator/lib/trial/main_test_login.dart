@@ -41,7 +41,8 @@ class _MyAuthPageState extends State<MyAuthPage> {
             children: <Widget>[
               Container(height: 32),
               TextFormField(
-                decoration: InputDecoration(labelText: "Login ID (Mail Address)"),
+                decoration:
+                    InputDecoration(labelText: "Login ID (Mail Address)"),
                 onChanged: (String value) {
                   setState(() {
                     loginUserEmail = value;
@@ -70,6 +71,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                     setState(() {
                       debugMsg = "Success: ${user.email}";
                     });
+                    Navigator.pop(context);
                   } catch (e) {
                     setState(() {
                       debugMsg = "Failed: ${e}";

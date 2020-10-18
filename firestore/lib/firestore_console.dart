@@ -33,7 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     Query q = FirebaseFirestore.instance.collection(queryForm.collName.text);
     if (queryForm.where1.fsWhereField.text.isNotEmpty) {
-      q = q.where(queryForm.where1.fsWhereField.text, isEqualTo: queryForm.where1.fsWhereValue.text);
+      q = q.where(queryForm.where1.fsWhereField.text,
+          isEqualTo: queryForm.where1.fsWhereValue.text);
     }
     dbSnapshot = q.snapshots();
     ObserverWidget observer = ObserverWidget(dbSnapshot);
@@ -138,7 +139,7 @@ class FsWhereForm extends StatelessWidget {
 
 class ObserverWidget extends StatelessWidget {
   Stream<QuerySnapshot> dbSnapshot =
-  FirebaseFirestore.instance.collection("devLogs").snapshots();
+      FirebaseFirestore.instance.collection("devLogs").snapshots();
 
   ObserverWidget(this.dbSnapshot);
 
@@ -151,7 +152,7 @@ class ObserverWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           return GridView.builder(
             gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
             itemCount: snapshot.data.size,
             padding: EdgeInsets.all(2.0),
             itemBuilder: (BuildContext context, int index) {

@@ -7,8 +7,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:riotagitator/ui/riotOrganizer.dart';
 
-import 'file:///C:/works/riot-agitator/lib/ui/riotAgitator.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
