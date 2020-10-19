@@ -3,7 +3,44 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/firestoreWidget.dart';
 
 /*
-デバイスに関する設定
+オブジェクト(ドキュメント)操作
+*/
+class ObjectOperatorWidget extends StatelessWidget {
+  DocumentReference docRef;
+
+  ObjectOperatorWidget({this.docRef});
+
+  TextEditingController textController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: docRef.snapshots(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+
+          textController.text = snapshot.data.data().toString();
+          String id = snapshot.data.id;
+          return Scaffold(
+            appBar: AppBar(title: Text("$id - Object Operation")),
+            body: TextField(
+              maxLines: null,
+              controller: textController,
+            ),
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.send),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          );
+        });
+  }
+}
+
+/*
+デバイス操作
 */
 class DeviceOperatorWidget extends StatelessWidget {
   String deviceId;

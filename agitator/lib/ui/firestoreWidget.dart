@@ -80,7 +80,6 @@ class _MyAuthPageState extends State<MyAuthPage> {
  - 指定されたDocumentSnapshotに対応する項目を削除
  */
 class FsGridWidget extends StatelessWidget {
-  Stream<QuerySnapshot> dbSnapshot;
   CollectionReference query;
 
   Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
@@ -88,13 +87,23 @@ class FsGridWidget extends StatelessWidget {
 
   Function(BuildContext context, int index, List<QueryDocumentSnapshot>) onTap;
 
+  Stream<QuerySnapshot> _dbSnapshot;
+
   FsGridWidget({this.query, this.itemBuilder, this.onTap}) {
-    dbSnapshot = query.snapshots();
+    _dbSnapshot = query.snapshots();
     if (itemBuilder == null) {
-      itemBuilder = (_, _2, _3) => Text("test");
+      itemBuilder = (_, _2, _3) => Text("under construction");
     }
     if (onTap == null) {
-      onTap = (_, _2, _3) {};
+      onTap = (context, index, docs) {
+        /*Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
+          ),
+        );*/
+      };
     }
   }
 
@@ -103,7 +112,7 @@ class FsGridWidget extends StatelessWidget {
     double w = MediaQuery.of(context).size.width;
 
     return StreamBuilder(
-        stream: dbSnapshot,
+        stream: _dbSnapshot,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
@@ -117,7 +126,9 @@ class FsGridWidget extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 child: GestureDetector(
-                  onTap: onTap(context, index, snapshot.data.docs),
+                  onTap: () {
+                    onTap(context, index, snapshot.data.docs);
+                  },
                   child: Dismissible(
                     key: Key(snapshot.data.docs[index].id),
                     child: itemBuilder(context, index, snapshot.data.docs),

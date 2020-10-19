@@ -8,12 +8,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RIOT Organizer',
+      title: 'Clusters',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'RIOT Organizer'),
+      home: MyHomePage(title: 'Clusters'),
       routes: <String, WidgetBuilder>{
         '/groupEditor': (BuildContext context) => new GroupDeviceEdit()
       },

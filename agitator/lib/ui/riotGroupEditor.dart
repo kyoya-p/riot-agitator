@@ -10,14 +10,11 @@ Group一覧を表示
 */
 class GroupListWidget extends StatelessWidget {
   Stream<QuerySnapshot> dbSnapshot =
-  FirebaseFirestore.instance.collection("group").snapshots();
+      FirebaseFirestore.instance.collection("group").snapshots();
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery
-        .of(context)
-        .size
-        .width;
+    double w = MediaQuery.of(context).size.width;
 
     return StreamBuilder(
         stream: dbSnapshot,
@@ -41,10 +38,8 @@ class GroupListWidget extends StatelessWidget {
                         name: "/gr",
                         arguments: snapshot.data.docs[index].id,
                       ),
-                      builder: (context) =>
-                          GroupDeviceEdit(
-                            groupId: snapshot.data.docs[index].id,
-                          ),
+                      builder: (context) => GroupDeviceEdit(
+                          groupId: snapshot.data.docs[index].id),
                     ),
                   );
                 },
@@ -95,26 +90,22 @@ class GroupDeviceEdit extends StatelessWidget {
                     .collection("group")
                     .doc(groupId)
                     .collection("devices"),
-                /*itemBuilder: (_, index, docs) => Dismissible(
-                  key: Key(docs[index].id),
-                  child: Container(
-                    color: Colors.indigo[50],
-                    child: Text(docs[index].id),
-                  ),
-                  onDismissed: (direction) {
-                    FirebaseFirestore.instance
-                        .collection("group")
-                        .doc(groupId)
-                        .collection("devices")
-                        .doc(docs[index].id)
-                        .delete();
-                  },
-                ),*/
-                itemBuilder: (context, index, docs) =>
-                    Container(
-                      color: Colors.indigo[50],
-                      child: Text(docs[index].id),
+                itemBuilder: (context, index, docs) => Container(
+                  color: Colors.indigo[50],
+                  child: Text(docs[index].id),
+                ),
+                onTap: (context, index, docs) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ObjectOperatorWidget(
+                        docRef: FirebaseFirestore.instance
+                            .collection("device")
+                            .doc(docs[index].id),
+                      ),
                     ),
+                  );
+                },
               ),
             ),
           ],
@@ -128,10 +119,9 @@ class GroupDeviceEdit extends StatelessWidget {
                 settings: RouteSettings(
                   name: "/gr",
                 ),
-                builder: (context) =>
-                    EntryDeviceIdWidget(
-                      groupId: groupId,
-                    ),
+                builder: (context) => EntryDeviceIdWidget(
+                  groupId: groupId,
+                ),
               ),
             );
           },
