@@ -35,10 +35,10 @@ class GroupListWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       settings: RouteSettings(
-                        name: "/gr",
-                        arguments: snapshot.data.docs[index].id,
+                        //name: "/gr",
+                        //arguments: snapshot.data.docs[index].id,
                       ),
-                      builder: (context) => GroupDeviceEdit(
+                      builder: (context) => GroupDeviceList(
                           groupId: snapshot.data.docs[index].id),
                     ),
                   );
@@ -71,16 +71,16 @@ class GroupListWidget extends StatelessWidget {
 - 登録デバイス一覧表示
 - 登録デバイスの削除
 */
-class GroupDeviceEdit extends StatelessWidget {
+class GroupDeviceList extends StatelessWidget {
   String groupId;
 
-  GroupDeviceEdit({this.groupId});
+  GroupDeviceList({this.groupId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("${groupId} - Device List"),
+          title: Text("group/${groupId} - Device List"),
         ),
         body: Column(
           children: [
@@ -100,7 +100,7 @@ class GroupDeviceEdit extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => ObjectOperatorWidget(
                         docRef: FirebaseFirestore.instance
-                            .collection("device")
+                            .collection("devConfig")
                             .doc(docs[index].id),
                       ),
                     ),

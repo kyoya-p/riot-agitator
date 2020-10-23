@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riotagitator/ui/riotOrganizer.dart';
+
+import 'deviceOperator.dart';
 
 /*
 Firestore認証Widget
@@ -56,7 +59,12 @@ class _MyAuthPageState extends State<MyAuthPage> {
                     setState(() {
                       debugMsg = "Success: ${user.email}";
                     });
-                    Navigator.pop(context);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        settings: const RouteSettings(name: "/home"),
+                        builder: (context) => MyApp(),
+                      ),
+                    );
                   } catch (e) {
                     setState(() {
                       debugMsg = "Failed: ${e}";
@@ -92,17 +100,16 @@ class FsGridWidget extends StatelessWidget {
   FsGridWidget({this.query, this.itemBuilder, this.onTap}) {
     _dbSnapshot = query.snapshots();
     if (itemBuilder == null) {
-      itemBuilder = (_, _2, _3) => Text("under construction");
+      itemBuilder = (context, index, docs) => Text(docs[index].id);
     }
     if (onTap == null) {
       onTap = (context, index, docs) {
-        /*Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
-          ),
-        );*/
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
+            ));
       };
     }
   }
@@ -136,50 +143,6 @@ class FsGridWidget extends StatelessWidget {
                       query.doc(snapshot.data.docs[index].id).delete();
                     },
                   ),
-                ),
-              );
-            },
-          );
-        });
-  }
-}
-
-/*
- クエリを与えればその内容を動的にList表示するパターン
- */
-class FsListWidget extends StatelessWidget {
-  Stream<QuerySnapshot> dbSnapshot;
-
-  Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
-      itemBuilder;
-
-  Function(BuildContext context, int index, List<QueryDocumentSnapshot>) onTap;
-
-  FsListWidget({this.dbSnapshot, this.itemBuilder, this.onTap}) {
-    if (itemBuilder == null) {
-      itemBuilder = (_, _2, _3) => Text("test");
-    }
-    if (onTap == null) {
-      onTap = (_, _2, _3) {};
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-
-    return StreamBuilder(
-        stream: dbSnapshot,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          return ListView.builder(
-            itemCount: snapshot.data.size,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                child: GestureDetector(
-                  onTap: onTap(context, index, snapshot.data.docs),
-                  child: itemBuilder(context, index, snapshot.data.docs),
                 ),
               );
             },

@@ -11,7 +11,7 @@ class FS_Count {
   // Sample: Stream (Firestore Realtime Update)
   static Stream<FS_Count> get stream {
     Stream<DocumentSnapshot> ss = FirebaseFirestore.instance
-        .collection("devSettings")
+        .collection("devConfig")
         .doc("Counter1")
         .snapshots();
     return ss.asyncMap((DocumentSnapshot ds) =>
@@ -21,7 +21,7 @@ class FS_Count {
   // Sample: transaction
   static void increment() {
     DocumentReference docRef =
-        FirebaseFirestore.instance.collection("devSettings").doc("Counter1");
+        FirebaseFirestore.instance.collection("devConfig").doc("Counter1");
     FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentSnapshot snapshot = await transaction.get(docRef);
       int count = snapshot.data()['count'] + 1;
@@ -34,7 +34,7 @@ class FS_Count {
 // Sample: Stream (Firestore Realtime Update)
 Stream<int> streamRunCommand() {
   return FirebaseFirestore.instance
-      .collection("devSettings")
+      .collection("devConfig")
       .doc("AG1")
       .snapshots()
       .asyncMap((DocumentSnapshot ds) => int.parse(ds.get("run")));
@@ -45,7 +45,7 @@ class TestApp extends StateNotifier<int> {
 
   TestApp() : super(0) {
     // 取得後に1回だけ通知
-    fs.collection('devSettings').doc("Counter1").get().then((value) {
+    fs.collection('devConfig').doc("Counter1").get().then((value) {
       print(value.data());
       state = value.get('count');
     }).catchError((e) => print("Error $e"));

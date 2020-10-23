@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/firestoreWidget.dart';
 
 /*
 オブジェクト(ドキュメント)操作
@@ -20,10 +20,11 @@ class ObjectOperatorWidget extends StatelessWidget {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
 
-          textController.text = snapshot.data.data().toString();
+          textController.text = //json.encode(snapshot.data.data());
+          JsonEncoder.withIndent(" ").convert(snapshot.data.data());
           String id = snapshot.data.id;
           return Scaffold(
-            appBar: AppBar(title: Text("$id - Object Operation")),
+            appBar: AppBar(title: Text("${docRef.path} - Configuration")),
             body: TextField(
               maxLines: null,
               controller: textController,
@@ -31,6 +32,9 @@ class ObjectOperatorWidget extends StatelessWidget {
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.send),
               onPressed: () {
+                var doc=json.decode(textController.text);
+                doc["time"]=DateTime.now().millisecondsSinceEpoch;
+                docRef.set(doc);
                 Navigator.pop(context);
               },
             ),
@@ -51,7 +55,7 @@ class DeviceOperatorWidget extends StatelessWidget {
 
   DeviceOperatorWidget({this.deviceId}) {
     dbDocSetting = FirebaseFirestore.instance
-        .collection("devSettings")
+        .collection("devConfig")
         .doc(deviceId)
         .snapshots();
   }
