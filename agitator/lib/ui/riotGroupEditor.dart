@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/deviceOperator.dart';
 
 import 'firestoreWidget.dart';
+import 'fsCollectionOperator.dart';
 
 /*
 Group一覧を表示
@@ -35,27 +36,27 @@ class GroupListWidget extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       settings: RouteSettings(
-                        //name: "/gr",
-                        //arguments: snapshot.data.docs[index].id,
-                      ),
+                          //name: "/gr",
+                          //arguments: snapshot.data.docs[index].id,
+                          ),
                       builder: (context) => GroupDeviceList(
                           groupId: snapshot.data.docs[index].id),
                     ),
                   );
                 },
-                child: buildCell(snapshot.data.docs[index]),
+                child: buildCell(context, snapshot.data.docs[index]),
               );
             },
           );
         });
   }
 
-  Widget buildCell(QueryDocumentSnapshot doc) {
+  Widget buildCell(BuildContext context, QueryDocumentSnapshot doc) {
     return Container(
       decoration: BoxDecoration(
         //border: Border.all(color: Colors.blue),
         //borderRadius: BorderRadius.circular(4),
-        color: Colors.indigo[50],
+        color: Theme.of(context).primaryColorLight,
       ),
       child: Column(
         children: [
@@ -85,13 +86,13 @@ class GroupDeviceList extends StatelessWidget {
         body: Column(
           children: [
             Expanded(
-              child: FsGridWidget(
+              child: FsCollectionOperatorWidget(
                 query: FirebaseFirestore.instance
                     .collection("group")
                     .doc(groupId)
                     .collection("devices"),
                 itemBuilder: (context, index, docs) => Container(
-                  color: Colors.indigo[50],
+                  color: Theme.of(context).primaryColorLight,
                   child: Text(docs[index].id),
                 ),
                 onTap: (context, index, docs) {

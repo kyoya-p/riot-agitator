@@ -6,6 +6,7 @@ import 'package:riotagitator/ui/riotGroupEditor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firestoreWidget.dart';
+import 'fsCollectionOperator.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Clusters',
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Clusters'),
@@ -60,12 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget appDrawer() {
-return    Drawer(
+    return Drawer(
       child: ListView(
         children: [
           DrawerHeader(
             child: Text('Road to IoT'),
-            decoration: BoxDecoration(color: Colors.indigo),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
           ListTile(
             title: Text("All Devices"),
@@ -77,14 +78,8 @@ return    Drawer(
                   settings: RouteSettings(
                     name: "/gr",
                   ),
-                  builder: (context) => Scaffold(
-                    appBar: AppBar(
-                      title: Text("device - All Devices"),
-                    ),
-                    body: FsGridWidget(
-                      query: FirebaseFirestore.instance.collection("device"),
-                    ),
-                  ),
+                  builder: (context) =>
+                      FsCollectionOperatorAppWidget(collectionId: "device"),
                 ),
               );
             },
@@ -103,14 +98,13 @@ return    Drawer(
                     appBar: AppBar(
                       title: Text("device - All Device Logs"),
                     ),
-                    body: FsGridWidget(
+                    body: FsCollectionOperatorWidget(
                       query: FirebaseFirestore.instance.collection("devLog"),
                     ),
                   ),
                 ),
               );
             },
-
           ),
         ],
       ),

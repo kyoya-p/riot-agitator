@@ -32,3 +32,21 @@ jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
+
+task flutterInitTask(type: Exec) {
+    workingDir "$projectDir"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd.exe', '/c', 'flutter', 'config', '--enable-web'
+        commandLine 'cmd.exe', '/c', 'flutter', 'channel', 'beta'
+        commandLine 'cmd.exe', '/c', 'flutter', 'device'
+    }
+}
+
+task flutterBuildTask(type: Exec) {
+    workingDir "$projectDir"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd.exe', '/c', 'flutter', 'build', 'web'
+    } else {
+        commandLine 'sh', '-c', 'flutter', 'build', 'web'
+    }
+}

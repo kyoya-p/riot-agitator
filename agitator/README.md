@@ -11,7 +11,7 @@
   
 2. flutterのターゲットにwebを追加し Web(beta)を有効に
 ```
-flutter config --enable-web  (*1)
+flutter config --enable-webconfig --enable-web  (*1)
 flutter channel beta
 flutter upgrade  
 flutter devices
@@ -20,9 +20,9 @@ flutter devices
 
 
 ## Intelli-J設定(使うなら)
-1. Flutter plugin導入
-2. Flutter SDK pathを設定
-3. Module にライブラリ`Fluuter plugin`、`Dart SDK` を追加
+1. Flutter plugin導入: Settings > Plugin > flutterで検索
+2. Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
+3. プロジェクト設定: Project Structure > Modules > Dependancies > [+] > Libraries > Flutter plugin, Dart SDK を追加
 
 Intellijのモジュール定義ファイルは `*.iml` 
 
