@@ -3,7 +3,6 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:riotagitator/ui/riotGroupEditor.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
@@ -65,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
           collectionListTile("device"),
+          collectionListTile("devConfig"),
           collectionListTile("devStatus"),
           collectionListTile("devLog"),
         ],

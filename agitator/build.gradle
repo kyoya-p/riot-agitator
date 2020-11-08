@@ -36,16 +36,17 @@ jar {
 task flutterInitTask(type: Exec) {
     workingDir "$projectDir"
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd.exe', '/c', 'flutter', 'config', '--enable-web'
-        commandLine 'cmd.exe', '/c', 'flutter', 'channel', 'beta'
-        commandLine 'cmd.exe', '/c', 'flutter', 'device'
+        commandLine 'cmd', '/c', 'flutter', 'config', '--enable-web'
+        commandLine 'cmd', '/c', 'flutter', 'channel', 'beta'
+        commandLine 'cmd', '/c', 'flutter', 'upgrade'
+        commandLine 'cmd', '/c', 'flutter', 'devices'
     }
 }
 
 task flutterBuildTask(type: Exec) {
     workingDir "$projectDir"
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd.exe', '/c', 'flutter', 'build', 'web'
+        commandLine 'cmd', '/c', 'flutter', 'build', 'web'
     } else {
         commandLine 'sh', '-c', 'flutter', 'build', 'web'
     }

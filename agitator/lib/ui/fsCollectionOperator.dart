@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -131,16 +133,59 @@ class CreateDocumentAppWidget extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send_and_archive),
         onPressed: () {
-          Navigator.pop(context);
-          FirebaseFirestore.instance
-              .collection(collectionId)
-              .doc(createDocWidget.docId.text)
-              //.set(jsonDecode(createDocWidget.initialDoc.text));
-              .set({"aaa": 123});
+          try {
+            print(createDocWidget.initialDoc.text);
+            print(json.decode(createDocWidget.initialDoc.text));
+            FirebaseFirestore.instance
+                .collection(collectionId)
+                .doc(createDocWidget.docId.text)
+                .set(json.decode(createDocWidget.initialDoc.text))
+                //.then((value) => Navigator.pop(context))
+                .catchError((e) => _showDialog(context, e.message));
+            //.catchError((e) => {});
+            //Navigator.pop(context);
+          } catch (ex) {
+            print(ex);
+            _showDialog(context, ex.toString());
+          }
         },
       ),
     );
   }
+
+  Future _showDialog(context, String value) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('AlertDialog'),
+        content: Text(value),
+        actions: <Widget>[
+          new SimpleDialogOption(
+            child: new Text('Close'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  showResultDialog(context, String value) => showDialog(
+      context: context,
+      builder: (context) {
+        Column(
+          children: <Widget>[
+            AlertDialog(
+              title: Text("Error"),
+              content: Text("aaa"),
+              actions: <Widget>[
+                // ボタン
+              ],
+            ),
+          ],
+        );
+      });
 }
 
 class CreateDocumentWidget extends StatelessWidget {
@@ -161,7 +206,7 @@ class CreateDocumentWidget extends StatelessWidget {
           controller: docId,
           decoration: InputDecoration(
             icon: Icon(Icons.label),
-            hintText: 'Document ID',
+            //hintText: '',
             labelText: 'Document ID',
           ),
         ),
