@@ -2,7 +2,7 @@ import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:riotagitator/ui/riotGroupEditor.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
@@ -11,12 +11,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Clusters',
+      title: 'Device Clusters',
       theme: ThemeData(
         primarySwatch: Colors.pink,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Clusters'),
+      home: MyHomePage(title: 'Device Clusters'),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => MyApp(),
         //'/groupEditor': (BuildContext context) => GroupDeviceList(),
@@ -24,6 +24,16 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+IconButton loginButton(BuildContext context) => IconButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyAuthPage()),
+        );
+      },
+      icon: Icon(Icons.account_circle),
+    );
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -39,19 +49,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyAuthPage()),
-                );
-              },
-              icon: Icon(Icons.account_circle)),
-        ],
+        actions: [loginButton(context)],
       ),
       drawer: appDrawer(),
-      body: Center(child: GroupListWidget()),
+      body: Center(
+          //child: GroupListWidget()
+          child: FsCollectionOperatorWidget(
+        query: FirebaseFirestore.instance.collection("group"),
+      )),
     );
   }
 
@@ -60,10 +65,12 @@ class _MyHomePageState extends State<MyHomePage> {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Text('Road to IoT'),
+            child: Text('Road to IoT Debugger'),
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
           collectionListTile("device"),
+          collectionListTile("user"),
+          collectionListTile("group"),
           collectionListTile("devConfig"),
           collectionListTile("devStatus"),
           collectionListTile("devLog"),

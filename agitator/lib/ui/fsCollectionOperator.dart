@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'deviceOperator.dart';
 
 /*
  Firestore Collectionを操作するWidget - AppBar
@@ -13,7 +12,7 @@ import 'deviceOperator.dart';
 
 // ignore: must_be_immutable
 class FsCollectionOperatorAppWidget extends StatelessWidget {
-  var collectionId = "";
+  String collectionId = "";
 
   FsCollectionOperatorAppWidget({this.collectionId});
 
@@ -35,7 +34,7 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => SetDocumentAppWidget(
+                builder: (_) => SetDocumentAppWidget(
                     collectionRef: collectionRef, docId: null)),
           );
         },
@@ -121,13 +120,24 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   }
 }
 
-class SetDocumentAppWidget extends StatelessWidget {
-  //String collectionId;
-  //DocumentReference docRef;
+class SetDocumentAppWidget extends StatefulWidget {
   String docId = null;
   CollectionReference collectionRef;
 
   SetDocumentAppWidget({@required this.collectionRef, this.docId});
+
+  @override
+  _SetDocumentAppState createState() =>
+      _SetDocumentAppState(collectionRef: collectionRef, docId: docId);
+}
+
+class _SetDocumentAppState extends State<SetDocumentAppWidget> {
+//class SetDocumentAppWidget extends StatelessWidget {
+
+  String docId = null;
+  CollectionReference collectionRef;
+
+  _SetDocumentAppState({@required this.collectionRef, this.docId});
 
   @override
   Widget build(BuildContext context) {
@@ -140,22 +150,26 @@ class SetDocumentAppWidget extends StatelessWidget {
               "Set a document to ${collectionRef.path} / ${docId ?? "()"}")),
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.send_and_archive),
+        child: Icon(Icons.send),
         onPressed: () {
           try {
-            print(setDocWidget.textDocBody.text);
-            print(json.decode(setDocWidget.textDocBody.text));
-            /*FirebaseFirestore.instance
-                .collection(collectionId)
-                .doc(setDocWidget.docId.text)
-                .set(json.decode(setDocWidget.docText.text))
-                .then((value) => Navigator.pop(context))
-                .catchError((e) => _showDialog(context, e.message));
-            */
+            /*setState(() {
+              _duration = Duration(milliseconds: 300);
+              jump = context.size.height ;
+            });
+
+             */
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SetDocumentAppWidget(
+                      collectionRef: collectionRef, docId: setDocWidget.textDocId.text),
+                ));
+            String newDocId = setDocWidget.textDocId.text;
             collectionRef
-                .doc(docId)
+                .doc(newDocId)
                 .set(json.decode(setDocWidget.textDocBody.text))
-                .then((value) => Navigator.pop(context))
+                .then((value) {})
                 .catchError((e) => _showDialog(context, e.message));
           } catch (ex) {
             print(ex);
@@ -186,8 +200,6 @@ class SetDocumentAppWidget extends StatelessWidget {
 }
 
 class SetDocumentWidget extends StatelessWidget {
-  //String collectionId = null;
-  //DocumentReference docRef;
   String docId = null;
   CollectionReference collectionRef;
 
@@ -200,6 +212,7 @@ class SetDocumentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    textDocId.text = docId;
     return Column(
       children: [
         TextField(
@@ -215,12 +228,8 @@ class SetDocumentWidget extends StatelessWidget {
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (!snapshot.hasData)
                 return Center(child: CircularProgressIndicator());
-
-              print("Snapshot: $snapshot");
               textDocBody.text =
                   JsonEncoder.withIndent(" ").convert(snapshot.data.data());
-
-              //textDocBody.text = "{}";
               return TextField(
                 controller: textDocBody,
                 decoration: InputDecoration(
