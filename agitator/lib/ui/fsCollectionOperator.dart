@@ -54,7 +54,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
       itemBuilder;
 
-  Function(BuildContext context, int index, List<QueryDocumentSnapshot>) onTap;
+  Function(BuildContext context, int index, List<QueryDocumentSnapshot> snapshots) onTap;
 
   Stream<QuerySnapshot> _dbSnapshot;
 

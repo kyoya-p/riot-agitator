@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riotagitator/ui/riotGroupEditor.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
@@ -48,10 +49,17 @@ class MyHomePage extends StatelessWidget {
       ),
       drawer: appDrawer(context),
       body: Center(
-          //child: GroupListWidget()
-          child: FsCollectionOperatorWidget(
-        query: FirebaseFirestore.instance.collection("group"),
-      )),
+        child: FsCollectionOperatorWidget(
+          query: FirebaseFirestore.instance.collection("group"),
+          onTap: (context, index, snapshots) => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  GroupDeviceList(groupId: snapshots[index].id),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -63,18 +71,18 @@ class MyHomePage extends StatelessWidget {
             child: Text('Road to IoT Debugger'),
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
-          collectionListTile(context,"device"),
-          collectionListTile(context,"user"),
-          collectionListTile(context,"group"),
-          collectionListTile(context,"devConfig"),
-          collectionListTile(context,"devStatus"),
-          collectionListTile(context,"devLog"),
+          collectionListTile(context, "device"),
+          collectionListTile(context, "user"),
+          collectionListTile(context, "group"),
+          collectionListTile(context, "devConfig"),
+          collectionListTile(context, "devStatus"),
+          collectionListTile(context, "devLog"),
         ],
       ),
     );
   }
 
-  Widget collectionListTile(BuildContext context,String collectionId) {
+  Widget collectionListTile(BuildContext context, String collectionId) {
     return ListTile(
       title: Text("${collectionId} collection"),
       trailing: Icon(Icons.arrow_forward),

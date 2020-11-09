@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/deviceOperator.dart';
 
-import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
 
 /*
@@ -81,7 +80,7 @@ class GroupDeviceList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("group/${groupId} - Device List"),
+          title: Text("group/${groupId} - Device Registration"),
         ),
         body: Column(
           children: [
@@ -188,7 +187,6 @@ class EntryDeviceIdState extends State<EntryDeviceIdWidget> {
         child: Icon(Icons.send),
         onPressed: () {
           devList.text.split("\n").where((e) => e.length != 0).forEach((i) {
-            dbSnapshot:
             FirebaseFirestore.instance
                 .collection("group")
                 .doc(groupId)
