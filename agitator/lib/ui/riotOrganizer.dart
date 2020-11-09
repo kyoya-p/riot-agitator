@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Device Clusters',
       theme: ThemeData(
-        primarySwatch: Colors.pink,
+        primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Device Clusters'),
@@ -35,23 +35,18 @@ IconButton loginButton(BuildContext context) => IconButton(
       icon: Icon(Icons.account_circle),
     );
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
         actions: [loginButton(context)],
       ),
-      drawer: appDrawer(),
+      drawer: appDrawer(context),
       body: Center(
           //child: GroupListWidget()
           child: FsCollectionOperatorWidget(
@@ -60,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget appDrawer() {
+  Widget appDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         children: [
@@ -68,18 +63,18 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('Road to IoT Debugger'),
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
-          collectionListTile("device"),
-          collectionListTile("user"),
-          collectionListTile("group"),
-          collectionListTile("devConfig"),
-          collectionListTile("devStatus"),
-          collectionListTile("devLog"),
+          collectionListTile(context,"device"),
+          collectionListTile(context,"user"),
+          collectionListTile(context,"group"),
+          collectionListTile(context,"devConfig"),
+          collectionListTile(context,"devStatus"),
+          collectionListTile(context,"devLog"),
         ],
       ),
     );
   }
 
-  Widget collectionListTile(String collectionId) {
+  Widget collectionListTile(BuildContext context,String collectionId) {
     return ListTile(
       title: Text("${collectionId} collection"),
       trailing: Icon(Icons.arrow_forward),
