@@ -11,19 +11,23 @@ import 'deviceOperator.dart';
  - DocumentがTapされた時の動作
  */
 
+// ignore: must_be_immutable
 class FsCollectionOperatorAppWidget extends StatelessWidget {
   var collectionId = "";
 
-  FsCollectionOperatorAppWidget({this.collectionId}) {}
+  FsCollectionOperatorAppWidget({this.collectionId});
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference collectionRef =
+        FirebaseFirestore.instance.collection(collectionId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("${collectionId} - Collection"),
       ),
       body: FsCollectionOperatorWidget(
-        query: FirebaseFirestore.instance.collection(collectionId),
+        query: collectionRef,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.note_add),
@@ -31,8 +35,8 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    CreateDocumentAppWidget(collectionId: collectionId)),
+                builder: (context) => SetDocumentAppWidget(
+                    collectionRef: collectionRef, docId: null)),
           );
         },
       ),
@@ -72,9 +76,10 @@ class FsCollectionOperatorWidget extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
-            ));
+                builder: (context) => SetDocumentAppWidget(
+                    collectionRef: query, docId: docs[index].id)
+                //ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
+                ));
       };
     }
   }
@@ -116,34 +121,42 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   }
 }
 
-class CreateDocumentAppWidget extends StatelessWidget {
-  String collectionId;
+class SetDocumentAppWidget extends StatelessWidget {
+  //String collectionId;
+  //DocumentReference docRef;
+  String docId = null;
+  CollectionReference collectionRef;
 
-  CreateDocumentAppWidget({this.collectionId}) {}
+  SetDocumentAppWidget({@required this.collectionRef, this.docId});
 
   @override
   Widget build(BuildContext context) {
-    CreateDocumentWidget createDocWidget =
-        CreateDocumentWidget(collectionId: collectionId);
+    SetDocumentWidget setDocWidget =
+        SetDocumentWidget(collectionRef: collectionRef, docId: docId);
 
     return Scaffold(
       appBar: AppBar(
-          title: Text("Set a new document to ${collectionId} collection")),
-      body: createDocWidget,
+          title: Text(
+              "Set a document to ${collectionRef.path} / ${docId ?? "()"}")),
+      body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send_and_archive),
         onPressed: () {
           try {
-            print(createDocWidget.initialDoc.text);
-            print(json.decode(createDocWidget.initialDoc.text));
-            FirebaseFirestore.instance
+            print(setDocWidget.textDocBody.text);
+            print(json.decode(setDocWidget.textDocBody.text));
+            /*FirebaseFirestore.instance
                 .collection(collectionId)
-                .doc(createDocWidget.docId.text)
-                .set(json.decode(createDocWidget.initialDoc.text))
-                //.then((value) => Navigator.pop(context))
+                .doc(setDocWidget.docId.text)
+                .set(json.decode(setDocWidget.docText.text))
+                .then((value) => Navigator.pop(context))
                 .catchError((e) => _showDialog(context, e.message));
-            //.catchError((e) => {});
-            //Navigator.pop(context);
+            */
+            collectionRef
+                .doc(docId)
+                .set(json.decode(setDocWidget.textDocBody.text))
+                .then((value) => Navigator.pop(context))
+                .catchError((e) => _showDialog(context, e.message));
           } catch (ex) {
             print(ex);
             _showDialog(context, ex.toString());
@@ -170,55 +183,54 @@ class CreateDocumentAppWidget extends StatelessWidget {
       ),
     );
   }
-
-  showResultDialog(context, String value) => showDialog(
-      context: context,
-      builder: (context) {
-        Column(
-          children: <Widget>[
-            AlertDialog(
-              title: Text("Error"),
-              content: Text("aaa"),
-              actions: <Widget>[
-                // ボタン
-              ],
-            ),
-          ],
-        );
-      });
 }
 
-class CreateDocumentWidget extends StatelessWidget {
-  String collectionId;
+class SetDocumentWidget extends StatelessWidget {
+  //String collectionId = null;
+  //DocumentReference docRef;
+  String docId = null;
+  CollectionReference collectionRef;
 
   Stream<DocumentSnapshot> dbDocSetting;
 
-  var docId = TextEditingController();
-  var initialDoc = TextEditingController();
+  var textDocId = TextEditingController(text: "");
+  var textDocBody = TextEditingController(text: "{}");
 
-  CreateDocumentWidget({this.collectionId}) {}
+  SetDocumentWidget({this.collectionRef, this.docId});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         TextField(
-          controller: docId,
+          controller: textDocId,
           decoration: InputDecoration(
             icon: Icon(Icons.label),
             //hintText: '',
             labelText: 'Document ID',
           ),
         ),
-        TextField(
-          controller: initialDoc,
-          decoration: InputDecoration(
-            icon: Icon(Icons.note_add),
-            hintText: 'This text must be in JSON format',
-            labelText: 'Document',
-          ),
-          maxLines: null,
-        ),
+        StreamBuilder(
+            stream: collectionRef.doc(docId).snapshots(),
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (!snapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+
+              print("Snapshot: $snapshot");
+              textDocBody.text =
+                  JsonEncoder.withIndent(" ").convert(snapshot.data.data());
+
+              //textDocBody.text = "{}";
+              return TextField(
+                controller: textDocBody,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.note_add),
+                  hintText: 'This text must be in JSON format',
+                  labelText: 'Document',
+                ),
+                maxLines: null,
+              );
+            }),
       ],
     );
   }
