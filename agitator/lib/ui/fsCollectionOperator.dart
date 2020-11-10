@@ -34,8 +34,8 @@ class FsCollectionOperatorAppWidget2 extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) =>
-                    SetDocumentAppWidget(collectionRef: collectionRef, docId: null)),
+                builder: (_) => SetDocumentAppWidget(
+                    collectionRef: collectionRef, docId: null)),
           );
         },
       ),
@@ -84,17 +84,18 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
  - DocumentがTapされた時の動作
  */
 class FsCollectionOperatorWidget extends StatelessWidget {
-  CollectionReference query;
+  //CollectionReference query;
+  Query query;
 
   Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
       itemBuilder;
 
   Function(BuildContext context, int index,
-      List<QueryDocumentSnapshot> snapshots) onTap;
+      List<QueryDocumentSnapshot> snapshots) onTapItem;
 
   Stream<QuerySnapshot> _dbSnapshot;
 
-  FsCollectionOperatorWidget({this.query, this.itemBuilder, this.onTap}) {
+  FsCollectionOperatorWidget({this.query, this.itemBuilder, this.onTapItem}) {
     _dbSnapshot = query.snapshots();
     if (itemBuilder == null) {
       itemBuilder = (context, index, docs) => Container(
@@ -106,8 +107,8 @@ class FsCollectionOperatorWidget extends StatelessWidget {
             child: Text(docs[index].id),
           );
     }
-    if (onTap == null) {
-      onTap = (context, index, docs) {
+    if (onTapItem == null) {
+      onTapItem = (context, index, docs) {
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -139,13 +140,14 @@ class FsCollectionOperatorWidget extends StatelessWidget {
               return Container(
                 child: GestureDetector(
                   onTap: () {
-                    onTap(context, index, snapshot.data.docs);
+                    onTapItem(context, index, snapshot.data.docs);
                   },
                   child: Dismissible(
                     key: Key(snapshot.data.docs[index].id),
                     child: itemBuilder(context, index, snapshot.data.docs),
                     onDismissed: (direction) {
-                      query.doc(snapshot.data.docs[index].id).delete();
+                      //query.doc(snapshot.data.docs[index].id).delete();
+                      //snapshot.data.docs[index].delete();
                     },
                   ),
                 ),

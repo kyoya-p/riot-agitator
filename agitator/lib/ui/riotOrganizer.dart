@@ -2,7 +2,6 @@ import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/riotGroupEditor.dart';
 
@@ -51,13 +50,16 @@ class MyHomePage extends StatelessWidget {
       drawer: appDrawer(context),
       body: Center(
         child: FsCollectionOperatorWidget(
-          query: FirebaseFirestore.instance.collection("group"),
-          onTap: (context, index, snapshots) => Navigator.push(
+          query: FirebaseFirestore.instance
+              .collection("group")
+              .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
+          //TODO: use uid
+          onTapItem: (context, index, snapshots) => Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  GroupDeviceList(groupId: snapshots[index].id),
-            ),
+            MaterialPageRoute(builder: (context) {
+              //return GroupDeviceList(groupId: snapshots[index].id);
+              return ClusterInfoAppWidget(clusterId: "G1");
+            }),
           ),
         ),
       ),
@@ -65,18 +67,14 @@ class MyHomePage extends StatelessWidget {
   }
 
   Widget appDrawer(BuildContext context) {
-    var uid=FirebaseAuth.instance.currentUser.uid;
-    CollectionReference devCRef() => FirebaseFirestore.instance
-        .collection("device")
-        .where("operators.${FirebaseAuth.instance.currentUser.uid}", isEqualTo: true);
     return Drawer(
       child: ListView(
         children: [
           DrawerHeader(
-            child: Text('Road to IoT Debugger'),
+            child: Text('Debugger for Admin'),
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
-          collectionTile(context, devCRef()),
+          collectionListTile(context, "device"),
           collectionListTile(context, "user"),
           collectionListTile(context, "group"),
           collectionListTile(context, "devConfig"),
@@ -103,9 +101,9 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget collectionTile(BuildContext context, CollectionReference cRef) {
+  Widget collectionTile(BuildContext context, Query cRef) {
     return ListTile(
-      title: Text("${cRef.path} collection"),
+      title: Text("${cRef} collection"),
       trailing: Icon(Icons.arrow_forward),
       onTap: () {
         Navigator.push(

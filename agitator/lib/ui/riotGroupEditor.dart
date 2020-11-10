@@ -1,73 +1,50 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/deviceOperator.dart';
 
 import 'fsCollectionOperator.dart';
 
-/*
-Group一覧を表示
-タップでグループ編集画面に遷移
-*/
-/*
-class GroupListWidget extends StatelessWidget {
-  Stream<QuerySnapshot> dbSnapshot =
-      FirebaseFirestore.instance.collection("group").snapshots();
+class ClusterInfoAppWidget extends StatelessWidget {
+  String clusterId;
+
+  ClusterInfoAppWidget({this.clusterId});
+
+  TextEditingController textDoc = TextEditingController(text: "Undefined");
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-
-    return StreamBuilder(
-        stream: dbSnapshot,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (w / 160).toInt(),
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
-                childAspectRatio: 2.0),
-            itemCount: snapshot.data.size,
-            itemBuilder: (BuildContext context, int index) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      settings: RouteSettings(
-                          //name: "/gr",
-                          //arguments: snapshot.data.docs[index].id,
-                          ),
-                      builder: (context) => GroupDeviceList(
-                          groupId: snapshot.data.docs[index].id),
-                    ),
-                  );
-                },
-                child: buildCell(context, snapshot.data.docs[index]),
-              );
-            },
-          );
-        });
-  }
-
-  Widget buildCell(BuildContext context, QueryDocumentSnapshot doc) {
-    return Container(
-      decoration: BoxDecoration(
-        //border: Border.all(color: Colors.blue),
-        //borderRadius: BorderRadius.circular(4),
-        color: Theme.of(context).primaryColorLight,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("${clusterId} - Cluster"),
       ),
-      child: Column(
+      body: Column(
         children: [
-          Text(doc.id),
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("group")
+                  .doc(clusterId)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (!snapshot.hasData)
+                  return Center(child: CircularProgressIndicator());
+                textDoc.text =
+                    JsonEncoder.withIndent("  ").convert(snapshot.data.data());
+                return TextField(
+                  controller: textDoc,
+                  maxLines: null,
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
- */
 
 /*
 グループ編集画面
@@ -83,21 +60,20 @@ class GroupDeviceList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("group/${groupId} - Device Registration"),
+          title: Text("${groupId} - Cluster / Devices"),
         ),
         body: Column(
           children: [
             Expanded(
               child: FsCollectionOperatorWidget(
                 query: FirebaseFirestore.instance
-                    .collection("group")
-                    .doc(groupId)
-                    .collection("devices"),
+                    .collection("device")
+                    .where("cluster", isEqualTo: groupId),
                 itemBuilder: (context, index, docs) => Container(
                   color: Theme.of(context).primaryColorLight,
                   child: Text(docs[index].id),
                 ),
-                onTap: (context, index, docs) {
+                onTapItem: (context, index, docs) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -119,9 +95,6 @@ class GroupDeviceList extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                settings: RouteSettings(
-                  name: "/gr",
-                ),
                 builder: (context) => EntryDeviceIdWidget(
                   groupId: groupId,
                 ),
