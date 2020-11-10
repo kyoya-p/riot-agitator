@@ -11,8 +11,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
  */
 
 // ignore: must_be_immutable
+class FsCollectionOperatorAppWidget2 extends StatelessWidget {
+  //String collectionId = "";
+  CollectionReference collectionRef;
+
+  FsCollectionOperatorAppWidget2({this.collectionRef});
+
+  @override
+  Widget build(BuildContext context) {
+//    CollectionReference collectionRef =    FirebaseFirestore.instance.collection(collectionId);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("${collectionRef.path} - Collection"),
+      ),
+      body: FsCollectionOperatorWidget(
+        query: collectionRef,
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.note_add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) =>
+                    SetDocumentAppWidget(collectionRef: collectionRef, docId: null)),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
 class FsCollectionOperatorAppWidget extends StatelessWidget {
   String collectionId = "";
+
+  //CollectionReference cRef;
 
   FsCollectionOperatorAppWidget({this.collectionId});
 
@@ -54,7 +89,8 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
       itemBuilder;
 
-  Function(BuildContext context, int index, List<QueryDocumentSnapshot> snapshots) onTap;
+  Function(BuildContext context, int index,
+      List<QueryDocumentSnapshot> snapshots) onTap;
 
   Stream<QuerySnapshot> _dbSnapshot;
 
@@ -163,7 +199,8 @@ class _SetDocumentAppState extends State<SetDocumentAppWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SetDocumentAppWidget(
-                      collectionRef: collectionRef, docId: setDocWidget.textDocId.text),
+                      collectionRef: collectionRef,
+                      docId: setDocWidget.textDocId.text),
                 ));
             String newDocId = setDocWidget.textDocId.text;
             collectionRef
@@ -219,7 +256,7 @@ class SetDocumentWidget extends StatelessWidget {
           controller: textDocId,
           decoration: InputDecoration(
             icon: Icon(Icons.label),
-            //hintText: '',
+            hintText: 'If empty, the ID will be generated automatically.',
             labelText: 'Document ID',
           ),
         ),
@@ -234,7 +271,7 @@ class SetDocumentWidget extends StatelessWidget {
                 controller: textDocBody,
                 decoration: InputDecoration(
                   icon: Icon(Icons.note_add),
-                  hintText: 'This text must be in JSON format',
+                  hintText: 'This text must be in JSON format.',
                   labelText: 'Document',
                 ),
                 maxLines: null,

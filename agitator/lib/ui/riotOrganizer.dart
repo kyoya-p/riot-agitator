@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/riotGroupEditor.dart';
 
@@ -64,6 +65,10 @@ class MyHomePage extends StatelessWidget {
   }
 
   Widget appDrawer(BuildContext context) {
+    var uid=FirebaseAuth.instance.currentUser.uid;
+    CollectionReference devCRef() => FirebaseFirestore.instance
+        .collection("device")
+        .where("operators.${FirebaseAuth.instance.currentUser.uid}", isEqualTo: true);
     return Drawer(
       child: ListView(
         children: [
@@ -71,7 +76,7 @@ class MyHomePage extends StatelessWidget {
             child: Text('Road to IoT Debugger'),
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
-          collectionListTile(context, "device"),
+          collectionTile(context, devCRef()),
           collectionListTile(context, "user"),
           collectionListTile(context, "group"),
           collectionListTile(context, "devConfig"),
@@ -92,6 +97,23 @@ class MyHomePage extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) =>
                 FsCollectionOperatorAppWidget(collectionId: collectionId),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget collectionTile(BuildContext context, CollectionReference cRef) {
+    return ListTile(
+      title: Text("${cRef.path} collection"),
+      trailing: Icon(Icons.arrow_forward),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FsCollectionOperatorAppWidget2(
+              collectionRef: cRef,
+            ),
           ),
         );
       },

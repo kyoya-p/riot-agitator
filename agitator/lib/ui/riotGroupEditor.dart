@@ -8,6 +8,7 @@ import 'fsCollectionOperator.dart';
 Group一覧を表示
 タップでグループ編集画面に遷移
 */
+/*
 class GroupListWidget extends StatelessWidget {
   Stream<QuerySnapshot> dbSnapshot =
       FirebaseFirestore.instance.collection("group").snapshots();
@@ -65,6 +66,8 @@ class GroupListWidget extends StatelessWidget {
     );
   }
 }
+
+ */
 
 /*
 グループ編集画面
