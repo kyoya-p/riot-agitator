@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotOrganizer.dart';
 import 'package:http/http.dart' as http;
 
-import 'deviceOperator.dart';
+import 'riotAgentMfpMib.dart';
 
 /*
 Firestore認証Widget

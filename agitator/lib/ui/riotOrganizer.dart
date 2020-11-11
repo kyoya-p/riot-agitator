@@ -4,29 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:riotagitator/ui/riotGroupEditor.dart';
+import 'package:riotagitator/ui/riotCluster.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
 
-class MyApp2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Device Clusters',
-      theme: ThemeData(
-        primarySwatch: Colors.amber,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Device Clusters'),
-      routes: <String, WidgetBuilder>{
-        '/home': (BuildContext context) => MyApp(),
-        //'/groupEditor': (BuildContext context) => GroupDeviceList(),
-      },
-    );
-  }
-}
-
+/* Landing page
+  - Authentication Check
+ */
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -38,7 +23,7 @@ class MyApp extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          return MyApp2();
+          return RiotClusterListAppWidget();
         } else {
           return FbLoginPage();
         }
@@ -57,8 +42,33 @@ IconButton loginButton(BuildContext context) => IconButton(
       icon: Icon(Icons.account_circle),
     );
 
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+
+/*
+  Cluster List Page (User Initial Page)
+  - Move to Cluster Manager
+  - Application Menu (Admin menus)
+  - Login page
+ */
+class RiotClusterListAppWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Device Clusters',
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: RiotClusterListWidget(title: 'Device Clusters'),
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => MyApp(),
+        //'/groupEditor': (BuildContext context) => GroupDeviceList(),
+      },
+    );
+  }
+}
+
+class RiotClusterListWidget extends StatelessWidget {
+  RiotClusterListWidget({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
@@ -66,23 +76,23 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: [loginButton(context)],
       ),
       drawer: appDrawer(context),
       body: // Center(
-          //child:
-          FsQueryOperatorWidget(
+      //child:
+      FsQueryOperatorWidget(
         FirebaseFirestore.instance
             .collection("group")
-            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),        //TODO: use uid
+            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
+        //TODO: use uid
         onTapItem: (context, index, snapshots) => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
-            }),
+          context,
+          MaterialPageRoute(builder: (context) {
+            return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
+          }),
+        ),
+        //),
       ),
-      //),
-    ),
     );
   }
 
