@@ -6,11 +6,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 オブジェクト(ドキュメント)操作
 */
 class ObjectOperatorWidget extends StatelessWidget {
-  DocumentReference docRef;
+  final DocumentReference docRef;
 
   ObjectOperatorWidget({this.docRef});
 
-  TextEditingController textController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,6 @@ class ObjectOperatorWidget extends StatelessWidget {
 
           textController.text = //json.encode(snapshot.data.data());
           JsonEncoder.withIndent(" ").convert(snapshot.data.data());
-          String id = snapshot.data.id;
           return Scaffold(
             appBar: AppBar(title: Text("${docRef.path} - Configuration")),
             body: TextField(
@@ -62,7 +61,7 @@ class DeviceOperatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
+    //double w = MediaQuery.of(context).size.width;
 
     return StreamBuilder(
         stream: dbDocSetting,

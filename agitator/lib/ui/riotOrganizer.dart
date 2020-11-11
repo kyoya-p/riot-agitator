@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riotagitator/ui/riotGroupEditor.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
@@ -73,16 +74,15 @@ class MyHomePage extends StatelessWidget {
           FsQueryOperatorWidget(
         FirebaseFirestore.instance
             .collection("group")
-            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
-        //TODO: use uid
-        /*onTapItem: (context, index, snapshots) => Navigator.push(
+            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),        //TODO: use uid
+        onTapItem: (context, index, snapshots) => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) {
-              //return GroupDeviceList(groupId: snapshots[index].id);
               return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
-            }),*/
+            }),
       ),
       //),
+    ),
     );
   }
 

@@ -13,23 +13,54 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: must_be_immutable
 class FsQueryOperatorAppWidget extends StatelessWidget {
   Query query;
-  String title = "Title";
+  String title;
 
-  FsQueryOperatorAppWidget({this.query, this.title});
+  Widget Function(BuildContext context, int index,
+      AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
+
+  Function(BuildContext context, int index,
+          AsyncSnapshot<QuerySnapshot> snapshots) onTapItem =
+      (context, index, snapshots) {};
+
+  Widget Function(BuildContext context) onAddButtonPressed;
+
+  FsQueryOperatorAppWidget(
+    this.query, {
+    this.title = "Title",
+    this.itemBuilder,
+    this.onTapItem,
+    this.onAddButtonPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: FsQueryOperatorWidget(query),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.note_add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => Text("Sample")),
-          );
-        },
+      floatingActionButton: onAddButtonPressed == null
+          ? null
+          : FloatingActionButton(
+              child: Icon(Icons.note_add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: onAddButtonPressed),
+                );
+              },
+            ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Text('Debugger for Admin'),
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            ),
+            ListTile(
+              title: Text(" collection"),
+              trailing: Icon(Icons.arrow_forward),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -102,7 +133,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
         QueryDocumentSnapshot doc = snapshots.data.docs[index];
-        return SetDocumentAppWidget(doc.reference.parent, docId: doc.id);
+        return FsSetDocumentAppWidget(doc.reference.parent, docId: doc.id);
       },
     ));
   }
@@ -133,7 +164,7 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (_) =>
-                    SetDocumentAppWidget(collectionRef, docId: null)),
+                    FsSetDocumentAppWidget(collectionRef, docId: null)),
           );
         },
       ),
@@ -174,7 +205,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => SetDocumentAppWidget(query,
+                builder: (context) => FsSetDocumentAppWidget(query,
                     docId: snapshot.data.docs[index].id)
                 //ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
                 ));
@@ -220,18 +251,21 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   }
 }
 
-class SetDocumentAppWidget extends StatefulWidget {
-  String docId = null;
-  CollectionReference collectionRef;
+class FsSetDocumentAppWidget extends StatefulWidget {
+  final String docId;
+  final CollectionReference collectionRef;
 
-  SetDocumentAppWidget(this.collectionRef, {this.docId});
+  FsSetDocumentAppWidget(this.collectionRef, {this.docId = null});
+
+  FsSetDocumentAppWidget from(DocumentReference dRef) =>
+      FsSetDocumentAppWidget(dRef.parent, docId: dRef.id);
 
   @override
   _SetDocumentAppState createState() =>
       _SetDocumentAppState(collectionRef: collectionRef, docId: docId);
 }
 
-class _SetDocumentAppState extends State<SetDocumentAppWidget> {
+class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
 //class SetDocumentAppWidget extends StatelessWidget {
 
   String docId = null;
@@ -247,7 +281,7 @@ class _SetDocumentAppState extends State<SetDocumentAppWidget> {
     return Scaffold(
       appBar: AppBar(
           title: Text(
-              "Set a document to ${collectionRef.path} / ${docId ?? "()"}")),
+              "Set a document [${docId ?? "()"}] to [${collectionRef.path}] collection")),
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send),
@@ -262,7 +296,7 @@ class _SetDocumentAppState extends State<SetDocumentAppWidget> {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SetDocumentAppWidget(collectionRef,
+                  builder: (context) => FsSetDocumentAppWidget(collectionRef,
                       docId: setDocWidget.textDocId.text),
                 ));
             String newDocId = setDocWidget.textDocId.text;
@@ -326,10 +360,11 @@ class SetDocumentWidget extends StatelessWidget {
         StreamBuilder(
             stream: collectionRef.doc(docId).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-              if (!snapshot.hasData)
+              if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
-              textDocBody.text =
-                  JsonEncoder.withIndent(" ").convert(snapshot.data.data());
+              if (snapshot.hasData)
+                textDocBody.text =
+                    JsonEncoder.withIndent(" ").convert(snapshot.data.data());
               return TextField(
                 controller: textDocBody,
                 decoration: InputDecoration(

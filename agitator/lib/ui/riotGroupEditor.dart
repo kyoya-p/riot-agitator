@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/deviceOperator.dart';
@@ -7,67 +5,26 @@ import 'package:riotagitator/ui/deviceOperator.dart';
 import 'fsCollectionOperator.dart';
 
 /* Cluster管理画面
-   - 登録一覧表示
+   - 登録デバイス一覧表示
    - 新規デバイス登録
 */
 class ClusterAppWidget extends StatelessWidget {
-  String clusterId;
+  final String clusterId;
 
   ClusterAppWidget({this.clusterId});
 
-  TextEditingController textDoc = TextEditingController(text: "Undefined");
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("${clusterId} - Cluster / Devices"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("group")
-                  .doc(clusterId)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (!snapshot.hasData)
-                  return Center(child: CircularProgressIndicator());
-                textDoc.text =
-                    JsonEncoder.withIndent("  ").convert(snapshot.data.data());
-
-                /*
-                デバイス管理画面
-                - 登録内容表示
-                - ログ表示
-                -
-                 */
-                return FsCollectionOperatorWidget(
-                  query: FirebaseFirestore.instance
-                      .collection("device")
-                      .where("cluster", isEqualTo: clusterId),
-                  onTapItem: (context, index, snapshots) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FsCollectionOperatorAppWidget(
-                            collectionId: clusterId),
-                      ),
-                    );
-                  },
-                );
-                return TextField(
-                  //TODO remove
-                  controller: textDoc,
-                  maxLines: null,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+    return FsQueryOperatorAppWidget(
+      FirebaseFirestore.instance
+          .collection("device")
+          .where("cluster", isEqualTo: clusterId),
+      title: "${clusterId} Cluster",
+      onAddButtonPressed: (_) {
+        return FsSetDocumentAppWidget(
+          FirebaseFirestore.instance.collection("device"),
+        );
+      },
     );
   }
 }
@@ -99,7 +56,8 @@ class GroupDeviceList extends StatelessWidget {
                   color: Theme.of(context).primaryColorLight,
                   child: Text(docs[index].id),
                 ),
-                onTapItem: (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
+                onTapItem:
+                    (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
