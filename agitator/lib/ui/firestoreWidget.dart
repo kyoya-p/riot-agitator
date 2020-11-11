@@ -10,12 +10,12 @@ import 'deviceOperator.dart';
 /*
 Firestore認証Widget
 */
-class MyAuthPage extends StatefulWidget {
+class FbLoginPage extends StatefulWidget {
   @override
-  _MyAuthPageState createState() => _MyAuthPageState();
+  _FbLoginPageState createState() => _FbLoginPageState();
 }
 
-class _MyAuthPageState extends State<MyAuthPage> {
+class _FbLoginPageState extends State<FbLoginPage> {
   String loginUserEmail = "";
   String loginUserPassword = "";
   String debugMsg = "";

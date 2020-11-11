@@ -3,12 +3,12 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/riotGroupEditor.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,11 +26,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(title: 'Your App Name', home: _getLandingPage());
+  }
+
+  Widget _getLandingPage() {
+    return StreamBuilder<User>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.hasData) {
+          return MyApp2();
+        } else {
+          return FbLoginPage();
+        }
+      },
+    );
+  }
+}
+
 IconButton loginButton(BuildContext context) => IconButton(
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyAuthPage()),
+          MaterialPageRoute(builder: (context) => FbLoginPage()),
         );
       },
       icon: Icon(Icons.account_circle),
@@ -48,20 +68,21 @@ class MyHomePage extends StatelessWidget {
         actions: [loginButton(context)],
       ),
       drawer: appDrawer(context),
-      body: Center(
-        child: FsQueryOperatorWidget(
-          FirebaseFirestore.instance
-              .collection("group")
-              .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
-          //TODO: use uid
-          /*onTapItem: (context, index, snapshots) => Navigator.push(
+      body: // Center(
+          //child:
+          FsQueryOperatorWidget(
+        FirebaseFirestore.instance
+            .collection("group")
+            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
+        //TODO: use uid
+        /*onTapItem: (context, index, snapshots) => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) {
               //return GroupDeviceList(groupId: snapshots[index].id);
               return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
             }),*/
-        ),
       ),
+      //),
     );
   }
 
