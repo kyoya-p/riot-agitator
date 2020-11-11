@@ -20,6 +20,8 @@ class ClusterAppWidget extends StatelessWidget {
           .collection("device")
           .where("cluster", isEqualTo: clusterId),
       title: "${clusterId} Cluster",
+      itemBuilder: (context, index, snapshots) =>
+          makeCellWidget(context, snapshots.data.docs[index]),
       onAddButtonPressed: (_) {
         return FsSetDocumentAppWidget(
           FirebaseFirestore.instance.collection("device"),
@@ -42,38 +44,38 @@ class GroupDeviceList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("${groupId} - Cluster / Devices"),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: FsCollectionOperatorWidget(
-                query: FirebaseFirestore.instance
-                    .collection("device")
-                    .where("cluster", isEqualTo: groupId),
-                itemBuilder: (context, index, docs) => Container(
-                  color: Theme.of(context).primaryColorLight,
-                  child: Text(docs[index].id),
-                ),
-                onTapItem:
-                    (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ObjectOperatorWidget(
-                        docRef: FirebaseFirestore.instance
-                            .collection("devConfig")
-                            .doc(snapshots.data.docs[index].id),
-                      ),
-                    ),
-                  );
-                },
+      appBar: AppBar(
+        title: Text("${groupId} - Cluster / Devices"),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: FsCollectionOperatorWidget(
+              query: FirebaseFirestore.instance
+                  .collection("device")
+                  .where("cluster", isEqualTo: groupId),
+              itemBuilder: (context, index, docs) => Container(
+                color: Theme.of(context).primaryColorLight,
+                child: Text(docs[index].id),
               ),
+              onTapItem:
+                  (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RiotAgentMfpMibAppWidget(
+                      docRef: FirebaseFirestore.instance
+                          .collection("devConfig")
+                          .doc(snapshots.data.docs[index].id),
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
+          ),
+        ],
+      ),
+/*        floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
             Navigator.push(
@@ -85,7 +87,20 @@ class GroupDeviceList extends StatelessWidget {
               ),
             );
           },
-        ));
+        ),*/
+    );
+  }
+}
+
+Widget makeCellWidget(BuildContext context, QueryDocumentSnapshot snapshot) {
+  String type = snapshot.data()["type"];
+  print(type);
+
+  // TODO: Add-in可能に
+  if (type == RiotAgentMfpMibAppWidget.type) {
+    return RiotAgentMfpMibAppWidget.cellWidget(context, snapshot);
+  } else {
+    return null; //default Widget
   }
 }
 

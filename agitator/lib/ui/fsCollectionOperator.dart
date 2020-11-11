@@ -36,7 +36,8 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: FsQueryOperatorWidget(query),
+      body: FsQueryOperatorWidget(query,
+          itemBuilder: itemBuilder, onTapItem: onTapItem),
       floatingActionButton: onAddButtonPressed == null
           ? null
           : FloatingActionButton(
@@ -48,20 +49,6 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
                 );
               },
             ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              child: Text('Debugger for Admin'),
-              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            ),
-            ListTile(
-              title: Text(" collection"),
-              trailing: Icon(Icons.arrow_forward),
-            )
-          ],
-        ),
-      ),
     );
   }
 }
@@ -87,8 +74,9 @@ class FsQueryOperatorWidget extends StatelessWidget {
 
     return StreamBuilder<QuerySnapshot>(
         stream: query.snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData)
+        builder:
+            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+          if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -96,16 +84,17 @@ class FsQueryOperatorWidget extends StatelessWidget {
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 5,
                 childAspectRatio: 2.0),
-            itemCount: snapshot.data.size,
+            itemCount: snapshots.data.size,
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 child: GestureDetector(
                   onTap: () {
-                    onTapItem(context, index, snapshot);
+                    onTapItem(context, index, snapshots);
                   },
                   child: Dismissible(
-                    key: Key(snapshot.data.docs[index].id),
-                    child: itemBuilder(context, index, snapshot),
+                    key: Key(snapshots.data.docs[index].id),
+                    child: itemBuilder(context, index, snapshots) ??
+                        defaultItemBuilder(context, index, snapshots),
                     onDismissed: (direction) {
                       //query.doc(snapshot.data.docs[index].id).delete();
                       //snapshot.data.docs[index].delete();
@@ -125,7 +114,11 @@ class FsQueryOperatorWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
           color: Theme.of(context).primaryColorLight,
         ),
-        child: Text(snapshots.data.docs[index].id),
+        child: Row(children: [
+          Icon(Icons.text_snippet_outlined),
+          Text(snapshots.data.docs[index].id)
+        ]),
+//        child: Text(snapshots.data.docs[index].id),
       );
 
   Function defaultOnTapItem(
@@ -197,7 +190,10 @@ class FsCollectionOperatorWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               color: Theme.of(context).primaryColorLight,
             ),
-            child: Text(docs[index].id),
+            child: Row(children: [
+              Icon(Icons.text_snippet_outlined),
+              Text(docs[index].id)
+            ]),
           );
     }
     if (onTapItem == null) {

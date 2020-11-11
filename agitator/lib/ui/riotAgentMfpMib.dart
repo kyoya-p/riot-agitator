@@ -2,13 +2,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+abstract class RiotDevice {
+  static String type;
+
+  static Widget cellWidget(QueryDocumentSnapshot snapshot) {}
+}
+
 /*
-オブジェクト(ドキュメント)操作
+Agent操作
 */
-class ObjectOperatorWidget extends StatelessWidget {
+class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDevice {
   final DocumentReference docRef;
 
-  ObjectOperatorWidget({this.docRef});
+  RiotAgentMfpMibAppWidget({this.docRef});
 
   final TextEditingController textController = TextEditingController();
 
@@ -39,6 +45,27 @@ class ObjectOperatorWidget extends StatelessWidget {
             ),
           );
         });
+  }
+
+  @override
+  static final String type = "agent.mfp.mib";
+
+  @override
+  static Widget cellWidget(
+      BuildContext context, QueryDocumentSnapshot snapshot) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Theme.of(context).highlightColor,
+        ),
+        child: Column(children: [
+          Row(
+            children: [
+              Icon(Icons.search),
+              Text("${snapshot.data()["name"] ?? snapshot.id}"),
+            ],
+          )
+        ]));
   }
 }
 
