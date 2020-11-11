@@ -49,18 +49,17 @@ class MyHomePage extends StatelessWidget {
       ),
       drawer: appDrawer(context),
       body: Center(
-        child: FsCollectionOperatorWidget(
-          query: FirebaseFirestore.instance
+        child: FsQueryOperatorWidget(
+          FirebaseFirestore.instance
               .collection("group")
               .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
           //TODO: use uid
-          onTapItem: (context, index, snapshots) => Navigator.push(
+          /*onTapItem: (context, index, snapshots) => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) {
               //return GroupDeviceList(groupId: snapshots[index].id);
-              return ClusterInfoAppWidget(clusterId: "G1");
-            }),
-          ),
+              return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
+            }),*/
         ),
       ),
     );
@@ -95,23 +94,6 @@ class MyHomePage extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) =>
                 FsCollectionOperatorAppWidget(collectionId: collectionId),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget collectionTile(BuildContext context, Query cRef) {
-    return ListTile(
-      title: Text("${cRef} collection"),
-      trailing: Icon(Icons.arrow_forward),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FsCollectionOperatorAppWidget2(
-              collectionRef: cRef,
-            ),
           ),
         );
       },

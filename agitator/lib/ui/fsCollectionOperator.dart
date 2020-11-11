@@ -11,31 +11,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
  */
 
 // ignore: must_be_immutable
-class FsCollectionOperatorAppWidget2 extends StatelessWidget {
-  //String collectionId = "";
-  CollectionReference collectionRef;
+class FsQueryOperatorAppWidget extends StatelessWidget {
+  Query query;
+  String title = "Title";
 
-  FsCollectionOperatorAppWidget2({this.collectionRef});
+  FsQueryOperatorAppWidget({this.query, this.title});
 
   @override
   Widget build(BuildContext context) {
-//    CollectionReference collectionRef =    FirebaseFirestore.instance.collection(collectionId);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${collectionRef.path} - Collection"),
-      ),
-      body: FsCollectionOperatorWidget(
-        query: collectionRef,
-      ),
+      appBar: AppBar(title: Text(title)),
+      body: FsQueryOperatorWidget(query),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.note_add),
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (_) => SetDocumentAppWidget(
-                    collectionRef: collectionRef, docId: null)),
+            MaterialPageRoute(builder: (_) => Text("Sample")),
           );
         },
       ),
@@ -43,11 +35,82 @@ class FsCollectionOperatorAppWidget2 extends StatelessWidget {
   }
 }
 
+class FsQueryOperatorWidget extends StatelessWidget {
+  Query query;
+
+  Widget Function(BuildContext context, int index,
+      AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
+
+  Function(BuildContext context, int index,
+          AsyncSnapshot<QuerySnapshot> snapshots) onTapItem =
+      (context, index, snapshots) {};
+
+  FsQueryOperatorWidget(this.query, {this.itemBuilder, this.onTapItem}) {
+    itemBuilder = itemBuilder ?? defaultItemBuilder;
+    onTapItem = onTapItem ?? defaultOnTapItem;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+
+    return StreamBuilder<QuerySnapshot>(
+        stream: query.snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: (w / 160).toInt(),
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+                childAspectRatio: 2.0),
+            itemCount: snapshot.data.size,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                child: GestureDetector(
+                  onTap: () {
+                    onTapItem(context, index, snapshot);
+                  },
+                  child: Dismissible(
+                    key: Key(snapshot.data.docs[index].id),
+                    child: itemBuilder(context, index, snapshot),
+                    onDismissed: (direction) {
+                      //query.doc(snapshot.data.docs[index].id).delete();
+                      //snapshot.data.docs[index].delete();
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        });
+  }
+
+  Widget defaultItemBuilder(BuildContext context, int index,
+          AsyncSnapshot<QuerySnapshot> snapshots) =>
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Theme.of(context).primaryColorLight,
+        ),
+        child: Text(snapshots.data.docs[index].id),
+      );
+
+  Function defaultOnTapItem(
+      BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) {
+        QueryDocumentSnapshot doc = snapshots.data.docs[index];
+        return SetDocumentAppWidget(doc.reference.parent, docId: doc.id);
+      },
+    ));
+  }
+}
+
 // ignore: must_be_immutable
 class FsCollectionOperatorAppWidget extends StatelessWidget {
   String collectionId = "";
-
-  //CollectionReference cRef;
 
   FsCollectionOperatorAppWidget({this.collectionId});
 
@@ -69,8 +132,8 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => SetDocumentAppWidget(
-                    collectionRef: collectionRef, docId: null)),
+                builder: (_) =>
+                    SetDocumentAppWidget(collectionRef, docId: null)),
           );
         },
       ),
@@ -84,19 +147,18 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
  - DocumentがTapされた時の動作
  */
 class FsCollectionOperatorWidget extends StatelessWidget {
-  //CollectionReference query;
-  Query query;
+  CollectionReference query;
 
   Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
       itemBuilder;
 
   Function(BuildContext context, int index,
-      List<QueryDocumentSnapshot> snapshots) onTapItem;
+      AsyncSnapshot<QuerySnapshot> snapshots) onTapItem;
 
-  Stream<QuerySnapshot> _dbSnapshot;
+  // Stream<QuerySnapshot> _dbSnapshot;
 
   FsCollectionOperatorWidget({this.query, this.itemBuilder, this.onTapItem}) {
-    _dbSnapshot = query.snapshots();
+    //_dbSnapshot = query.snapshots();
     if (itemBuilder == null) {
       itemBuilder = (context, index, docs) => Container(
             decoration: BoxDecoration(
@@ -108,12 +170,12 @@ class FsCollectionOperatorWidget extends StatelessWidget {
           );
     }
     if (onTapItem == null) {
-      onTapItem = (context, index, docs) {
+      onTapItem = (context, index, snapshot) {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => SetDocumentAppWidget(
-                    collectionRef: query, docId: docs[index].id)
+                builder: (context) => SetDocumentAppWidget(query,
+                    docId: snapshot.data.docs[index].id)
                 //ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
                 ));
       };
@@ -125,7 +187,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
     double w = MediaQuery.of(context).size.width;
 
     return StreamBuilder(
-        stream: _dbSnapshot,
+        stream: query.snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
@@ -140,7 +202,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
               return Container(
                 child: GestureDetector(
                   onTap: () {
-                    onTapItem(context, index, snapshot.data.docs);
+                    onTapItem(context, index, snapshot);
                   },
                   child: Dismissible(
                     key: Key(snapshot.data.docs[index].id),
@@ -162,7 +224,7 @@ class SetDocumentAppWidget extends StatefulWidget {
   String docId = null;
   CollectionReference collectionRef;
 
-  SetDocumentAppWidget({@required this.collectionRef, this.docId});
+  SetDocumentAppWidget(this.collectionRef, {this.docId});
 
   @override
   _SetDocumentAppState createState() =>
@@ -200,8 +262,7 @@ class _SetDocumentAppState extends State<SetDocumentAppWidget> {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SetDocumentAppWidget(
-                      collectionRef: collectionRef,
+                  builder: (context) => SetDocumentAppWidget(collectionRef,
                       docId: setDocWidget.textDocId.text),
                 ));
             String newDocId = setDocWidget.textDocId.text;

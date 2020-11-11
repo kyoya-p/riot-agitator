@@ -6,10 +6,14 @@ import 'package:riotagitator/ui/deviceOperator.dart';
 
 import 'fsCollectionOperator.dart';
 
-class ClusterInfoAppWidget extends StatelessWidget {
+/* Cluster管理画面
+   - 登録一覧表示
+   - 新規デバイス登録
+*/
+class ClusterAppWidget extends StatelessWidget {
   String clusterId;
 
-  ClusterInfoAppWidget({this.clusterId});
+  ClusterAppWidget({this.clusterId});
 
   TextEditingController textDoc = TextEditingController(text: "Undefined");
 
@@ -17,7 +21,7 @@ class ClusterInfoAppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${clusterId} - Cluster"),
+        title: Text("${clusterId} - Cluster / Devices"),
       ),
       body: Column(
         children: [
@@ -33,7 +37,29 @@ class ClusterInfoAppWidget extends StatelessWidget {
                   return Center(child: CircularProgressIndicator());
                 textDoc.text =
                     JsonEncoder.withIndent("  ").convert(snapshot.data.data());
+
+                /*
+                デバイス管理画面
+                - 登録内容表示
+                - ログ表示
+                -
+                 */
+                return FsCollectionOperatorWidget(
+                  query: FirebaseFirestore.instance
+                      .collection("device")
+                      .where("cluster", isEqualTo: clusterId),
+                  onTapItem: (context, index, snapshots) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FsCollectionOperatorAppWidget(
+                            collectionId: clusterId),
+                      ),
+                    );
+                  },
+                );
                 return TextField(
+                  //TODO remove
                   controller: textDoc,
                   maxLines: null,
                 );
@@ -73,14 +99,14 @@ class GroupDeviceList extends StatelessWidget {
                   color: Theme.of(context).primaryColorLight,
                   child: Text(docs[index].id),
                 ),
-                onTapItem: (context, index, docs) {
+                onTapItem: (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ObjectOperatorWidget(
                         docRef: FirebaseFirestore.instance
                             .collection("devConfig")
-                            .doc(docs[index].id),
+                            .doc(snapshots.data.docs[index].id),
                       ),
                     ),
                   );
