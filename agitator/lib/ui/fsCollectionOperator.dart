@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 /*
  Firestore Collectionを操作するWidget - AppBar
- - Docuemntの追加/削除
+ - Documentの追加/削除
  - DocumentがTapされた時の動作
  */
 
@@ -36,8 +36,11 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: FsQueryOperatorWidget(query,
-          itemBuilder: itemBuilder, onTapItem: onTapItem),
+      body: FsQueryOperatorWidget(
+        query,
+        itemBuilder: itemBuilder,
+        onTapItem: onTapItem,
+      ),
       floatingActionButton: onAddButtonPressed == null
           ? null
           : FloatingActionButton(
@@ -54,7 +57,7 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
 }
 
 class FsQueryOperatorWidget extends StatelessWidget {
-  Query query;
+  final Query query;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
@@ -80,7 +83,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (w / 160).toInt(),
+                crossAxisCount: w ~/ 160,
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 5,
                 childAspectRatio: 2.0),
@@ -121,7 +124,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
 //        child: Text(snapshots.data.docs[index].id),
       );
 
-  Function defaultOnTapItem(
+  defaultOnTapItem(
       BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
@@ -145,7 +148,7 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${collectionId} - Collection"),
+        title: Text("$collectionId - Collection"),
       ),
       body: FsCollectionOperatorWidget(
         query: collectionRef,
@@ -167,7 +170,7 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
 
 /*
  Firestore Collectionを操作するWidget - コンテンツ部分
- - Docuemntの追加/削除
+ - Documentの追加/削除
  - DocumentがTapされた時の動作
  */
 class FsCollectionOperatorWidget extends StatelessWidget {
@@ -220,7 +223,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (w / 160).toInt(),
+                crossAxisCount: w ~/ 160,
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 5,
                 childAspectRatio: 2.0),
@@ -251,7 +254,7 @@ class FsSetDocumentAppWidget extends StatefulWidget {
   final String docId;
   final CollectionReference collectionRef;
 
-  FsSetDocumentAppWidget(this.collectionRef, {this.docId = null});
+  FsSetDocumentAppWidget(this.collectionRef, {this.docId});
 
   FsSetDocumentAppWidget from(DocumentReference dRef) =>
       FsSetDocumentAppWidget(dRef.parent, docId: dRef.id);
@@ -264,7 +267,7 @@ class FsSetDocumentAppWidget extends StatefulWidget {
 class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
 //class SetDocumentAppWidget extends StatelessWidget {
 
-  String docId = null;
+  String docId;
   CollectionReference collectionRef;
 
   _SetDocumentAppState({@required this.collectionRef, this.docId});
@@ -330,7 +333,7 @@ class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
 }
 
 class SetDocumentWidget extends StatelessWidget {
-  String docId = null;
+  final String docId;
   CollectionReference collectionRef;
 
   Stream<DocumentSnapshot> dbDocSetting;

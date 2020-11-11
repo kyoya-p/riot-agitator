@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-abstract class RiotDevice {
+abstract class RiotDeviceInterface {
   static String type;
 
   static Widget cellWidget(QueryDocumentSnapshot snapshot) {}
@@ -11,12 +11,15 @@ abstract class RiotDevice {
 /*
 Agent操作
 */
-class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDevice {
+class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDeviceInterface {
   final DocumentReference docRef;
 
-  RiotAgentMfpMibAppWidget({this.docRef});
+  RiotAgentMfpMibAppWidget(this.docRef);
 
   final TextEditingController textController = TextEditingController();
+  final TextEditingController name = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final TextEditingController cluster = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDevice {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
 
-          textController.text = //json.encode(snapshot.data.data());
+          textController.text =
               JsonEncoder.withIndent(" ").convert(snapshot.data.data());
           return Scaffold(
             appBar: AppBar(title: Text("${docRef.path} - Configuration")),

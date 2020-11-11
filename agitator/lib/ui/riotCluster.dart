@@ -22,12 +22,43 @@ class ClusterAppWidget extends StatelessWidget {
       title: "${clusterId} Cluster",
       itemBuilder: (context, index, snapshots) =>
           makeCellWidget(context, snapshots.data.docs[index]),
+      onTapItem: (context, index, snapshots) =>
+          navigateToNewDevicePage(context, index, snapshots),
       onAddButtonPressed: (_) {
         return FsSetDocumentAppWidget(
           FirebaseFirestore.instance.collection("device"),
         );
       },
     );
+  }
+
+  navigateToNewDevicePage(
+    BuildContext context,
+    int index,
+    AsyncSnapshot<QuerySnapshot> snapshots,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return makeNewDevicePage(context, index, snapshots);
+        },
+      ),
+    );
+  }
+
+  Widget makeNewDevicePage(
+    BuildContext context,
+    int index,
+    AsyncSnapshot<QuerySnapshot> snapshots,
+  ) {
+    QueryDocumentSnapshot doc = snapshots.data.docs[index];
+    print("AAA:"+doc.data()["type"]); //TODO
+    switch (doc.data()["type"]) {
+      case "agent.mfp.mib":
+        return RiotAgentMfpMibAppWidget(doc.reference);
+    }
+    return null; //default Widget
   }
 }
 
@@ -37,7 +68,7 @@ class ClusterAppWidget extends StatelessWidget {
 - 登録デバイスの削除
 */
 class GroupDeviceList extends StatelessWidget {
-  String groupId;
+  final String groupId;
 
   GroupDeviceList({this.groupId});
 
@@ -64,7 +95,7 @@ class GroupDeviceList extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => RiotAgentMfpMibAppWidget(
-                      docRef: FirebaseFirestore.instance
+                      FirebaseFirestore.instance
                           .collection("devConfig")
                           .doc(snapshots.data.docs[index].id),
                     ),
@@ -109,7 +140,7 @@ Widget makeCellWidget(BuildContext context, QueryDocumentSnapshot snapshot) {
 Agentによるデバイス検索
 */
 class EntryDeviceIdWidget extends StatefulWidget {
-  String groupId;
+  final String groupId;
 
   EntryDeviceIdWidget({this.groupId});
 
