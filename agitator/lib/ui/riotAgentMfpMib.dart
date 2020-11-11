@@ -21,7 +21,7 @@ class ObjectOperatorWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
 
           textController.text = //json.encode(snapshot.data.data());
-          JsonEncoder.withIndent(" ").convert(snapshot.data.data());
+              JsonEncoder.withIndent(" ").convert(snapshot.data.data());
           return Scaffold(
             appBar: AppBar(title: Text("${docRef.path} - Configuration")),
             body: TextField(
@@ -31,8 +31,8 @@ class ObjectOperatorWidget extends StatelessWidget {
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.send),
               onPressed: () {
-                var doc=json.decode(textController.text);
-                doc["time"]=DateTime.now().millisecondsSinceEpoch;
+                var doc = json.decode(textController.text);
+                doc["time"] = DateTime.now().millisecondsSinceEpoch;
                 docRef.set(doc);
                 Navigator.pop(context);
               },
@@ -46,18 +46,17 @@ class ObjectOperatorWidget extends StatelessWidget {
 デバイス操作
 */
 class DeviceOperatorWidget extends StatelessWidget {
-  String deviceId;
+  final Stream<DocumentSnapshot> dbDocSetting;
 
-  Stream<DocumentSnapshot> dbDocSetting;
+  final TextEditingController setting = TextEditingController();
 
-  var setting = TextEditingController();
+  DeviceOperatorWidget(this.dbDocSetting);
 
-  DeviceOperatorWidget({this.deviceId}) {
-    dbDocSetting = FirebaseFirestore.instance
-        .collection("devConfig")
-        .doc(deviceId)
-        .snapshots();
-  }
+  DeviceOperatorWidget from(String deviceId) =>
+      DeviceOperatorWidget(FirebaseFirestore.instance
+          .collection("devConfig")
+          .doc(deviceId)
+          .snapshots());
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +82,7 @@ class DeviceOperatorWidget extends StatelessWidget {
 SNMP Agent検索用コンソール
 */
 class SnmpDiscoveryWidget extends StatelessWidget {
-  String groupId;
+  final String groupId;
 
   SnmpDiscoveryWidget({this.groupId});
 
