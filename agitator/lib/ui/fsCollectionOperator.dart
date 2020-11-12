@@ -396,6 +396,8 @@ class DocumentPageWidget extends StatelessWidget {
         onPressed: () {
           try {
             String newDocId = setDocWidget.textDocId.text;
+            print(newDocId);//TODO
+            print(dRef.parent.doc("G1").path);//TODO
             dRef.parent
                 .doc(newDocId)
                 .set(json.decode(setDocWidget.textDocBody.text))
