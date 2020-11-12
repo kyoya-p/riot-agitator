@@ -15,7 +15,7 @@ import 'fsCollectionOperator.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Your App Name', home: _getLandingPage());
+    return MaterialApp(title: 'RIOT HQ', home: _getLandingPage());
   }
 
   Widget _getLandingPage() {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         if (snapshot.hasData) {
           return RiotClusterListAppWidget();
         } else {
-          return FbLoginPage();
+           return FbLoginPage();
         }
       },
     );
@@ -53,7 +53,7 @@ class RiotClusterListAppWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Device Clusters',
+      title: 'RIOT HQ',
       theme: ThemeData(
         primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,

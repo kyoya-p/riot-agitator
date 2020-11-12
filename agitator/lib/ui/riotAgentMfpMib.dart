@@ -11,7 +11,8 @@ abstract class RiotDeviceInterface {
 /*
 Agent操作
 */
-class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDeviceInterface {
+class RiotAgentMfpMibAppWidget extends StatelessWidget
+    implements RiotDeviceInterface {
   final DocumentReference docRef;
 
   RiotAgentMfpMibAppWidget(this.docRef);
@@ -20,6 +21,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDeviceInte
   final TextEditingController name = TextEditingController();
   final TextEditingController password = TextEditingController();
   final TextEditingController cluster = TextEditingController();
+  final TextEditingController config = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +35,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDeviceInte
               JsonEncoder.withIndent(" ").convert(snapshot.data.data());
           return Scaffold(
             appBar: AppBar(title: Text("${docRef.path} - Configuration")),
-            body: TextField(
-              maxLines: null,
-              controller: textController,
-            ),
+            body: form(context, snapshot),
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.send),
               onPressed: () {
@@ -48,6 +47,34 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget implements RiotDeviceInte
             ),
           );
         });
+  }
+
+  Widget form(BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+    name.text = snapshot.data.data()["name"];
+    password.text = snapshot.data.data()["password"];
+    cluster.text = snapshot.data.data()["cluster"];
+    config.text =
+        JsonEncoder.withIndent("  ").convert(snapshot.data.data()["config"]);
+    return Column(
+      children: [
+        TextField(
+            controller: name,
+            decoration:
+                InputDecoration(labelText: "Name", icon: Icon(Icons.label))),
+        TextField(
+            controller: password,
+            decoration: InputDecoration(
+                labelText: "Password", icon: Icon(Icons.security))),
+        TextField(
+            controller: cluster,
+            decoration: InputDecoration(
+                labelText: "Cluster ID", icon: Icon(Icons.home_filled))),
+        FlatButton(
+          child: Text("Scan area settings"),
+          onPressed: () {},
+        ),
+      ],
+    );
   }
 
   @override
