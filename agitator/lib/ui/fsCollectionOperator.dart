@@ -333,15 +333,15 @@ class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
 }
 
 class SetDocumentWidget extends StatelessWidget {
+  SetDocumentWidget({this.collectionRef, this.docId});
+
   final String docId;
   CollectionReference collectionRef;
 
-  Stream<DocumentSnapshot> dbDocSetting;
+  //Stream<DocumentSnapshot> dbDocSetting;
 
   var textDocId = TextEditingController(text: "");
   var textDocBody = TextEditingController(text: "{}");
-
-  SetDocumentWidget({this.collectionRef, this.docId});
 
   @override
   Widget build(BuildContext context) {
@@ -365,16 +365,111 @@ class SetDocumentWidget extends StatelessWidget {
                 textDocBody.text =
                     JsonEncoder.withIndent(" ").convert(snapshot.data.data());
               return TextField(
+                  controller: textDocBody,
+                  decoration: InputDecoration(
+                      icon: Icon(Icons.edit),
+                      hintText: 'This text must be in JSON format.',
+                      labelText: 'Document'),
+                  maxLines: null);
+            }),
+      ],
+    );
+  }
+}
+
+// Document更新Widget (リアルタイム更新)
+class DocumentPageWidget extends StatelessWidget {
+  DocumentPageWidget(this.dRef, {this.isIdEditable = false});
+
+  DocumentReference dRef;
+  final bool isIdEditable;
+
+  @override
+  Widget build(BuildContext context) {
+    DocumentWidget setDocWidget =
+        DocumentWidget(dRef, isIdEditable: isIdEditable);
+    return Scaffold(
+      appBar: AppBar(title: Text("${dRef.id} Configuration")),
+      body: setDocWidget,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.send),
+        onPressed: () {
+          try {
+            String newDocId = setDocWidget.textDocId.text;
+            dRef.parent
+                .doc(newDocId)
+                .set(json.decode(setDocWidget.textDocBody.text))
+                .then((_) => Navigator.pop(context))
+                .catchError((e) => _showDialog(context, e.message));
+          } catch (ex) {
+            _showDialog(context, ex.toString());
+          }
+        },
+      ),
+    );
+  }
+
+  Future _showDialog(context, String value) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+                title: Text('AlertDialog'),
+                content: Text(value),
+                actions: <Widget>[
+                  new SimpleDialogOption(
+                      child: new Text('Close'),
+                      onPressed: () => Navigator.pop(context)),
+                ]));
+  }
+}
+
+class DocumentWidget extends StatelessWidget {
+  DocumentWidget(this.dRef, {this.isIdEditable = false});
+
+  DocumentReference dRef;
+  final bool isIdEditable;
+
+  var textDocId = TextEditingController(text: "");
+  var textDocBody = TextEditingController(text: "{}");
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          controller: TextEditingController(text: dRef.id),
+          enabled: isIdEditable,
+          decoration: InputDecoration(
+            icon: Icon(Icons.label),
+            hintText: 'If empty, the ID will be generated automatically.',
+            //labelText: 'Document ID',
+          ),
+        ),
+        StreamBuilder(
+            stream: dRef.snapshots(),
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return Center(child: CircularProgressIndicator());
+              if (snapshot.hasData)
+                textDocBody.text =
+                    JsonEncoder.withIndent("  ").convert(snapshot.data.data());
+              return TextField(
                 controller: textDocBody,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.note_add),
+                  icon: Icon(Icons.edit),
                   hintText: 'This text must be in JSON format.',
-                  labelText: 'Document',
+                  //labelText: 'Document'
                 ),
                 maxLines: null,
               );
             }),
       ],
     );
+  }
+
+  commit() {
+    dRef.parent
+        .doc(textDocId.text)
+        .set(JsonDecoder().convert(textDocBody.text));
   }
 }
