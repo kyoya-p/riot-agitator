@@ -26,6 +26,9 @@ flutter devices
 
 Intellijのモジュール定義ファイルは `*.iml` 
 
+# Build
+> flutter build web
+
 # テスト実行
 - CLI
 > flutter run -d chrome
