@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'Common.dart';
+
 /*
  Firestore Collectionを操作するWidget - AppBar
  - Documentの追加/削除
@@ -12,23 +14,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ignore: must_be_immutable
 class FsQueryOperatorAppWidget extends StatelessWidget {
-  FsQueryOperatorAppWidget(
-    this.query, {
-    this.appBar,
-    this.itemBuilder,
-    this.onTapItem,
-    this.onAddButtonPressed,
-  });
+  FsQueryOperatorAppWidget(this.query,
+      {@required this.itemBuilder, this.appBar, this.onAddButtonPressed});
 
   Query query;
   AppBar appBar = AppBar(title: Text("Title"));
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
-
-  Function(BuildContext context, int index,
-          AsyncSnapshot<QuerySnapshot> snapshots) onTapItem =
-      (context, index, snapshots) {};
 
   Widget Function(BuildContext context) onAddButtonPressed;
 
@@ -38,8 +31,8 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
       appBar: appBar,
       body: FsQueryOperatorWidget(
         query,
-        itemBuilder: itemBuilder,
-        onTapItem: onTapItem,
+        itemBuilder: (context, index, snapshots) =>
+            itemBuilder(context, index, snapshots),
       ),
       floatingActionButton: onAddButtonPressed == null
           ? null
@@ -62,14 +55,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
 
-  Function(BuildContext context, int index,
-          AsyncSnapshot<QuerySnapshot> snapshots) onTapItem =
-      (context, index, snapshots) {};
-
-  FsQueryOperatorWidget(this.query, {this.itemBuilder, this.onTapItem}) {
-    itemBuilder = itemBuilder ?? defaultItemBuilder;
-    onTapItem = onTapItem ?? defaultOnTapItem;
-  }
+  FsQueryOperatorWidget(this.query, {@required this.itemBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -90,19 +76,14 @@ class FsQueryOperatorWidget extends StatelessWidget {
               itemCount: snapshots.data.size,
               itemBuilder: (BuildContext context, int index) {
                 return Container(
-                    child: GestureDetector(
-                        onTap: () {
-                          onTapItem(context, index, snapshots);
-                        },
-                        child: Dismissible(
-                            key: Key(snapshots.data.docs[index].id),
-                            child: itemBuilder(context, index, snapshots) ??
-                                defaultItemBuilder(context, index, snapshots),
-                            onDismissed: (direction) {
-                              //query.doc(snapshot.data.docs[index].id).delete();
-                              //snapshot.data.docs[index].delete();
-                              snapshots.data.docs[index].reference.delete();
-                            })));
+                  child: Dismissible(
+                    key: Key(snapshots.data.docs[index].id),
+                    child: itemBuilder(context, index, snapshots),
+//                    child: buildCellWidget(context, snapshots.data.docs[index]),
+                    onDismissed: (_) =>
+                        snapshots.data.docs[index].reference.delete(),
+                  ),
+                );
               });
         });
   }
@@ -126,7 +107,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
         QueryDocumentSnapshot doc = snapshots.data.docs[index];
-        return FsSetDocumentAppWidget(doc.reference.parent, docId: doc.id);
+        return DocumentPageWidget(doc.reference);
       },
     ));
   }
@@ -152,7 +133,7 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (_) =>
-                          FsSetDocumentAppWidget(collectionRef, docId: null)));
+                          DocumentPageWidget(collectionRef.doc(null))));
             }));
   }
 }
@@ -193,8 +174,8 @@ class FsCollectionOperatorWidget extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => FsSetDocumentAppWidget(query,
-                    docId: snapshot.data.docs[index].id)
+                builder: (context) =>
+                    DocumentPageWidget(snapshot.data.docs[index].reference)
                 //ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
                 ));
       };
@@ -219,19 +200,19 @@ class FsCollectionOperatorWidget extends StatelessWidget {
             itemCount: snapshot.data.size,
             itemBuilder: (BuildContext context, int index) {
               return Container(
-                child: GestureDetector(
-                  onTap: () {
-                    onTapItem(context, index, snapshot);
+                //child: GestureDetector(
+                //onTap: () {
+                //  onTapItem(context, index, snapshot);
+                //},
+                child: Dismissible(
+                  key: Key(snapshot.data.docs[index].id),
+                  child: itemBuilder(context, index, snapshot.data.docs),
+                  onDismissed: (direction) {
+                    //query.doc(snapshot.data.docs[index].id).delete();
+                    //snapshot.data.docs[index].delete();
                   },
-                  child: Dismissible(
-                    key: Key(snapshot.data.docs[index].id),
-                    child: itemBuilder(context, index, snapshot.data.docs),
-                    onDismissed: (direction) {
-                      //query.doc(snapshot.data.docs[index].id).delete();
-                      //snapshot.data.docs[index].delete();
-                    },
-                  ),
                 ),
+                //),
               );
             },
           );
@@ -239,6 +220,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   }
 }
 
+/*
 class FsSetDocumentAppWidget extends StatefulWidget {
   final String docId;
   final CollectionReference collectionRef;
@@ -315,6 +297,9 @@ class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
   }
 }
 
+ */
+
+/*
 class SetDocumentWidget extends StatelessWidget {
   SetDocumentWidget({this.collectionRef, this.docId});
 
@@ -347,19 +332,23 @@ class SetDocumentWidget extends StatelessWidget {
               if (snapshot.hasData)
                 textDocBody.text =
                     JsonEncoder.withIndent(" ").convert(snapshot.data.data());
-              return TextField(
-                  controller: textDocBody,
-                  decoration: InputDecoration(
-                      icon: Icon(Icons.edit),
-                      hintText: 'This text must be in JSON format.',
-                      labelText: 'Document'),
-                  maxLines: null);
+              return Expanded(
+                child: TextField(
+                    controller: textDocBody,
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.edit),
+                        hintText: 'This text must be in JSON format.',
+                        labelText: 'Document'),
+                    maxLines: null),
+              );
             }),
       ],
     );
   }
 }
 
+
+ */
 // Document更新Widget (リアルタイム更新)
 class DocumentPageWidget extends StatelessWidget {
   DocumentPageWidget(this.dRef, {this.isIdEditable = false});

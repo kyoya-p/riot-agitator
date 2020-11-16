@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:riotagitator/ui/riotCluster.dart';
 
+import 'Common.dart';
 import 'firestoreWidget.dart';
 import 'fsCollectionOperator.dart';
 
@@ -88,13 +88,16 @@ class RiotClusterListWidget extends StatelessWidget {
         FirebaseFirestore.instance
             .collection("group")
             .where("users.${user.uid}", isEqualTo: true),
-        //TODO: use uid
-        onTapItem: (context, index, snapshots) => Navigator.push(
+        itemBuilder: (context, index, snapshots) =>
+            buildCellWidget(context, snapshots.data.docs[index]),
+        /* onTapItem: (context, index, snapshots) => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
             return ClusterViewerAppWidget(clusterId: snapshots.data.docs[index].id);
           }),
         ),
+
+        */
         //),
       ),
     );
@@ -111,9 +114,6 @@ class RiotClusterListWidget extends StatelessWidget {
           collectionListTile(context, "device"),
           collectionListTile(context, "user"),
           collectionListTile(context, "group"),
-          collectionListTile(context, "devConfig"),
-          collectionListTile(context, "devStatus"),
-          collectionListTile(context, "devLog"),
         ],
       ),
     );

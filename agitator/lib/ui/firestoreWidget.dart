@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotOrganizer.dart';
 import 'package:http/http.dart' as http;
-
-import 'riotAgentMfpMib.dart';
 
 /*
 Firestore認証Widget
@@ -31,7 +28,9 @@ class _FbLoginPageState extends State<FbLoginPage> {
               Container(height: 32),
               TextFormField(
                 decoration: InputDecoration(
-                    labelText: "Login ID (Mail Address / Device ID)"),
+                  labelText: "Login ID ",
+                  hintText: "Mail Address",
+                ),
                 onChanged: (String value) {
                   setState(() {
                     loginUserEmail = value;
@@ -120,8 +119,8 @@ class _FbLoginPageState extends State<FbLoginPage> {
 
   loginAsDevice(String deviceId, String password) async {
     fetchCustomToken();
-
-/*    try {
+    //TODO
+    /*try {
       final FirebaseAuth auth = FirebaseAuth.instance;
       final UserCredential result = await auth.signInWithCustomToken();
       final User user = result.user;
@@ -139,14 +138,13 @@ class _FbLoginPageState extends State<FbLoginPage> {
         debugMsg = "Failed: ${e}";
         print(debugMsg);
       });
-    }*/
+    }
+     */
   }
 
   void fetchCustomToken() async {
-    const url = 'http://shokkaa.0t0.jp/customToken'; //TODO: this is Kawano's private service
-    setState(() {
-      debugMsg = "aaa";
-    });
+    const url =
+        'http://shokkaa.0t0.jp/customToken'; // This is Kawano's private service
 
     http.get(url).then((response) {
       print("Response status: ${response.statusCode}");

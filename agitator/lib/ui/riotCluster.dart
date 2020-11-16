@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/riotAgentMfpMib.dart';
+import 'package:riotagitator/ui/riotMfpPage.dart';
 
+import 'Common.dart';
 import 'fsCollectionOperator.dart';
 
 /* Cluster管理画面
@@ -20,6 +22,8 @@ class ClusterViewerAppWidget extends StatelessWidget {
       FirebaseFirestore.instance
           .collection("device")
           .where("cluster", isEqualTo: clusterId),
+      itemBuilder: (context, index, snapshots) =>
+          buildCellWidget(context, snapshots.data.docs[index]),
       appBar: AppBar(
         title: Text("${clusterId} Cluster Viewer"),
         actions: [
@@ -30,14 +34,12 @@ class ClusterViewerAppWidget extends StatelessWidget {
           )
         ],
       ),
-      itemBuilder: (context, index, snapshots) =>
-          makeCellWidget(context, snapshots.data.docs[index]),
-      onTapItem: (context, index, snapshots) =>
-          pushNewDevicePage(context, index, snapshots),
       onAddButtonPressed: (_) {
-        return FsSetDocumentAppWidget(
-          FirebaseFirestore.instance.collection("device"),
-        );
+        return DocumentPageWidget(
+            FirebaseFirestore.instance.collection("device").doc());
+//        return FsSetDocumentAppWidget(
+//          FirebaseFirestore.instance.collection("device"),
+//        );
       },
     );
   }
@@ -66,87 +68,6 @@ class ClusterViewerAppWidget extends StatelessWidget {
     }
     return null; //default Widget
   }
-}
-
-/*
-グループ編集画面
-- 登録デバイス一覧表示
-- 登録デバイスの削除
-*/
-class GroupDeviceList extends StatelessWidget {
-  final String groupId;
-
-  GroupDeviceList({this.groupId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("${groupId} - Cluster / Devices"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: FsCollectionOperatorWidget(
-              query: FirebaseFirestore.instance
-                  .collection("device")
-                  .where("cluster", isEqualTo: groupId),
-              itemBuilder: (context, index, docs) => Container(
-                color: Theme.of(context).primaryColorLight,
-                child: Text(docs[index].id),
-              ),
-              onTapItem:
-                  (context, index, AsyncSnapshot<QuerySnapshot> snapshots) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RiotAgentMfpMibAppWidget(
-                      FirebaseFirestore.instance
-                          .collection("devConfig")
-                          .doc(snapshots.data.docs[index].id),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-/*        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EntryDeviceIdWidget(
-                  groupId: groupId,
-                ),
-              ),
-            );
-          },
-        ),*/
-    );
-  }
-}
-
-Widget makeCellWidget(BuildContext context, QueryDocumentSnapshot snapshot) {
-  Map<String, dynamic> data = snapshot.data();
-  String type = data["type"];
-  // TODO: Add-in可能に
-  if (type == RiotAgentMfpMibAppWidget.type)
-    return RiotAgentMfpMibAppWidget.cellWidget(context, snapshot);
-  else
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.black12,
-      ),
-      child: Text(
-          data["info"] != null
-              ? (data["info"]["model"]) + "/" + (data["info"]["sn"])
-              : snapshot.id,
-          overflow: TextOverflow.ellipsis),
-    );
 }
 
 /*
