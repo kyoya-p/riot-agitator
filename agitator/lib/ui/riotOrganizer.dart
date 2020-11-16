@@ -23,9 +23,10 @@ class MyApp extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          return RiotClusterListAppWidget();
+          User user = snapshot.data;
+          return RiotClusterListAppWidget(user);
         } else {
-           return FbLoginPage();
+          return FbLoginPage();
         }
       },
     );
@@ -42,7 +43,6 @@ IconButton loginButton(BuildContext context) => IconButton(
       icon: Icon(Icons.account_circle),
     );
 
-
 /*
   Cluster List Page (User Initial Page)
   - Move to Cluster Manager
@@ -50,15 +50,19 @@ IconButton loginButton(BuildContext context) => IconButton(
   - Login page
  */
 class RiotClusterListAppWidget extends StatelessWidget {
+  RiotClusterListAppWidget(User this.user);
+
+  final User user;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.amber,
+        primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotClusterListWidget(title: 'Device Clusters'),
+      home: RiotClusterListWidget(user, title: 'Device Clusters'),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => MyApp(),
         //'/groupEditor': (BuildContext context) => GroupDeviceList(),
@@ -68,27 +72,27 @@ class RiotClusterListAppWidget extends StatelessWidget {
 }
 
 class RiotClusterListWidget extends StatelessWidget {
-  RiotClusterListWidget({Key key, this.title}) : super(key: key);
+  RiotClusterListWidget(this.user, {Key key, this.title}) : super(key: key);
   final String title;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        actions: [loginButton(context)],
       ),
       drawer: appDrawer(context),
-      body: // Center(
-      //child:
-      FsQueryOperatorWidget(
+      body: FsQueryOperatorWidget(
         FirebaseFirestore.instance
             .collection("group")
-            .where("operators.9Xi1QAyPBuQc9vk0INFu4CWzM8n1", isEqualTo: true),
+            .where("users.${user.uid}", isEqualTo: true),
         //TODO: use uid
         onTapItem: (context, index, snapshots) => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return ClusterAppWidget(clusterId: snapshots.data.docs[index].id);
+            return ClusterViewerAppWidget(clusterId: snapshots.data.docs[index].id);
           }),
         ),
         //),

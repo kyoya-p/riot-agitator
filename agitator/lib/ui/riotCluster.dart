@@ -7,11 +7,12 @@ import 'fsCollectionOperator.dart';
 /* Cluster管理画面
    - 登録デバイス一覧表示
    - 新規デバイス登録
+   - Cluster情報の編集
 */
-class ClusterAppWidget extends StatelessWidget {
+class ClusterViewerAppWidget extends StatelessWidget {
   final String clusterId;
 
-  ClusterAppWidget({this.clusterId});
+  ClusterViewerAppWidget({this.clusterId});
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +20,20 @@ class ClusterAppWidget extends StatelessWidget {
       FirebaseFirestore.instance
           .collection("device")
           .where("cluster", isEqualTo: clusterId),
-      title: "${clusterId} Cluster",
+      appBar: AppBar(
+        title: Text("${clusterId} Cluster Viewer"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () => pushDocEditor(context,
+                FirebaseFirestore.instance.collection("group").doc(clusterId)),
+          )
+        ],
+      ),
       itemBuilder: (context, index, snapshots) =>
           makeCellWidget(context, snapshots.data.docs[index]),
       onTapItem: (context, index, snapshots) =>
-          navigateToNewDevicePage(context, index, snapshots),
+          pushNewDevicePage(context, index, snapshots),
       onAddButtonPressed: (_) {
         return FsSetDocumentAppWidget(
           FirebaseFirestore.instance.collection("device"),
@@ -32,11 +42,8 @@ class ClusterAppWidget extends StatelessWidget {
     );
   }
 
-  navigateToNewDevicePage(
-    BuildContext context,
-    int index,
-    AsyncSnapshot<QuerySnapshot> snapshots,
-  ) {
+  pushNewDevicePage(
+      BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -53,7 +60,6 @@ class ClusterAppWidget extends StatelessWidget {
     AsyncSnapshot<QuerySnapshot> snapshots,
   ) {
     QueryDocumentSnapshot doc = snapshots.data.docs[index];
-    print("AAA:"+doc.data()["type"]); //TODO
     switch (doc.data()["type"]) {
       case "agent.mfp.mib":
         return RiotAgentMfpMibAppWidget(doc.reference);
@@ -124,15 +130,23 @@ class GroupDeviceList extends StatelessWidget {
 }
 
 Widget makeCellWidget(BuildContext context, QueryDocumentSnapshot snapshot) {
-  String type = snapshot.data()["type"];
-  print(type);
-
+  Map<String, dynamic> data = snapshot.data();
+  String type = data["type"];
   // TODO: Add-in可能に
-  if (type == RiotAgentMfpMibAppWidget.type) {
+  if (type == RiotAgentMfpMibAppWidget.type)
     return RiotAgentMfpMibAppWidget.cellWidget(context, snapshot);
-  } else {
-    return null; //default Widget
-  }
+  else
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.black12,
+      ),
+      child: Text(
+          data["info"] != null
+              ? (data["info"]["model"]) + "/" + (data["info"]["sn"])
+              : snapshot.id,
+          overflow: TextOverflow.ellipsis),
+    );
 }
 
 /*

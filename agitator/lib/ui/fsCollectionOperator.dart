@@ -12,8 +12,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ignore: must_be_immutable
 class FsQueryOperatorAppWidget extends StatelessWidget {
+  FsQueryOperatorAppWidget(
+    this.query, {
+    this.appBar,
+    this.itemBuilder,
+    this.onTapItem,
+    this.onAddButtonPressed,
+  });
+
   Query query;
-  String title;
+  AppBar appBar = AppBar(title: Text("Title"));
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
@@ -24,18 +32,10 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
 
   Widget Function(BuildContext context) onAddButtonPressed;
 
-  FsQueryOperatorAppWidget(
-    this.query, {
-    this.title = "Title",
-    this.itemBuilder,
-    this.onTapItem,
-    this.onAddButtonPressed,
-  });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: appBar,
       body: FsQueryOperatorWidget(
         query,
         itemBuilder: itemBuilder,
@@ -82,31 +82,28 @@ class FsQueryOperatorWidget extends StatelessWidget {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
           return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: w ~/ 160,
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
-                childAspectRatio: 2.0),
-            itemCount: snapshots.data.size,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                child: GestureDetector(
-                  onTap: () {
-                    onTapItem(context, index, snapshots);
-                  },
-                  child: Dismissible(
-                    key: Key(snapshots.data.docs[index].id),
-                    child: itemBuilder(context, index, snapshots) ??
-                        defaultItemBuilder(context, index, snapshots),
-                    onDismissed: (direction) {
-                      //query.doc(snapshot.data.docs[index].id).delete();
-                      //snapshot.data.docs[index].delete();
-                    },
-                  ),
-                ),
-              );
-            },
-          );
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: w ~/ 160,
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 5,
+                  childAspectRatio: 2.0),
+              itemCount: snapshots.data.size,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                    child: GestureDetector(
+                        onTap: () {
+                          onTapItem(context, index, snapshots);
+                        },
+                        child: Dismissible(
+                            key: Key(snapshots.data.docs[index].id),
+                            child: itemBuilder(context, index, snapshots) ??
+                                defaultItemBuilder(context, index, snapshots),
+                            onDismissed: (direction) {
+                              //query.doc(snapshot.data.docs[index].id).delete();
+                              //snapshot.data.docs[index].delete();
+                              snapshots.data.docs[index].reference.delete();
+                            })));
+              });
         });
   }
 
@@ -145,26 +142,18 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     CollectionReference collectionRef =
         FirebaseFirestore.instance.collection(collectionId);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text("$collectionId - Collection"),
-      ),
-      body: FsCollectionOperatorWidget(
-        query: collectionRef,
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.note_add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) =>
-                    FsSetDocumentAppWidget(collectionRef, docId: null)),
-          );
-        },
-      ),
-    );
+        appBar: AppBar(title: Text("$collectionId - Collection")),
+        body: FsCollectionOperatorWidget(query: collectionRef),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.note_add),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          FsSetDocumentAppWidget(collectionRef, docId: null)));
+            }));
   }
 }
 
@@ -286,12 +275,6 @@ class _SetDocumentAppState extends State<FsSetDocumentAppWidget> {
         child: Icon(Icons.send),
         onPressed: () {
           try {
-            /*setState(() {
-              _duration = Duration(milliseconds: 300);
-              jump = context.size.height ;
-            });
-
-             */
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -395,12 +378,8 @@ class DocumentPageWidget extends StatelessWidget {
         child: Icon(Icons.send),
         onPressed: () {
           try {
-            String newDocId = setDocWidget.textDocId.text;
-            print(newDocId);//TODO
-            print(dRef.parent.doc("G1").path);//TODO
-            dRef.parent
-                .doc(newDocId)
-                .set(json.decode(setDocWidget.textDocBody.text))
+            setDocWidget
+                .commit()
                 .then((_) => Navigator.pop(context))
                 .catchError((e) => _showDialog(context, e.message));
           } catch (ex) {
@@ -425,6 +404,11 @@ class DocumentPageWidget extends StatelessWidget {
   }
 }
 
+pushDocEditor(BuildContext context, DocumentReference docRef) => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => DocumentPageWidget(docRef)),
+    );
+
 class DocumentWidget extends StatelessWidget {
   DocumentWidget(this.dRef, {this.isIdEditable = false});
 
@@ -439,7 +423,7 @@ class DocumentWidget extends StatelessWidget {
     return Column(
       children: [
         TextField(
-          controller: TextEditingController(text: dRef.id),
+          controller: textDocId..text = dRef.id,
           enabled: isIdEditable,
           decoration: InputDecoration(
             icon: Icon(Icons.label),
@@ -469,8 +453,8 @@ class DocumentWidget extends StatelessWidget {
     );
   }
 
-  commit() {
-    dRef.parent
+  Future<void> commit() {
+    return dRef.parent
         .doc(textDocId.text)
         .set(JsonDecoder().convert(textDocBody.text));
   }

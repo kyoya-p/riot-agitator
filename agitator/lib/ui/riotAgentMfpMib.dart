@@ -32,7 +32,6 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
     Tab(icon: Icon(Icons.settings), text: "Device"),
     Tab(icon: Icon(Icons.search), text: "Scan"),
     Tab(icon: Icon(Icons.access_time), text: "Schedule"),
-    Tab(icon: Icon(Icons.text_snippet_rounded), text: "By Text"),
   ];
 
   @override
@@ -52,14 +51,13 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
                     actions: [
                       IconButton(
                           icon: Icon(Icons.edit),
-                          onPressed: () => navigateToDocEditor(context))
+                          onPressed: () => pushDocEditor(context, docRef))
                     ],
                     bottom: TabBar(tabs: _tabs)),
                 body: TabBarView(children: <Widget>[
                   deviceSettings(context, snapshot),
                   scanSettingsTable(context, snapshot),
-                  scanSettingsTable(context, snapshot),
-                  SingleChildScrollView(child: DocumentWidget(docRef)),
+                  Center(child: Text("Under Construction...")),
                 ]),
                 //body: form(context, snapshot),
                 floatingActionButton: FloatingActionButton(
@@ -75,9 +73,6 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
             }));
   }
 
-  navigateToDocEditor(BuildContext context) => Navigator.push(
-      context, MaterialPageRoute(builder: (_) => DocumentPageWidget(docRef)));
-
   Widget deviceSettings(
       BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
     name.text = snapshot.data.data()["name"];
@@ -85,6 +80,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
     cluster.text = snapshot.data.data()["cluster"];
     config.text =
         JsonEncoder.withIndent("  ").convert(snapshot.data.data()["config"]);
+
     return Column(
       children: [
         TextField(
@@ -138,7 +134,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
   }
 
   @override
-  static final String type = "agent.mfp.mib";
+  static const String type = "agent.mfp.mib";
 
   @override
   static Widget cellWidget(
@@ -146,7 +142,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
     return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: Theme.of(context).highlightColor,
+          color: Colors.blue[100],
         ),
         child: Column(children: [
           Row(
@@ -154,44 +150,25 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget
               Icon(Icons.search),
               Text("${snapshot.data()["name"] ?? snapshot.id}"),
             ],
+          ),
+          Row(
+            children: [
+              IconButton(
+                  icon: Icon(Icons.play_circle_outline),
+                  onPressed: () => update(snapshot)),
+              IconButton(icon: Icon(Icons.list), onPressed: () => null)
+            ],
           )
         ]));
   }
-}
 
-/*
-デバイス操作
-*/
-class DeviceOperatorWidget extends StatelessWidget {
-  final Stream<DocumentSnapshot> dbDocSetting;
-
-  final TextEditingController setting = TextEditingController();
-
-  DeviceOperatorWidget(this.dbDocSetting);
-
-  DeviceOperatorWidget from(String deviceId) =>
-      DeviceOperatorWidget(FirebaseFirestore.instance
-          .collection("devConfig")
-          .doc(deviceId)
-          .snapshots());
-
-  @override
-  Widget build(BuildContext context) {
-    //double w = MediaQuery.of(context).size.width;
-
-    return StreamBuilder(
-        stream: dbDocSetting,
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          setting.text = snapshot.data.data().toString();
-          return TextField(
-            controller: setting,
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
-          );
-        });
+  static update(QueryDocumentSnapshot snapshot) {
+    snapshot.reference.get().then((snapshot) {
+      print(snapshot.data());
+      dynamic data = snapshot.data();
+      data["time"] = DateTime.now().millisecondsSinceEpoch;
+      snapshot.reference.set(data);
+    });
   }
 }
 
