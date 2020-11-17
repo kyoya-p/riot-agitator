@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'Common.dart';
 import 'fsCollectionOperator.dart';
 
 /*
@@ -20,9 +19,6 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
   final TextEditingController config = TextEditingController();
 
   final _tabs = <Tab>[
-    //Tab(child: Row(children: [Icon(Icons.settings), Text("Device")])),
-    //Tab(child: Row(children: [Icon(Icons.search), Text("Scan")])),
-    //Tab(child: Row(children: [Icon(Icons.text_snippet_rounded), Text("Text")])),
     Tab(icon: Icon(Icons.settings), text: "Device"),
     Tab(icon: Icon(Icons.search), text: "Scan"),
     Tab(icon: Icon(Icons.access_time), text: "Schedule"),
@@ -131,42 +127,33 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
 
   static Widget makeCellWidget(
       BuildContext context, QueryDocumentSnapshot snapshot) {
-    print("RiotAgentMfpMibAppWidget.makeCellWidget"); //TODO
-    return Container(
+    return GestureDetector(
+      child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: Colors.blue[100],
         ),
-        child: GestureDetector(
-            child: Column(
+        child: Column(
+          children: [
+            Row(children: [Icon(Icons.search), Text("${snapshot.id}")]),
+            Row(
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.search),
-                    Text("${snapshot.data()["name"] ?? snapshot.id}"),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                        icon: Icon(Icons.play_circle_outline),
-                        onPressed: () => update(snapshot)),
-                    IconButton(icon: Icon(Icons.list), onPressed: () => null)
-                  ],
-                ),
+                IconButton(
+                    icon: Icon(Icons.play_circle_outline),
+                    onPressed: () => update(snapshot)),
+                IconButton(icon: Icon(Icons.list), onPressed: () => null)
               ],
             ),
-            onTap: () {
-              print("xxxxxxxxxxxxxxxxxxxxxxx:");
-            }
-            /*=> Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RiotAgentMfpMibAppWidget(snapshot.reference),
-              )),
-
-           */
-            ));
+          ],
+        ),
+      ),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RiotAgentMfpMibAppWidget(snapshot.reference),
+        ),
+      ),
+    );
   }
 
   static update(QueryDocumentSnapshot snapshot) {

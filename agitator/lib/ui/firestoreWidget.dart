@@ -65,7 +65,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             settings: const RouteSettings(name: "/home"),
-                            builder: (context) => MyApp(),
+                            builder: (context) => FirebaseSignInWidget(),
                           ),
                         );
                       } catch (e) {
@@ -106,7 +106,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           //settings: const RouteSettings(name: "/home"),
-          builder: (context) => MyApp(),
+          builder: (context) => FirebaseSignInWidget(),
         ),
       );
     } catch (e) {

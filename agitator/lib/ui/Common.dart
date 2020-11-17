@@ -7,7 +7,6 @@ Widget buildCellWidget(BuildContext context, QueryDocumentSnapshot snapshot) {
   Map<String, dynamic> data = snapshot.data();
   String type = data["type"];
   if (type == RiotAgentMfpMibAppWidget.type) {
-    print("uuuuuu:$type"); // TODO
     return RiotAgentMfpMibAppWidget.makeCellWidget(context, snapshot);
   } else
     return Container(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/riotAgentMfpMib.dart';
-import 'package:riotagitator/ui/riotMfpPage.dart';
+//import 'package:riotagitator/ui/riotAgentMfpMib.dart';
 
 import 'Common.dart';
 import 'fsCollectionOperator.dart';
@@ -14,7 +13,7 @@ import 'fsCollectionOperator.dart';
 class ClusterViewerAppWidget extends StatelessWidget {
   final String clusterId;
 
-  ClusterViewerAppWidget({this.clusterId});
+  ClusterViewerAppWidget({@required this.clusterId});
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +36,11 @@ class ClusterViewerAppWidget extends StatelessWidget {
       onAddButtonPressed: (_) {
         return DocumentPageWidget(
             FirebaseFirestore.instance.collection("device").doc());
-//        return FsSetDocumentAppWidget(
-//          FirebaseFirestore.instance.collection("device"),
-//        );
       },
     );
   }
 
-  pushNewDevicePage(
+  /*pushNewDevicePage(
       BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
     Navigator.push(
       context,
@@ -56,6 +52,8 @@ class ClusterViewerAppWidget extends StatelessWidget {
     );
   }
 
+   */
+/*
   Widget makeNewDevicePage(
     BuildContext context,
     int index,
@@ -68,12 +66,15 @@ class ClusterViewerAppWidget extends StatelessWidget {
     }
     return null; //default Widget
   }
+
+ */
 }
 
 /*
 登録デバイスの追加
 Agentによるデバイス検索
 */
+/*
 class EntryDeviceIdWidget extends StatefulWidget {
   final String groupId;
 
@@ -141,3 +142,5 @@ class EntryDeviceIdState extends State<EntryDeviceIdWidget> {
     );
   }
 }
+
+ */

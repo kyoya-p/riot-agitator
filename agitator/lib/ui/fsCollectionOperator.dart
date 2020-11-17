@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'Common.dart';
-
 /*
  Firestore Collectionを操作するWidget - AppBar
  - Documentの追加/削除
@@ -79,7 +77,6 @@ class FsQueryOperatorWidget extends StatelessWidget {
                   child: Dismissible(
                     key: Key(snapshots.data.docs[index].id),
                     child: itemBuilder(context, index, snapshots),
-//                    child: buildCellWidget(context, snapshots.data.docs[index]),
                     onDismissed: (_) =>
                         snapshots.data.docs[index].reference.delete(),
                   ),
