@@ -4,43 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotCluster.dart';
-import 'package:riotagitator/ui/riotOrganizer2.dart';
-import 'firestoreWidget.dart';
+import 'package:riotagitator/ui/riotOrganizer.dart';
 import 'fsCollectionOperator.dart';
-
-/* Landing page
-  - Authentication Check
- */
-class FirebaseSignInWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(title: 'RIOT Sign In', home: _getLandingPage());
-  }
-
-  Widget _getLandingPage() {
-    return StreamBuilder<User>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, snapshot) {
-        if (snapshot.hasData) {
-          User user = snapshot.data;
-          return RiotClusterListAppWidget2(user);
-        } else {
-          return FbLoginPage();
-        }
-      },
-    );
-  }
-}
-
-IconButton loginButton(BuildContext context) => IconButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FbLoginPage()),
-        );
-      },
-      icon: Icon(Icons.account_circle),
-    );
 
 /*
   Cluster List Page (User Initial Page)
@@ -48,8 +13,8 @@ IconButton loginButton(BuildContext context) => IconButton(
   - Application Menu (Admin menus)
   - Login page
  */
-class RiotClusterListAppWidget extends StatelessWidget {
-  RiotClusterListAppWidget(User this.user);
+class RiotClusterListAppWidget2 extends StatelessWidget {
+  RiotClusterListAppWidget2(User this.user);
 
   final User user;
 
@@ -61,7 +26,7 @@ class RiotClusterListAppWidget extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotClusterListWidget(user, title: 'Device Clusters'),
+      home: RiotClusterListWidget2(user, ["G1","G2"], title: 'Device Clusters'),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => FirebaseSignInWidget(),
       },
@@ -69,16 +34,17 @@ class RiotClusterListAppWidget extends StatelessWidget {
   }
 }
 
-class RiotClusterListWidget extends StatelessWidget {
-  RiotClusterListWidget(this.user, {Key key, this.title}) : super(key: key);
+class RiotClusterListWidget2 extends StatelessWidget {
+  RiotClusterListWidget2(User this.user, List<String> this.clusterList,
+      {Key key, this.title})
+      : super(key: key);
   final String title;
   final User user;
+  List<String> clusterList;
 
   @override
   Widget build(BuildContext context) {
-    Query qryMyOrgs = FirebaseFirestore.instance
-        .collection("group")
-        .where("users.${user.uid}", isEqualTo: true);
+    double w = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,16 +52,38 @@ class RiotClusterListWidget extends StatelessWidget {
         actions: [loginButton(context)],
       ),
       drawer: appDrawer(context),
-      body: FsQueryOperatorWidget(
-        qryMyOrgs,
-        itemBuilder: (context, index, snapshots) =>
-            buildCellWidget(snapshots, index, context),
+      body: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: w ~/ 160,
+            mainAxisSpacing: 5,
+            crossAxisSpacing: 5,
+            childAspectRatio: 2.0),
+        itemCount: clusterList.length,
+        itemBuilder: (context, index) => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.black12,
+          ),
+          child: GestureDetector(
+            child: Text(index.toString(), overflow: TextOverflow.ellipsis),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ClusterViewerAppWidget(clusterId: clusterList[index]),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Container buildCellWidget(
-      AsyncSnapshot<QuerySnapshot> snapshots, int index, BuildContext context) {
+    BuildContext context,
+    AsyncSnapshot<QuerySnapshot> snapshots,
+    int index,
+  ) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),

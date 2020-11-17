@@ -65,6 +65,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
+
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: w ~/ 160,
