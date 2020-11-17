@@ -26,7 +26,8 @@ class RiotClusterListAppWidget2 extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotClusterListWidget2(user, ["G1","G2"], title: 'Device Clusters'),
+      home: RiotClusterListWidget2(user,
+          parentCluster: null, title: 'Device Clusters'),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => FirebaseSignInWidget(),
       },
@@ -35,55 +36,113 @@ class RiotClusterListAppWidget2 extends StatelessWidget {
 }
 
 class RiotClusterListWidget2 extends StatelessWidget {
-  RiotClusterListWidget2(User this.user, List<String> this.clusterList,
-      {Key key, this.title})
+  RiotClusterListWidget2(User this.user,
+      {String this.parentCluster, Key key, this.title})
       : super(key: key);
   final String title;
   final User user;
-  List<String> clusterList;
+  final String parentCluster;
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
+    Query queryMyClusters = FirebaseFirestore.instance
+        .collection("group")
+        .where("users.${user.uid}", isEqualTo: true);
+    Query query = (parentCluster == null)
+        ? queryMyClusters
+        : queryMyClusters.where("parent", isEqualTo: parentCluster);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [loginButton(context)],
-      ),
-      drawer: appDrawer(context),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: w ~/ 160,
-            mainAxisSpacing: 5,
-            crossAxisSpacing: 5,
-            childAspectRatio: 2.0),
-        itemCount: clusterList.length,
-        itemBuilder: (context, index) => Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: Colors.black12,
+    double w = MediaQuery
+        .of(context)
+        .size
+        .width;
+    return StreamBuilder<QuerySnapshot>(
+      stream: query.snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData)
+          return Center(child: CircularProgressIndicator());
+
+        Map<String, QueryDocumentSnapshot> myCls = Map.fromIterable(
+          snapshot.data.docs,
+          key: (e) => e.id,
+          value: (e) => e,
+        );
+//        myCls.forEach((key, value) => print(
+//            key + ":" + JsonEncoder.withIndent("  ").convert(value.data())));
+        List<MapEntry<String, QueryDocumentSnapshot>> primaryCls =
+        (parentCluster == null)
+            ? myCls.entries
+            .where((e) => !myCls.containsKey(e.value.data()["parent"]))
+            .toList()
+            : myCls.entries.toList();
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            actions: [loginButton(context)],
           ),
-          child: GestureDetector(
-            child: Text(index.toString(), overflow: TextOverflow.ellipsis),
-            onTap: () => Navigator.push(
+          drawer: appDrawer(context),
+          body: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: w ~/ 400,
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+                childAspectRatio: 2.0),
+            itemCount: primaryCls.length,
+            itemBuilder: (context, index) =>
+                buildCellWidget(primaryCls, index, context),
+          ),
+        );
+      },
+    );
+  }
+
+  List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(
+      List<MapEntry<String, QueryDocumentSnapshot>> set, String parentId) =>
+      set.where((e) => e.value.data()["parent"] == parentId);
+
+  Container buildCellWidget(
+      List<MapEntry<String, QueryDocumentSnapshot>> primaryCls,
+      int index,
+      BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.brown[100],
+      ),
+      child: GestureDetector(
+        child: Column(
+          children: [
+            Row(children: [
+              Text(primaryCls[index].value.id,
+                  textAlign: TextAlign.left, overflow: TextOverflow.ellipsis)
+            ]),
+            Row(
+              children: [
+                Padding(padding: EdgeInsets.all(10.0)),
+                Column(
+                  children:selectChildren(primaryCls,"").map((e) => Text(e.key)).toList(),
+                )
+              ],
+            )
+          ],
+        ),
+        onTap: () =>
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    ClusterViewerAppWidget(clusterId: clusterList[index]),
+                    ClusterViewerAppWidget(
+                        clusterId: primaryCls[index].value.id),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
 
-  Container buildCellWidget(
-    BuildContext context,
-    AsyncSnapshot<QuerySnapshot> snapshots,
-    int index,
-  ) {
+  Container buildCellWidgetXX(BuildContext context,
+      AsyncSnapshot<QuerySnapshot> snapshots,
+      int index,) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
@@ -92,13 +151,15 @@ class RiotClusterListWidget2 extends StatelessWidget {
       child: GestureDetector(
         child: Text(snapshots.data.docs[index].id,
             overflow: TextOverflow.ellipsis),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ClusterViewerAppWidget(
-                clusterId: snapshots.data.docs[index].id),
-          ),
-        ),
+        onTap: () =>
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ClusterViewerAppWidget(
+                        clusterId: snapshots.data.docs[index].id),
+              ),
+            ),
       ),
     );
   }
@@ -109,7 +170,9 @@ class RiotClusterListWidget2 extends StatelessWidget {
         children: [
           DrawerHeader(
             child: Text('Debugger for Admin'),
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            decoration: BoxDecoration(color: Theme
+                .of(context)
+                .primaryColor),
           ),
           collectionListTile(context, "device"),
           collectionListTile(context, "user"),
