@@ -23,7 +23,7 @@ class FirebaseSignInWidget extends StatelessWidget {
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           User user = snapshot.data;
-          return RiotClusterListAppWidget2(user);
+          return RiotClusterListApp(user);
         } else {
           return FbLoginPage();
         }
