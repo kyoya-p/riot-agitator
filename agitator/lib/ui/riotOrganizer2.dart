@@ -23,11 +23,10 @@ class RiotClusterListApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Colors.yellow,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotClusterListPage(user,
-          parentCluster: null, title: 'Device Clusters'),
+      home: RiotClusterListPage(user: user, title: 'Device Clusters'),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => FirebaseSignInWidget(),
       },
@@ -36,25 +35,23 @@ class RiotClusterListApp extends StatelessWidget {
 }
 
 class RiotClusterListPage extends StatelessWidget {
-  RiotClusterListPage(User this.user,
-      {String this.parentCluster, Key key, this.title})
-      : super(key: key);
+  RiotClusterListPage({@required this.user, this.title = ""});
+
   final String title;
   final User user;
-  final String parentCluster;
 
   @override
   Widget build(BuildContext context) {
     Query queryMyClusters = FirebaseFirestore.instance
         .collection("group")
-        .where("users.${user.uid}", isEqualTo: true);
-    Query query = (parentCluster == null)
-        ? queryMyClusters
-        : queryMyClusters.where("parent", isEqualTo: parentCluster);
+        .where("users.${user.uid}", isEqualTo: true); // 自身が管轄するすべてのgroup
+    Query query = queryMyClusters;
 
     // double w = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("Clusters View"),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: query.snapshots(),
         builder: (context, snapshot) {
@@ -68,7 +65,7 @@ class RiotClusterListPage extends StatelessWidget {
           );
           List<MapEntry<String, QueryDocumentSnapshot>> myClsEntries =
               myCls.entries.toList();
-          return GroupCellWidget(affiliatedGrs: myClsEntries);
+          return GroupCellListWidget(user: user, groups: myClsEntries);
         },
       ),
     );
@@ -164,64 +161,69 @@ class RiotClusterListPage extends StatelessWidget {
   }
 }
 
-class GroupCellWidget extends StatelessWidget {
-  GroupCellWidget({@required this.affiliatedGrs, this.parentGr});
+class GroupCellListWidget extends StatelessWidget {
+  GroupCellListWidget({@required this.user, @required this.groups});
 
-  String parentGr;
-  List<MapEntry<String, QueryDocumentSnapshot>> affiliatedGrs;
+  final User user;
+  final List<MapEntry<String, QueryDocumentSnapshot>> groups;
 
   @override
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: w .toInt(), //w ~/ 260,
+          crossAxisCount: w ~/ 260,
           mainAxisSpacing: 5,
           crossAxisSpacing: 5,
           childAspectRatio: 2.0),
-      itemCount: affiliatedGrs?.length ?? 0,
+      itemCount: groups.length,
+      //itemBuilder: (context, index) => buildCellWidget(groups, index, context),
       itemBuilder: (context, index) =>
-          buildCellWidget(affiliatedGrs, index, context),
+          buildCellContents(user, groups[index].value),
     );
   }
 
   Container buildCellWidget(
-      List<MapEntry<String, QueryDocumentSnapshot>> primaryCls,
-      int index,
-      BuildContext context) {
+      User user, QueryDocumentSnapshot group, BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         color: Colors.brown[100],
       ),
       child: GestureDetector(
-        child: Column(
-          children: [
-            Row(children: [
-              Text(primaryCls[index].value.id,
-                  textAlign: TextAlign.left, overflow: TextOverflow.ellipsis)
-            ]),
-            Row(
-              children: [
-                Padding(padding: EdgeInsets.all(10.0)),
-                Column(
-                  children: selectChildren(primaryCls, "")
-                      .map((e) => Text(e.key))
-                      .toList(),
-                )
-              ],
-            )
-          ],
-        ),
+        child: buildCellContents(user, group),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ClusterViewerAppWidget(clusterId: primaryCls[index].value.id),
+            builder: (context) => ClusterViewerAppWidget(clusterId: group.id),
           ),
         ),
       ),
     );
+  }
+
+  Column buildCellContents(
+      @required User user, @required QueryDocumentSnapshot group) {
+    return Column(children: [
+      Row(children: [
+        Text(group.id,
+            textAlign: TextAlign.left, overflow: TextOverflow.ellipsis)
+      ]),
+      Padding(
+        padding: EdgeInsets.only(left: 10.0),
+        child: StreamBuilder(
+            stream: group.reference.firestore
+                .collection("group")
+                .where("users.${user.uid}", isEqualTo: true)
+                .where("parent", isEqualTo: group.id)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+              return Text("XXX");
+            }),
+      ),
+    ]);
   }
 
   List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(

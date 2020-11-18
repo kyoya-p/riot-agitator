@@ -21,7 +21,7 @@ class FirebaseSignInWidget extends StatelessWidget {
     return StreamBuilder<User>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data != null) {
           User user = snapshot.data;
           return RiotClusterListApp(user);
         } else {
