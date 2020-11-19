@@ -45,7 +45,6 @@ class RiotClusterListPage extends StatelessWidget {
     Query queryMyClusters = FirebaseFirestore.instance
         .collection("group")
         .where("users.${user.uid}", isEqualTo: true); // 自身が管轄するすべてのgroup
-    Query query = queryMyClusters;
 
     // double w = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -53,25 +52,30 @@ class RiotClusterListPage extends StatelessWidget {
         title: Text("Clusters View"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: query.snapshots(),
+        stream: queryMyClusters.snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
 
-          Map<String, QueryDocumentSnapshot> myCls = Map.fromIterable(
+          // 自分の属する全グループ
+          Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
             snapshot.data.docs,
             key: (e) => e.id,
             value: (e) => e,
           );
-          List<MapEntry<String, QueryDocumentSnapshot>> myClsEntries =
-              myCls.entries.toList();
-          return GroupCellListWidget(user: user, groups: myClsEntries);
+          // 自分の属する全グループのうち最上位のグループ
+          Map<String, QueryDocumentSnapshot> myTopGrs = Map.fromIterable(
+              myGrs.entries
+                  .where((e) => !myGrs.containsKey(e.value.data()["parent"])),
+              key: (e) => e.key,
+              value: (e) => e.value);
+          return GroupListWidget(user: user, myGrs: myGrs, listGrs: myTopGrs);
         },
       ),
     );
   }
 
-  GridView buildGridView(
+/*  GridView buildGridView(
       double w, List<MapEntry<String, QueryDocumentSnapshot>> primaryCls) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -84,8 +88,8 @@ class RiotClusterListPage extends StatelessWidget {
           buildCellWidget(primaryCls, index, context),
     );
   }
-
-  List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(
+*/
+/*  List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(
           List<MapEntry<String, QueryDocumentSnapshot>> set, String parentId) =>
       set.where((e) => e.value.data()["parent"] == parentId).toList();
 
@@ -127,7 +131,7 @@ class RiotClusterListPage extends StatelessWidget {
       ),
     );
   }
-
+*/
   Widget appDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -161,73 +165,72 @@ class RiotClusterListPage extends StatelessWidget {
   }
 }
 
-class GroupCellListWidget extends StatelessWidget {
-  GroupCellListWidget({@required this.user, @required this.groups});
+class GroupListWidget extends StatelessWidget {
+  GroupListWidget(
+      {@required this.user, @required this.myGrs, @required this.listGrs});
 
   final User user;
-  final List<MapEntry<String, QueryDocumentSnapshot>> groups;
+  final Map<String, QueryDocumentSnapshot> myGrs;
+  final Map<String, QueryDocumentSnapshot> listGrs;
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: w ~/ 260,
-          mainAxisSpacing: 5,
-          crossAxisSpacing: 5,
-          childAspectRatio: 2.0),
-      itemCount: groups.length,
-      //itemBuilder: (context, index) => buildCellWidget(groups, index, context),
-      itemBuilder: (context, index) =>
-          buildCellContents(user, groups[index].value),
-    );
-  }
-
-  Container buildCellWidget(
-      User user, QueryDocumentSnapshot group, BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.brown[100],
+        //borderRadius: BorderRadius.circular(5),
+        //color: Colors.brown[100],
       ),
       child: GestureDetector(
-        child: buildCellContents(user, group),
+        child: Column(
+          children: listGrs.entries.map((e) {
+            return GroupWidget(user: user, myGrs: myGrs, group: e.value);
+          }).toList(),
+        ),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ClusterViewerAppWidget(clusterId: group.id),
+            builder: (context) => Text("XX"),
           ),
         ),
       ),
     );
   }
+}
 
-  Column buildCellContents(
-      @required User user, @required QueryDocumentSnapshot group) {
-    return Column(children: [
-      Row(children: [
-        Text(group.id,
-            textAlign: TextAlign.left, overflow: TextOverflow.ellipsis)
-      ]),
-      Padding(
-        padding: EdgeInsets.only(left: 10.0),
-        child: StreamBuilder(
-            stream: group.reference.firestore
-                .collection("group")
-                .where("users.${user.uid}", isEqualTo: true)
-                .where("parent", isEqualTo: group.id)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-              //return Text(group.id);
-              return Text(snapshot.data);
-            }),
+class GroupWidget extends StatelessWidget {
+  GroupWidget(
+      {@required this.user, @required this.myGrs, @required this.group});
+
+  final User user;
+  final Map<String, QueryDocumentSnapshot> myGrs;
+  final QueryDocumentSnapshot group;
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, QueryDocumentSnapshot> subGrs = Map.fromEntries(
+        myGrs.entries.where((e) => e.value.data()["parent"] == group.id));
+
+    return Padding(
+      padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.white, width: 2.0),
+            left: BorderSide(color: Colors.white, width: 2.0),
+          ),
+         color: Colors.brown[100],
+        ),
+
+        child: Column(children: [
+          Row(
+            children: [Text("${group.id}")],
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 25.0, top: 20, right: 0, bottom: 0),
+            child: GroupListWidget(user: user, myGrs: myGrs, listGrs: subGrs),
+          ),
+        ]),
       ),
-    ]);
+    );
   }
-
-  List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(
-          List<MapEntry<String, QueryDocumentSnapshot>> set, String parentId) =>
-      set.where((e) => e.value.data()["parent"] == parentId).toList();
 }
