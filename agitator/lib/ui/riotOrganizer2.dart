@@ -220,7 +220,8 @@ class GroupCellListWidget extends StatelessWidget {
             builder: (context, snapshot) {
               if (!snapshot.hasData)
                 return Center(child: CircularProgressIndicator());
-              return Text("XXX");
+              //return Text(group.id);
+              return Text(snapshot.data);
             }),
       ),
     ]);
