@@ -23,7 +23,7 @@ class RiotClusterListApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.yellow,
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: RiotClusterListPage(user: user, title: 'Device Clusters'),

@@ -48,8 +48,8 @@ IconButton loginButton(BuildContext context) => IconButton(
   - Application Menu (Admin menus)
   - Login page
  */
-class RiotClusterListAppWidget extends StatelessWidget {
-  RiotClusterListAppWidget(User this.user);
+class RiotClusterListAppWidgetX extends StatelessWidget {
+  RiotClusterListAppWidgetX(User this.user);
 
   final User user;
 

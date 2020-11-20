@@ -35,3 +35,13 @@ Decoration genericCellDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(5),
   color: Colors.black12,
 );
+
+// some snippet
+naviPush(BuildContext context, WidgetBuilder builder) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: builder,
+    ),
+  );
+}
