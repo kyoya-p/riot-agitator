@@ -359,16 +359,18 @@ class DocumentPageWidget extends StatelessWidget {
     DocumentWidget setDocWidget =
         DocumentWidget(dRef, isIdEditable: isIdEditable);
     return Scaffold(
-      appBar: AppBar(title: Text("${dRef.id} Configuration")),
+      appBar: AppBar(
+          title: Text("${dRef.parent.id} / ${dRef.id} - Document Editor")),
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send),
         onPressed: () {
           try {
-            setDocWidget
-                .commit()
+            dRef
+                .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
                 .then((_) => Navigator.pop(context))
-                .catchError((e) => _showDialog(context, e.message));
+                .catchError((e) => _showDialog(context,
+                    e.message + "\nrequest: ${setDocWidget.textDocBody.text}"));
           } catch (ex) {
             _showDialog(context, ex.toString());
           }
@@ -438,11 +440,5 @@ class DocumentWidget extends StatelessWidget {
             }),
       ],
     );
-  }
-
-  Future<void> commit() {
-    return dRef.parent
-        .doc(textDocId.text)
-        .set(JsonDecoder().convert(textDocBody.text));
   }
 }

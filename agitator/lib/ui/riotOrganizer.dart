@@ -107,7 +107,7 @@ class RiotClusterListWidget extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ClusterViewerAppWidget(
+            builder: (context) => ClusterViewerPageWidget(
                 clusterId: snapshots.data.docs[index].id),
           ),
         ),

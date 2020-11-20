@@ -10,10 +10,10 @@ import 'fsCollectionOperator.dart';
    - 新規デバイス登録
    - Cluster情報の編集
 */
-class ClusterViewerAppWidget extends StatelessWidget {
+class ClusterViewerPageWidget extends StatelessWidget {
   final String clusterId;
 
-  ClusterViewerAppWidget({@required this.clusterId});
+  ClusterViewerPageWidget({@required this.clusterId});
 
   @override
   Widget build(BuildContext context) {

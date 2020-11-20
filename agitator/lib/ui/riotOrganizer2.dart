@@ -50,7 +50,9 @@ class RiotClusterListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Clusters View"),
+        actions: [loginButton(context)],
       ),
+      drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
         stream: queryMyClusters.snapshots(),
         builder: (context, snapshot) {
@@ -75,63 +77,6 @@ class RiotClusterListPage extends StatelessWidget {
     );
   }
 
-/*  GridView buildGridView(
-      double w, List<MapEntry<String, QueryDocumentSnapshot>> primaryCls) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: w ~/ 300,
-          mainAxisSpacing: 5,
-          crossAxisSpacing: 5,
-          childAspectRatio: 2.0),
-      itemCount: primaryCls?.length ?? 0,
-      itemBuilder: (context, index) =>
-          buildCellWidget(primaryCls, index, context),
-    );
-  }
-*/
-/*  List<MapEntry<String, QueryDocumentSnapshot>> selectChildren(
-          List<MapEntry<String, QueryDocumentSnapshot>> set, String parentId) =>
-      set.where((e) => e.value.data()["parent"] == parentId).toList();
-
-  Container buildCellWidget(
-      List<MapEntry<String, QueryDocumentSnapshot>> primaryCls,
-      int index,
-      BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.brown[100],
-      ),
-      child: GestureDetector(
-        child: Column(
-          children: [
-            Row(children: [
-              Text(primaryCls[index].value.id,
-                  textAlign: TextAlign.left, overflow: TextOverflow.ellipsis)
-            ]),
-            Row(
-              children: [
-                Padding(padding: EdgeInsets.all(10.0)),
-                Column(
-                  children: selectChildren(primaryCls, "")
-                      .map((e) => Text(e.key))
-                      .toList(),
-                )
-              ],
-            )
-          ],
-        ),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ClusterViewerAppWidget(clusterId: primaryCls[index].value.id),
-          ),
-        ),
-      ),
-    );
-  }
-*/
   Widget appDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -177,21 +122,13 @@ class GroupListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        //borderRadius: BorderRadius.circular(5),
-        //color: Colors.brown[100],
-      ),
-      child: GestureDetector(
-        child: Column(
-          children: listGrs.entries.map((e) {
-            return GroupWidget(user: user, myGrs: myGrs, group: e.value);
-          }).toList(),
-        ),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Text("XX"),
+          //borderRadius: BorderRadius.circular(5),
+          //color: Colors.brown[100],
           ),
-        ),
+      child: Column(
+        children: listGrs.entries.map((e) {
+          return GroupWidget(user: user, myGrs: myGrs, group: e.value);
+        }).toList(),
       ),
     );
   }
@@ -210,26 +147,35 @@ class GroupWidget extends StatelessWidget {
     Map<String, QueryDocumentSnapshot> subGrs = Map.fromEntries(
         myGrs.entries.where((e) => e.value.data()["parent"] == group.id));
 
-    return Padding(
-      padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.white, width: 2.0),
-            left: BorderSide(color: Colors.white, width: 2.0),
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ClusterViewerPageWidget(clusterId: group.id)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.white, width: 2.0),
+              left: BorderSide(color: Colors.white, width: 2.0),
+            ),
+            color: group.data()["isDevCluster"] == true
+                ? Theme.of(context).accentColor
+                : Colors.brown[100],
           ),
-         color: Colors.brown[100],
+          child: Column(children: [
+            Row(
+              children: [Text("${group.id}")],
+            ),
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 25.0, top: 20, right: 0, bottom: 0),
+              child: GroupListWidget(user: user, myGrs: myGrs, listGrs: subGrs),
+            ),
+          ]),
         ),
-
-        child: Column(children: [
-          Row(
-            children: [Text("${group.id}")],
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 25.0, top: 20, right: 0, bottom: 0),
-            child: GroupListWidget(user: user, myGrs: myGrs, listGrs: subGrs),
-          ),
-        ]),
       ),
     );
   }
