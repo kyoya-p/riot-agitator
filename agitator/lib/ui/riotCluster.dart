@@ -31,7 +31,15 @@ class ClusterViewerPageWidget extends StatelessWidget {
               PopupMenuItem(child: Text("Add HTTP Device Entry"), value: 3),
             ],
             onSelected: (value) => naviPush(context, (_) {
-              if (value) {}
+              if (value == 1)
+                naviPush(
+                    context,
+                    (_) => DocumentPageWidget(
+                        db.collection("group").doc(clusterId)));
+              else if (value == 2)
+                pushDocEditor(context, db.collection("group").doc(clusterId));
+              else if (value == 3)
+                pushDocEditor(context, db.collection("group").doc(clusterId));
             }),
           ),
           IconButton(
