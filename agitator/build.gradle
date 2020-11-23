@@ -22,15 +22,13 @@ repositories {
 dependencies {
     //compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // for Firebase
-    //compile group: 'com.google.cloud', name: 'google-cloud-firestore', version: '2.0.0'
 }
 
-mainClassName = 'AgentKt'
-jar {
-    manifest {attributes 'Main-Class': mainClassName}
-    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-}
+//mainClassName = 'AgentKt'
+//jar {
+//    manifest { attributes 'Main-Class': mainClassName }
+//    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//}
 
 
 task flutterInitTask(type: Exec) {

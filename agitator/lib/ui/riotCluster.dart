@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
+import 'Demo.dart';
 import 'fsCollectionOperator.dart';
 
 /* Cluster管理画面
@@ -19,28 +20,26 @@ class ClusterViewerPageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FsQueryOperatorAppWidget(
       db.collection("device").where("cluster", isEqualTo: clusterId),
-      itemBuilder: (context, index, snapshots) =>
-          buildCellWidget(context, snapshots.data.docs[index]),
+      itemBuilder: (context, index, devSnapshots) =>
+          buildCellWidget(context, devSnapshots.data.docs[index]),
       appBar: AppBar(
         title: Text("${clusterId} Cluster Viewer"),
         actions: [
           PopupMenuButton(
             itemBuilder: (BuildContext context) => [
-              PopupMenuItem(child: Text("Add Generic Device Entry"), value: 1),
-              PopupMenuItem(child: Text("Add SNMP Device Entry"), value: 2),
-              PopupMenuItem(child: Text("Add HTTP Device Entry"), value: 3),
+              PopupMenuItem(
+                  child: Text("Add Generic Device Entry"),
+                  value: (_) => DocumentPageWidget(
+                      db.collection("group").doc(clusterId))),
+              PopupMenuItem(child: Text("Add SNMP Device Entry"), value: null),
+              PopupMenuItem(
+                  child: Text("Add HTTP Device Entry"),
+                  value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
+              PopupMenuItem(
+                  child: Text("😊体感温度センサーデバイス追加"),
+                  value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
             ],
-            onSelected: (value) => naviPush(context, (_) {
-              if (value == 1)
-                naviPush(
-                    context,
-                    (_) => DocumentPageWidget(
-                        db.collection("group").doc(clusterId)));
-              else if (value == 2)
-                pushDocEditor(context, db.collection("group").doc(clusterId));
-              else if (value == 3)
-                pushDocEditor(context, db.collection("group").doc(clusterId));
-            }),
+            onSelected: (value) => naviPush(context, value),
           ),
           IconButton(
             icon: Icon(Icons.edit),

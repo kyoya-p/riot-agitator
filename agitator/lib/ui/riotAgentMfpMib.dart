@@ -54,7 +54,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
                   child: Icon(Icons.send),
                   onPressed: () {
                     var doc = json.decode(textController.text);
-                    doc["time"] = DateTime.now().millisecondsSinceEpoch;
+                    doc["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
                     docRef.set(doc);
                     Navigator.pop(context);
                   },
@@ -126,7 +126,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
   static String type = "agent.mfp.mib";
 
   static Widget makeCellWidget(
-      BuildContext context, QueryDocumentSnapshot snapshot) {
+      BuildContext context, QueryDocumentSnapshot devSnapshot) {
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -135,12 +135,12 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Row(children: [Icon(Icons.search), Text("${snapshot.id}")]),
+            Row(children: [Icon(Icons.search), Text("${devSnapshot.id}")]),
             Row(
               children: [
                 IconButton(
                     icon: Icon(Icons.play_circle_outline),
-                    onPressed: () => update(snapshot)),
+                    onPressed: () => update(devSnapshot)),
                 IconButton(icon: Icon(Icons.list), onPressed: () => null)
               ],
             ),
@@ -150,7 +150,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => RiotAgentMfpMibAppWidget(snapshot.reference),
+          builder: (context) => RiotAgentMfpMibAppWidget(devSnapshot.reference),
         ),
       ),
     );
@@ -160,7 +160,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
     snapshot.reference.get().then((snapshot) {
       print(snapshot.data());
       dynamic data = snapshot.data();
-      data["time"] = DateTime.now().millisecondsSinceEpoch;
+      data["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
       snapshot.reference.set(data);
     });
   }

@@ -22,66 +22,36 @@ class _FbLoginPageState extends State<FbLoginPage> {
     return Scaffold(
       body: Center(
         child: Container(
+          width: 450,
           padding: EdgeInsets.all(32),
           child: Column(
             children: <Widget>[
               Container(height: 32),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: "Login ID ",
-                  hintText: "Mail Address",
-                ),
-                onChanged: (String value) {
-                  setState(() {
-                    loginUserEmail = value;
-                  });
-                },
+                    labelText: "Login ID ", hintText: "Mail Address"),
+                onChanged: (String value) =>
+                    setState(() => loginUserEmail = value),
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Password"),
                 obscureText: true,
-                onChanged: (String value) {
-                  setState(() {
-                    loginUserPassword = value;
-                  });
-                },
+                onChanged: (String value) =>
+                    setState(() => loginUserPassword = value),
               ),
+              Container(height: 32),
               Row(
                 children: [
                   RaisedButton(
-                    child: Text("Login"),
-                    onPressed: () async {
-                      try {
-                        final FirebaseAuth auth = FirebaseAuth.instance;
-                        final UserCredential result =
-                            await auth.signInWithEmailAndPassword(
-                          email: loginUserEmail,
-                          password: loginUserPassword,
-                        );
-                        final User user = result.user;
-                        setState(() {
-                          debugMsg = "Success: ${user.email}";
-                        });
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            settings: const RouteSettings(name: "/home"),
-                            builder: (context) => FirebaseSignInWidget(),
-                          ),
-                        );
-                      } catch (e) {
-                        setState(() {
-                          debugMsg = "Failed: ${e}";
-                          print(debugMsg);
-                        });
-                      }
-                    },
+                    child: Text("Sign in"),
+                    onPressed: () =>
+                        loginAsUser(loginUserEmail, loginUserPassword),
+                    onLongPress: () =>
+                        loginAsUser("kyoya.p4@gmail.com", "kyoyap4"),
                   ),
-                  Container(
-                    padding: EdgeInsets.all(32.0),
-                    child: RaisedButton(
-                        child: Text("Login as Device"),
-                        onPressed: () => loginAsDevice("", "")),
-                  ),
+                  //RaisedButton(
+                  //    child: Text("as Device"),
+                  //    onPressed: () => loginAsDevice("", "")),
                 ],
               ),
               Text(debugMsg),
@@ -95,30 +65,27 @@ class _FbLoginPageState extends State<FbLoginPage> {
   loginAsUser(String mailAddr, String password) async {
     try {
       final FirebaseAuth auth = FirebaseAuth.instance;
-      final UserCredential result = await auth.signInWithEmailAndPassword(
-        email: loginUserEmail,
-        password: loginUserPassword,
-      );
-      final User user = result.user;
-      setState(() {
-        debugMsg = "Success: ${user.email}";
-      });
+      await auth.signInWithEmailAndPassword(
+          email: mailAddr, password: password);
+      //final User user = result.user;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          //settings: const RouteSettings(name: "/home"),
           builder: (context) => FirebaseSignInWidget(),
         ),
       );
     } catch (e) {
       setState(() {
-        debugMsg = "Failed: ${e}";
+        debugMsg = "Failed: ${e}\n login: $mailAddr";
         print(debugMsg);
       });
     }
   }
 
   loginAsDevice(String deviceId, String password) async {
-    fetchCustomToken();
+    fetchCustomToken("dev1", "Sharp_01").then((e) {
+      //TODO test
+      print(e);
+    });
     //TODO
     /*try {
       final FirebaseAuth auth = FirebaseAuth.instance;
@@ -142,16 +109,17 @@ class _FbLoginPageState extends State<FbLoginPage> {
      */
   }
 
-  void fetchCustomToken() async {
-    const url =
-        'http://shokkaa.0t0.jp/customToken'; // This is Kawano's private service
+  Future<String> fetchCustomToken(String deviceId, String password) async {
+    String url =
+        //"http://shokkaa.0t0.jp:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
+        //"http://192.168.3.102:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
+        "http://192.168.3.9:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
 
-    http.get(url).then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-      setState(() {
-        debugMsg = response.body;
-      });
+    print(url);
+    var res = await http.get(url, headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true'
     });
+    print(res);
   }
 }

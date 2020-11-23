@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'Common.dart';
+
 /*
  Firestore Collectionを操作するWidget - AppBar
  - Documentの追加/削除
@@ -68,7 +70,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
 
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: w ~/ 160,
+                  crossAxisCount: w ~/ 170,
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),
@@ -111,9 +113,8 @@ class FsQueryOperatorWidget extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class FsCollectionOperatorAppWidget extends StatelessWidget {
-  String collectionId = "";
+  final String collectionId;
 
   FsCollectionOperatorAppWidget({this.collectionId});
 
@@ -240,28 +241,16 @@ class DocumentPageWidget extends StatelessWidget {
             dRef
                 .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
                 .then((_) => Navigator.pop(context))
-                .catchError((e) => _showDialog(context,
+                .catchError((e) => showAlertDialog(context,
                     e.message + "\nrequest: ${setDocWidget.textDocBody.text}"));
           } catch (ex) {
-            _showDialog(context, ex.toString());
+            showAlertDialog(context, ex.toString());
           }
         },
       ),
     );
   }
 
-  Future _showDialog(context, String value) async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-                title: Text('AlertDialog'),
-                content: Text(value),
-                actions: <Widget>[
-                  new SimpleDialogOption(
-                      child: new Text('Close'),
-                      onPressed: () => Navigator.pop(context)),
-                ]));
-  }
 }
 
 pushDocEditor(BuildContext context, DocumentReference docRef) => Navigator.push(

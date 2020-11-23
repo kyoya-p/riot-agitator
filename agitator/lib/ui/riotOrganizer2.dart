@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotCluster.dart';
 import 'package:riotagitator/ui/riotOrganizer.dart';
+import 'Common.dart';
 import 'fsCollectionOperator.dart';
 
 /*
@@ -13,8 +14,8 @@ import 'fsCollectionOperator.dart';
   - Application Menu (Admin menus)
   - Login page
  */
-class RiotClusterListApp extends StatelessWidget {
-  RiotClusterListApp(User this.user);
+class RiotApp extends StatelessWidget {
+  RiotApp(User this.user);
 
   final User user;
 
@@ -23,28 +24,34 @@ class RiotClusterListApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.brown,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotClusterListPage(user: user, title: 'Device Clusters'),
+      home: RiotGroupTreePage(user: user),
       routes: <String, WidgetBuilder>{
-        '/home': (BuildContext context) => FirebaseSignInWidget(),
+        "/home": (BuildContext context) => FirebaseSignInWidget(),
+        "/wide": (BuildContext context) => FirebaseSignInWidget(), //TODO
       },
     );
   }
 }
 
-class RiotClusterListPage extends StatelessWidget {
-  RiotClusterListPage({@required this.user, this.title = ""});
+class RiotGroupTreePage extends StatelessWidget {
+  RiotGroupTreePage({@required this.user, this.tgGroup = null});
 
-  final String title;
+//  final String title;
   final User user;
+  final String tgGroup;
+  final db = FirebaseFirestore.instance;
+  bool v = false;
 
   @override
   Widget build(BuildContext context) {
-    Query queryMyClusters = FirebaseFirestore.instance
-        .collection("group")
-        .where("users.${user.uid}", isEqualTo: true); // 自身が管轄するすべてのgroup
+    Query queryMyClusters = db.collection("group");
+    queryMyClusters = (user != null)
+        ? queryMyClusters.where("users.${user.uid}", //userログインしているなら
+            isEqualTo: true) // 自身が管轄するすべてのgroup
+        : queryMyClusters; //デバッグ(管理者)モードは全グループ表示
 
     // double w = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -52,7 +59,7 @@ class RiotClusterListPage extends StatelessWidget {
         title: Text("Clusters View"),
         actions: [loginButton(context)],
       ),
-      drawer: appDrawer(context),
+      //drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
         stream: queryMyClusters.snapshots(),
         builder: (context, snapshot) {
@@ -65,15 +72,57 @@ class RiotClusterListPage extends StatelessWidget {
             key: (e) => e.id,
             value: (e) => e,
           );
-          // 自分の属する全グループのうち最上位のグループ
-          Map<String, QueryDocumentSnapshot> myTopGrs = Map.fromIterable(
-              myGrs.entries
-                  .where((e) => !myGrs.containsKey(e.value.data()["parent"])),
-              key: (e) => e.key,
-              value: (e) => e.value);
-          return GroupListWidget(user: user, myGrs: myGrs, listGrs: myTopGrs);
+          Map<String, QueryDocumentSnapshot> dispGrs;
+          if (tgGroup == null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
+            dispGrs = Map.fromIterable(
+                myGrs.entries
+                    .where((e) => !myGrs.containsKey(e.value.data()["parent"])),
+                key: (e) => e.key,
+                value: (e) => e.value);
+          else // topGroupが指定されていればそれに含まれるGroup
+            dispGrs = Map.fromIterable(
+                myGrs.entries.where((e) => e.value.data()["parent"] == tgGroup),
+                key: (e) => e.key,
+                value: (e) => e.value);
+          return SingleChildScrollView(
+              child:
+                  GroupTreeWidget(user: user, myGrs: myGrs, listGrs: dispGrs));
         },
       ),
+      floatingActionButton: user?.uid == null
+          ? null
+          : FloatingActionButton(
+              child: Icon(Icons.create_new_folder),
+              onPressed: () async {
+                MySwitchListTile sw =
+                    MySwitchListTile(title: Text("As device cluster"));
+                TextEditingController name = TextEditingController();
+
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                            title: Text('Create Group/Cluster'),
+                            content: Column(children: [
+                              TextField(
+                                  controller: name,
+                                  decoration:
+                                      InputDecoration(labelText: "Name")),
+                              sw,
+                            ]),
+                            actions: <Widget>[
+                              new SimpleDialogOption(
+                                  child: new Text('OK'),
+                                  onPressed: () => Navigator.pop(context)),
+                            ]));
+
+                Map<String, Object> docGroup = {
+                  "parent": tgGroup ?? "world",
+                  "users": {user.uid: true},
+                  "isDevCluster": sw.value,
+                };
+                print("${name.text}: ${docGroup}"); //TODO
+                db.collection("group").doc(name.text).set(docGroup);
+              }),
     );
   }
 
@@ -86,7 +135,6 @@ class RiotClusterListPage extends StatelessWidget {
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           ),
           collectionListTile(context, "device"),
-          collectionListTile(context, "user"),
           collectionListTile(context, "group"),
         ],
       ),
@@ -110,8 +158,8 @@ class RiotClusterListPage extends StatelessWidget {
   }
 }
 
-class GroupListWidget extends StatelessWidget {
-  GroupListWidget(
+class GroupTreeWidget extends StatelessWidget {
+  GroupTreeWidget(
       {@required this.user, @required this.myGrs, @required this.listGrs});
 
   final User user;
@@ -127,7 +175,13 @@ class GroupListWidget extends StatelessWidget {
           ),
       child: Column(
         children: listGrs.entries.map((e) {
-          return GroupWidget(user: user, myGrs: myGrs, group: e.value);
+          return Dismissible(
+            key: Key(e.value.id),
+            child: GroupWidget(user: user, myGrs: myGrs, group: e.value),
+            onDismissed: (_) {
+              e.value.reference.delete();
+            },
+          );
         }).toList(),
       ),
     );
@@ -148,11 +202,21 @@ class GroupWidget extends StatelessWidget {
         myGrs.entries.where((e) => e.value.data()["parent"] == group.id));
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ClusterViewerPageWidget(clusterId: group.id)),
-      ),
+      onTap: () {
+        bool isCluster = group.data()["isDevCluster"];
+        if (isCluster != null && isCluster)
+          return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ClusterViewerPageWidget(clusterId: group.id)),
+          );
+        else
+          return naviPush(
+              context,
+              (_) =>
+                  RiotGroupTreePage(user: user, tgGroup: group.id));
+      },
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
         child: Container(
@@ -162,7 +226,7 @@ class GroupWidget extends StatelessWidget {
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
             color: group.data()["isDevCluster"] == true
-                ? Theme.of(context).accentColor
+                ? Theme.of(context).focusColor
                 : Colors.brown[100],
           ),
           child: Column(children: [
@@ -171,8 +235,8 @@ class GroupWidget extends StatelessWidget {
             ),
             Padding(
               padding:
-                  EdgeInsets.only(left: 25.0, top: 20, right: 0, bottom: 0),
-              child: GroupListWidget(user: user, myGrs: myGrs, listGrs: subGrs),
+                  EdgeInsets.only(left: 24.0, top: 36, right: 0, bottom: 0),
+              child: GroupTreeWidget(user: user, myGrs: myGrs, listGrs: subGrs),
             ),
           ]),
         ),
