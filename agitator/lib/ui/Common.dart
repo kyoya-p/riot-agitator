@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/fsCollectionOperator.dart';
 import 'package:riotagitator/ui/riotAgentMfpMib.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/material.dart';
 
 import 'Demo.dart';
 
@@ -156,3 +158,4 @@ class _MySwitchTileState extends State<MySwitchListTile> {
         title: widget.title,
       );
 }
+

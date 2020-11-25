@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'ChartSample.dart';
 import 'Common.dart';
 import 'Demo.dart';
 import 'fsCollectionOperator.dart';
@@ -38,6 +39,9 @@ class ClusterViewerPageWidget extends StatelessWidget {
               PopupMenuItem(
                   child: Text("😊体感温度センサーデバイス追加"),
                   value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
+              PopupMenuItem(
+                  child: Text("Log Viewer"),
+                  value: (_) => LogCountBarChartPage()),
             ],
             onSelected: (value) => naviPush(context, value),
           ),
