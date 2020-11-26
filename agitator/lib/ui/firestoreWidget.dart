@@ -115,11 +115,9 @@ class _FbLoginPageState extends State<FbLoginPage> {
         //"http://192.168.3.102:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
         "http://192.168.3.9:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
 
-    print(url);
     var res = await http.get(url, headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': 'true'
     });
-    print(res);
   }
 }

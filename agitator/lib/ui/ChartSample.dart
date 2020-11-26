@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +12,7 @@ class LogCountBarChartPage extends StatelessWidget {
 }
 
 /*
- logsをlogCountに集約
+ logを集約
   /logCount/{
     srcLog: CollectionRef //サマリ生成対象(通常はdeviceId)
     summaryLog: CollectionRef //サマリ生成対象(通常はdeviceId)
@@ -19,21 +20,28 @@ class LogCountBarChartPage extends StatelessWidget {
     until: Int  // サマリ対象終了期間(この時刻を含まない)
     period: Int, // サマリ分解能: 1(1s)/60(1m)/3600(1h)/86400(1d)
     count: Int, // ログ数
-    logs: {
-    }
   }
-
  */
+class SummaryLog {
+  SummaryLog(int this.since, int this.until, int this.period, int this.count);
+
+  String type = "type=log:summary";
+  int since; //millisecond
+  int until;
+  int period; //millisecond
+  int count;
+}
+
 Function summarizeLogs(CollectionReference srcLog,
-    CollectionReference summaryLog, int since, int until, int period) {
+    CollectionReference summaryLog, int since, int period) {
   srcLog
       .where("time", isGreaterThanOrEqualTo: since)
-      .where("time", isLessThan: until)
+      .where("time", isLessThan: since + period)
       .get()
-      .then((value) {
-    value.docs.map((e) {
-      //TODO
-    });
+      .then((data) {
+    int count = data.size;
+    SummaryLog slog = SummaryLog(since, since + period, period, count);
+    summaryLog.doc().set(slog as Map<String,dynamic>);
   });
 }
 
@@ -99,6 +107,7 @@ class LogCountBarChart extends StatelessWidget {
   }
 
   /// Create one series with sample hard coded data.
+  /// TODO
   static List<charts.Series<LogCountValue, String>> _createSampleData() {
     final data = [];
 

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotCluster.dart';
 import 'package:riotagitator/ui/riotOrganizer.dart';
 import 'Common.dart';
+import 'ListenEvent.dart';
 import 'fsCollectionOperator.dart';
 
 /*
@@ -31,6 +32,8 @@ class RiotApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         "/home": (BuildContext context) => FirebaseSignInWidget(),
         "/wide": (BuildContext context) => FirebaseSignInWidget(), //TODO
+        "/float": (BuildContext context) =>
+            naviPush(context, (_) => FloatSample()), //TODO
       },
     );
   }
@@ -56,7 +59,7 @@ class RiotGroupTreePage extends StatelessWidget {
     // double w = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Clusters View"),
+        title: Text("Organization View"),
         actions: [loginButton(context)],
       ),
       //drawer: appDrawer(context),
@@ -65,6 +68,8 @@ class RiotGroupTreePage extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
+
+          logListener(context);
 
           // 自分の属する全グループ
           Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
@@ -213,9 +218,7 @@ class GroupWidget extends StatelessWidget {
           );
         else
           return naviPush(
-              context,
-              (_) =>
-                  RiotGroupTreePage(user: user, tgGroup: group.id));
+              context, (_) => RiotGroupTreePage(user: user, tgGroup: group.id));
       },
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),

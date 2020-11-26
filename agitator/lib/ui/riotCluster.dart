@@ -24,7 +24,7 @@ class ClusterViewerPageWidget extends StatelessWidget {
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data.docs[index]),
       appBar: AppBar(
-        title: Text("${clusterId} Cluster Viewer"),
+        title: Text("${clusterId} - Organization Viewer"),
         actions: [
           PopupMenuButton(
             itemBuilder: (BuildContext context) => [
