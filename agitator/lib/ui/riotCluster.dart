@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'ChartSample.dart';
 import 'Common.dart';
 import 'Demo.dart';
+import 'ListenEvent.dart';
 import 'fsCollectionOperator.dart';
 
 /* Cluster管理画面
@@ -24,8 +25,9 @@ class ClusterViewerPageWidget extends StatelessWidget {
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data.docs[index]),
       appBar: AppBar(
-        title: Text("${clusterId} - Organization Viewer"),
+        title: Text("${clusterId} - Cluster"),
         actions: [
+          Bell(context),
           PopupMenuButton(
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(

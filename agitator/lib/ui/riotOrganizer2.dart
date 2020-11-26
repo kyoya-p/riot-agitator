@@ -60,74 +60,47 @@ class RiotGroupTreePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Organization View"),
-        actions: [loginButton(context)],
+        actions: [Bell(context),loginButton(context)],
       ),
       //drawer: appDrawer(context),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: queryMyClusters.snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
+      body:
+          StreamBuilder<QuerySnapshot>(
+              stream: queryMyClusters.snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return Center(child: CircularProgressIndicator());
 
-          logListener(context);
-
-          // 自分の属する全グループ
-          Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
-            snapshot.data.docs,
-            key: (e) => e.id,
-            value: (e) => e,
-          );
-          Map<String, QueryDocumentSnapshot> dispGrs;
-          if (tgGroup == null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
-            dispGrs = Map.fromIterable(
-                myGrs.entries
-                    .where((e) => !myGrs.containsKey(e.value.data()["parent"])),
-                key: (e) => e.key,
-                value: (e) => e.value);
-          else // topGroupが指定されていればそれに含まれるGroup
-            dispGrs = Map.fromIterable(
-                myGrs.entries.where((e) => e.value.data()["parent"] == tgGroup),
-                key: (e) => e.key,
-                value: (e) => e.value);
-          return SingleChildScrollView(
-              child:
-                  GroupTreeWidget(user: user, myGrs: myGrs, listGrs: dispGrs));
-        },
-      ),
-      floatingActionButton: user?.uid == null
-          ? null
-          : FloatingActionButton(
-              child: Icon(Icons.create_new_folder),
-              onPressed: () async {
-                MySwitchListTile sw =
-                    MySwitchListTile(title: Text("As device cluster"));
-                TextEditingController name = TextEditingController();
-
-                await showDialog(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                            title: Text('Create Group/Cluster'),
-                            content: Column(children: [
-                              TextField(
-                                  controller: name,
-                                  decoration:
-                                      InputDecoration(labelText: "Name")),
-                              sw,
-                            ]),
-                            actions: <Widget>[
-                              new SimpleDialogOption(
-                                  child: new Text('OK'),
-                                  onPressed: () => Navigator.pop(context)),
-                            ]));
-
-                Map<String, Object> docGroup = {
-                  "parent": tgGroup ?? "world",
-                  "users": {user.uid: true},
-                  "isDevCluster": sw.value,
-                };
-                print("${name.text}: ${docGroup}"); //TODO
-                db.collection("group").doc(name.text).set(docGroup);
+                // 自分の属する全グループ
+                Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
+                  snapshot.data.docs,
+                  key: (e) => e.id,
+                  value: (e) => e,
+                );
+                Map<String, QueryDocumentSnapshot> dispGrs;
+                if (tgGroup ==
+                    null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
+                  dispGrs = Map.fromIterable(
+                      myGrs.entries.where(
+                          (e) => !myGrs.containsKey(e.value.data()["parent"])),
+                      key: (e) => e.key,
+                      value: (e) => e.value);
+                else // topGroupが指定されていればそれに含まれるGroup
+                  dispGrs = Map.fromIterable(
+                      myGrs.entries
+                          .where((e) => e.value.data()["parent"] == tgGroup),
+                      key: (e) => e.key,
+                      value: (e) => e.value);
+                return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        GroupTreeWidget(
+                            user: user, myGrs: myGrs, listGrs: dispGrs),
+                      ],
+                    ));
               }),
+
+      floatingActionButton:
+          (user?.uid == null) ? null : makeFloatingActionButton(context),
     );
   }
 
@@ -161,6 +134,38 @@ class RiotGroupTreePage extends StatelessWidget {
       },
     );
   }
+
+  makeFloatingActionButton(BuildContext context) => FloatingActionButton(
+      child: Icon(Icons.create_new_folder),
+      onPressed: () async {
+        MySwitchListTile sw =
+            MySwitchListTile(title: Text("As device cluster"));
+        TextEditingController name = TextEditingController();
+
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+                    title: Text('Create Group/Cluster'),
+                    content: Column(children: [
+                      TextField(
+                          controller: name,
+                          decoration: InputDecoration(labelText: "Name")),
+                      sw,
+                    ]),
+                    actions: <Widget>[
+                      new SimpleDialogOption(
+                          child: new Text('OK'),
+                          onPressed: () => Navigator.pop(context)),
+                    ]));
+
+        Map<String, Object> docGroup = {
+          "parent": tgGroup ?? "world",
+          "users": {user.uid: true},
+          "isDevCluster": sw.value,
+        };
+        print("${name.text}: ${docGroup}"); //TODO
+        db.collection("group").doc(name.text).set(docGroup);
+      });
 }
 
 class GroupTreeWidget extends StatelessWidget {

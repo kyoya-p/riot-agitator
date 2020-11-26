@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riotagitator/ui/ListenEvent.dart';
 
 import 'Common.dart';
 
@@ -15,10 +16,10 @@ import 'Common.dart';
 // ignore: must_be_immutable
 class FsQueryOperatorAppWidget extends StatelessWidget {
   FsQueryOperatorAppWidget(this.query,
-      {@required this.itemBuilder, this.appBar, this.onAddButtonPressed});
+      {@required this.itemBuilder,this.appBar, this.onAddButtonPressed});
 
   Query query;
-  AppBar appBar = AppBar(title: Text("Title"));
+  AppBar appBar;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
@@ -28,7 +29,10 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar,
+      appBar: appBar ?? AppBar(
+        title: Text("Title"),
+        actions: [Bell(context)],
+      ),
       body: FsQueryOperatorWidget(
         query,
         itemBuilder: (context, index, snapshots) =>
@@ -250,7 +254,6 @@ class DocumentPageWidget extends StatelessWidget {
       ),
     );
   }
-
 }
 
 pushDocEditor(BuildContext context, DocumentReference docRef) => Navigator.push(

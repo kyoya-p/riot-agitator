@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riotagitator/ui/ListenEvent.dart';
 import 'package:state_notifier/state_notifier.dart';
 
 class FS_Count {
@@ -133,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [Bell(context)],
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it

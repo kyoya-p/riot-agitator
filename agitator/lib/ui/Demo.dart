@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
+import 'ListenEvent.dart';
 
 class DemoHumanHeatSensorCreatePage extends StatelessWidget {
   DemoHumanHeatSensorCreatePage(this.clusterId);
@@ -18,7 +19,10 @@ class DemoHumanHeatSensorCreatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController id = TextEditingController();
     return Scaffold(
-      appBar: AppBar(title: Text("体感温度センサーデバイス追加")),
+      appBar: AppBar(
+        title: Text("体感温度センサーデバイス追加"),
+        actions: [Bell(context)],
+      ),
       body: TextField(
         autofocus: true,
         controller: id,
