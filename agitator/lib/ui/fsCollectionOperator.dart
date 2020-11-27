@@ -31,7 +31,7 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
     return Scaffold(
       appBar: appBar ?? AppBar(
         title: Text("Title"),
-        actions: [Bell(context)],
+        actions: [buildBell(context)],
       ),
       body: FsQueryOperatorWidget(
         query,

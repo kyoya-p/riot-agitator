@@ -27,7 +27,7 @@ class ClusterViewerPageWidget extends StatelessWidget {
       appBar: AppBar(
         title: Text("${clusterId} - Cluster"),
         actions: [
-          Bell(context),
+          buildBell(context),
           PopupMenuButton(
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(

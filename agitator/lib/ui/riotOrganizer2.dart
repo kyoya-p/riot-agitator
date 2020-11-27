@@ -49,55 +49,52 @@ class RiotGroupTreePage extends StatelessWidget {
   bool v = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)  {
     Query queryMyClusters = db.collection("group");
     queryMyClusters = (user != null)
         ? queryMyClusters.where("users.${user.uid}", //userログインしているなら
             isEqualTo: true) // 自身が管轄するすべてのgroup
         : queryMyClusters; //デバッグ(管理者)モードは全グループ表示
 
-    // double w = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Organization View"),
-        actions: [Bell(context),loginButton(context)],
+        actions: [ buildBell(context), loginButton(context)],
       ),
       //drawer: appDrawer(context),
-      body:
-          StreamBuilder<QuerySnapshot>(
-              stream: queryMyClusters.snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return Center(child: CircularProgressIndicator());
+      body: StreamBuilder<QuerySnapshot>(
+          stream: queryMyClusters.snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
 
-                // 自分の属する全グループ
-                Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
-                  snapshot.data.docs,
-                  key: (e) => e.id,
-                  value: (e) => e,
-                );
-                Map<String, QueryDocumentSnapshot> dispGrs;
-                if (tgGroup ==
-                    null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
-                  dispGrs = Map.fromIterable(
-                      myGrs.entries.where(
-                          (e) => !myGrs.containsKey(e.value.data()["parent"])),
-                      key: (e) => e.key,
-                      value: (e) => e.value);
-                else // topGroupが指定されていればそれに含まれるGroup
-                  dispGrs = Map.fromIterable(
-                      myGrs.entries
-                          .where((e) => e.value.data()["parent"] == tgGroup),
-                      key: (e) => e.key,
-                      value: (e) => e.value);
-                return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        GroupTreeWidget(
-                            user: user, myGrs: myGrs, listGrs: dispGrs),
-                      ],
-                    ));
-              }),
+            // 自分の属する全グループ
+            Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
+              snapshot.data.docs,
+              key: (e) => e.id,
+              value: (e) => e,
+            );
+            Map<String, QueryDocumentSnapshot> dispGrs;
+            if (tgGroup == null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
+              dispGrs = Map.fromIterable(
+                  myGrs.entries.where(
+                      (e) => !myGrs.containsKey(e.value.data()["parent"])),
+                  key: (e) => e.key,
+                  value: (e) => e.value);
+            else // topGroupが指定されていればそれに含まれるGroup
+              dispGrs = Map.fromIterable(
+                  myGrs.entries
+                      .where((e) => e.value.data()["parent"] == tgGroup),
+                  key: (e) => e.key,
+                  value: (e) => e.value);
+            return SingleChildScrollView(
+                child: Column(
+              children: [
+                GroupTreeWidget(user: user, myGrs: myGrs, listGrs: dispGrs),
+              ],
+            ));
+          }),
 
       floatingActionButton:
           (user?.uid == null) ? null : makeFloatingActionButton(context),
