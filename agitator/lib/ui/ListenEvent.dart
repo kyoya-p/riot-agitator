@@ -61,7 +61,8 @@ Widget buildBell(BuildContext context) {
     stream: docUser.snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return normalButton;
-      var timeCheckNotification = snapshot.data["timeCheckNotification"] ?? 0;
+      var timeCheckNotification =
+          snapshot.data.get("timeCheckNotification") ?? 0;
       return StreamBuilder(
         stream: db
             .collectionGroup("logs")

@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/fsCollectionOperator.dart';
 import 'package:riotagitator/ui/riotAgentMfpMib.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:flutter/material.dart';
 
 import 'Demo.dart';
+import 'logViewWidget.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
       begin: BoxDecoration(
@@ -28,67 +26,59 @@ Widget buildCellWidget(
     return RiotAgentMfpMibAppWidget.makeCellWidget(context, devSnapshot);
   } else if (type == DemoHumanHeatSensorCreatePage.type) {
     return DemoHumanHeatSensorCreatePage.makeCellWidget(context, devSnapshot);
-  } else
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.black12,
-      ),
-      child: GestureDetector(
-        child: Text(
-            data["info"] != null
-                ? (data["info"]["model"]) + "/" + (data["info"]["sn"])
-                : devSnapshot.id,
-            overflow: TextOverflow.ellipsis),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DeviceLogsPage(devSnapshot.reference),
-          ),
-        ),
-        onLongPress: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DocumentPageWidget(devSnapshot.reference),
-          ),
-        ),
-      ),
-    );
+  } else {
+    return buildGenericCard(context, devSnapshot.reference);
+  }
 }
 
-class DeviceLogsPage extends StatelessWidget {
-  DeviceLogsPage(this.dRef);
+// Label: dev.nameまたはidを表示
+// 長押しでメニュー
+// - Document編集
+// - logs表示
+Widget buildGenericCard(BuildContext context_, DocumentReference devRef) =>
+    Card(
+        child: StreamBuilder<DocumentSnapshot>(
+            stream: devRef.snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+              String label =
+                  snapshot.data.data()["dev"]["name"] ?? snapshot.data.id;
+              return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.black12,
+                  ),
+                  child: GestureDetector(
+                      child: Text(label, overflow: TextOverflow.ellipsis),
+                      onTap: () {
+                        return showDialog(
+                          context: context,
+                          builder: (dialogCtx) {
+                            return SimpleDialog(
+                              title: Text(label),
+                              children: [
+                                SimpleDialogOption(
+                                    child: Text("Edit"),
+                                    onPressed: () {
+                                      Navigator.pop(dialogCtx);
+                                      naviPush(context_,
+                                          (_) => DeviceLogsPage(devRef));
+                                    }),
+                                SimpleDialogOption(
+                                    child: Text("Logs"),
+                                    onPressed: () {
+                                      Navigator.pop(dialogCtx);
+                                      naviPush(context_,
+                                          (_) => DeviceLogsPage(devRef));
+                                    }),
+                              ],
+                            );
+                          },
+                        );
 
-  DocumentReference dRef;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(),
-      body: StreamBuilder<QuerySnapshot>(
-          stream: dRef
-              .collection("logs")
-              .orderBy("time", descending: true)
-              .limit(30)
-              .snapshots(),
-          builder: (context, snapshots) {
-            if (!snapshots.hasData)
-              return Center(child: CircularProgressIndicator());
-            return Table(
-              children: snapshots.data.docs
-                  .map((e) => TableRow(children: [
-                        TableCell(
-                            child: Text(DateTime.fromMillisecondsSinceEpoch(
-                                    e.data()["time"],
-                                    isUtc: false)
-                                .toString())),
-                        TableCell(
-                          child: Text(e.data()["type"]),
-                        )
-                      ]))
-                  .toList(),
-            );
-          }));
-}
+                      }));
+            }));
 
 // Common Styles
 Decoration genericCellDecoration = BoxDecoration(
@@ -99,6 +89,15 @@ Decoration genericCellDecoration = BoxDecoration(
 // some snippet
 naviPush(BuildContext context, WidgetBuilder builder) {
   Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: builder,
+    ),
+  );
+}
+
+naviPushReplacement(BuildContext context, WidgetBuilder builder) {
+  Navigator.pushReplacement(
     context,
     MaterialPageRoute(
       builder: builder,
@@ -158,4 +157,3 @@ class _MySwitchTileState extends State<MySwitchListTile> {
         title: widget.title,
       );
 }
-
