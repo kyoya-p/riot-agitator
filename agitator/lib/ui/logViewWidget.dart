@@ -1,18 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DeviceLogsPage extends StatelessWidget {
+class DeviceLogsPage extends StatefulWidget {
+  TextEditingController filterField = TextEditingController();
+  TextEditingController filterValue = TextEditingController();
+  String filterOperator = '==';
+
   DeviceLogsPage(this.dRef);
 
   DocumentReference dRef;
 
   @override
+  _DeviceLogsPageState createState() => _DeviceLogsPageState();
+}
+
+class _DeviceLogsPageState extends State<DeviceLogsPage> {
+  @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Log Viewer")),
-      body: PrograssiveItemViewWidget(dRef
-          .collection("logs")
-          .orderBy("timeRec", descending: true)
-          .limit(20)));
+      body: Column(children: [
+        buildFilterSetting(),
+        Expanded(
+          child: PrograssiveItemViewWidget(widget.dRef
+              .collection("logs")
+              //.orderBy("timeRec", descending: true)
+              .addWhere(widget.filterField.text, widget.filterOperator,
+                  widget.filterValue.text)
+              .limit(20)),
+        )
+      ]));
+
+  Row buildFilterSetting() {
+    return Row(
+      children: [
+        Expanded(
+            child: TextField(
+          controller: widget.filterField,
+          decoration: InputDecoration(labelText: "Filter Field"),
+        )),
+        Expanded(
+          child: DropdownButton(
+            value: widget.filterOperator,
+            icon: Icon(Icons.arrow_drop_down),
+            onChanged: (newValue) {
+              setState(() {
+                widget.filterOperator = newValue;
+              });
+            },
+            items: ['==', '>', '>=', '<=', '<']
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
+                .toList(),
+          ),
+        ),
+        Expanded(
+            child: TextField(
+          controller: widget.filterValue,
+          decoration: InputDecoration(labelText: "Value"),
+        )),
+      ],
+    );
+  }
+
+  void updated() {
+    setState(() {});
+  }
+}
+
+// QueryにFilterを追加する拡張関数
+extension QueryOperation on Query {
+  Query addWhere2(StatefulWidget w) {}
+
+  Query addWhere(String field, String filterOp, String value) {
+    if (field == "") return this;
+
+    if (filterOp == "==") {
+      return this.where(field, isEqualTo: int.parse(value));
+    } else if (filterOp == ">=") {
+      return this.where(field, isGreaterThanOrEqualTo: int.parse(value));
+    } else if (filterOp == "<=") {
+      return this.where(field, isLessThanOrEqualTo: int.parse(value));
+    } else if (filterOp == ">") {
+      return this.where(field, isGreaterThan: int.parse(value));
+    } else if (filterOp == "<") {
+      return this.where(field, isLessThan: int.parse(value));
+    }
+  }
 }
 
 // Firestoreで大きなリストを使う際のテンプレ
@@ -49,7 +124,8 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
                 widget.qrItems =
                     widget.qrItems.startAfterDocument(value.docs.last);
               }
-              print("Query: ${value.size} / List: ${widget.listDocSnapshot.length}");
+              print(
+                  "Query: ${value.size} / List: ${widget.listDocSnapshot.length}");
             });
           });
 
@@ -71,6 +147,8 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
         Text(doc["dev"]["id"]),
         padding,
         Text(doc["dev"]["type"]),
+        padding,
+        Text(doc["seq"].toString()),
       ]),
     );
   }
