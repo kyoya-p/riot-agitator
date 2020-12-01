@@ -62,6 +62,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
       padding: EdgeInsets.only(left: 10),
     );
     return Card(
+      color: Theme.of(context).cardColor,
       child: Row(children: [
         Text("$index"),
         padding,

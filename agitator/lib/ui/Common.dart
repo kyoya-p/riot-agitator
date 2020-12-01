@@ -35,11 +35,12 @@ Widget buildCellWidget(
 // 長押しでメニュー
 // - Document編集
 // - logs表示
-Widget buildGenericCard(BuildContext context_, DocumentReference devRef) =>
+Widget buildGenericCard(BuildContext context, DocumentReference devRef) =>
     Card(
+        color: Theme.of(context).cardColor,
         child: StreamBuilder<DocumentSnapshot>(
             stream: devRef.snapshots(),
-            builder: (context, snapshot) {
+            builder: (streamCtx, snapshot) {
               if (!snapshot.hasData)
                 return Center(child: CircularProgressIndicator());
               String label =
@@ -53,7 +54,7 @@ Widget buildGenericCard(BuildContext context_, DocumentReference devRef) =>
                       child: Text(label, overflow: TextOverflow.ellipsis),
                       onTap: () {
                         return showDialog(
-                          context: context,
+                          context: streamCtx,
                           builder: (dialogCtx) {
                             return SimpleDialog(
                               title: Text(label),
@@ -62,21 +63,20 @@ Widget buildGenericCard(BuildContext context_, DocumentReference devRef) =>
                                     child: Text("Edit"),
                                     onPressed: () {
                                       Navigator.pop(dialogCtx);
-                                      naviPush(context_,
+                                      naviPush(context,
                                           (_) => DeviceLogsPage(devRef));
                                     }),
                                 SimpleDialogOption(
                                     child: Text("Logs"),
                                     onPressed: () {
                                       Navigator.pop(dialogCtx);
-                                      naviPush(context_,
+                                      naviPush(context,
                                           (_) => DeviceLogsPage(devRef));
                                     }),
                               ],
                             );
                           },
                         );
-
                       }));
             }));
 

@@ -25,7 +25,7 @@ class RiotApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.brown,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: RiotGroupTreePage(user: user),
@@ -49,18 +49,17 @@ class RiotGroupTreePage extends StatelessWidget {
   bool v = false;
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     Query queryMyClusters = db.collection("group");
     queryMyClusters = (user != null)
         ? queryMyClusters.where("users.${user.uid}", //userログインしているなら
             isEqualTo: true) // 自身が管轄するすべてのgroup
         : queryMyClusters; //デバッグ(管理者)モードは全グループ表示
 
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Organization View"),
-        actions: [ buildBell(context), loginButton(context)],
+        actions: [buildBell(context), loginButton(context)],
       ),
       //drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
