@@ -2,13 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DeviceLogsPage extends StatefulWidget {
-  TextEditingController filterField = TextEditingController();
-  TextEditingController filterValue = TextEditingController();
-  String filterOperator = '==';
+  DeviceLogsPage(this.devRef);
 
-  DeviceLogsPage(this.dRef);
-
-  DocumentReference dRef;
+  DocumentReference devRef;
 
   @override
   _DeviceLogsPageState createState() => _DeviceLogsPageState();
@@ -19,50 +15,17 @@ class _DeviceLogsPageState extends State<DeviceLogsPage> {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text("Log Viewer")),
       body: Column(children: [
-        buildFilterSetting(),
+        FilterListConfigWidget(
+            widget.devRef.collection("app1").doc("filterConfig")),
         Expanded(
-          child: PrograssiveItemViewWidget(widget.dRef
+          child: PrograssiveItemViewWidget(widget.devRef
               .collection("logs")
-              //.orderBy("timeRec", descending: true)
-              .addWhere(widget.filterField.text, widget.filterOperator,
-                  widget.filterValue.text)
+              //.addWhere(widget.filterField.text, widget.filterOperator,
+              //    widget.filterValue.text)
+              .orderBy("timeRec", descending: true)
               .limit(20)),
         )
       ]));
-
-  Row buildFilterSetting() {
-    return Row(
-      children: [
-        Expanded(
-            child: TextField(
-          controller: widget.filterField,
-          decoration: InputDecoration(labelText: "Filter Field"),
-        )),
-        Expanded(
-          child: DropdownButton(
-            value: widget.filterOperator,
-            icon: Icon(Icons.arrow_drop_down),
-            onChanged: (newValue) {
-              setState(() {
-                widget.filterOperator = newValue;
-              });
-            },
-            items: ['==', '>', '>=', '<=', '<']
-                .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
-                .toList(),
-          ),
-        ),
-        Expanded(
-            child: TextField(
-          controller: widget.filterValue,
-          decoration: InputDecoration(labelText: "Value"),
-        )),
-      ],
-    );
-  }
 
   void updated() {
     setState(() {});
@@ -75,17 +38,22 @@ extension QueryOperation on Query {
 
   Query addWhere(String field, String filterOp, String value) {
     if (field == "") return this;
+    if (value == "") return this;
 
     if (filterOp == "==") {
       return this.where(field, isEqualTo: int.parse(value));
     } else if (filterOp == ">=") {
-      return this.where(field, isGreaterThanOrEqualTo: int.parse(value));
+      return this
+          .orderBy(field)
+          .where(field, isGreaterThanOrEqualTo: int.parse(value));
     } else if (filterOp == "<=") {
-      return this.where(field, isLessThanOrEqualTo: int.parse(value));
+      return this
+          .orderBy(field)
+          .where(field, isLessThanOrEqualTo: int.parse(value));
     } else if (filterOp == ">") {
-      return this.where(field, isGreaterThan: int.parse(value));
+      return this.orderBy(field).where(field, isGreaterThan: int.parse(value));
     } else if (filterOp == "<") {
-      return this.where(field, isLessThan: int.parse(value));
+      return this.orderBy(field).where(field, isLessThan: int.parse(value));
     }
   }
 }
@@ -150,6 +118,99 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
         padding,
         Text(doc["seq"].toString()),
       ]),
+    );
+  }
+}
+
+class FilterListConfigWidget extends StatelessWidget {
+  FilterListConfigWidget(this.docDevConfig);
+
+  DocumentReference docDevConfig;
+  List<Map<String, dynamic>> filterList;
+
+  @override
+  Widget build(BuildContext context) {
+    print(docDevConfig.path); //TODO
+    return StreamBuilder(
+      stream: docDevConfig.snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData)
+          return Center(child: CircularProgressIndicator());
+
+        filterList = snapshot.data["filter"];
+        return Column(
+          children: snapshot.data.map((e) => FilterConfigWidget(e)),
+        );
+      },
+    );
+  }
+}
+
+class FilterConfigWidget extends StatefulWidget {
+  FilterConfigWidget(this.filter);
+
+  dynamic filter;
+
+  TextEditingController filterField = TextEditingController(text: 'timeRec');
+  String filterOperator = "sort";
+  String filterValType = "boolean";
+  TextEditingController filterValue = TextEditingController(text: "false");
+
+  @override
+  State<StatefulWidget> createState() => FilterConfigWidgetStatus();
+}
+
+class FilterConfigWidgetStatus extends State<FilterConfigWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+            child: TextField(
+          controller: widget.filterField,
+          decoration: InputDecoration(labelText: "Field"),
+        )),
+        Expanded(
+          child: DropdownButton(
+            hint: Icon(Icons.send),
+            value: widget.filterOperator,
+            icon: Icon(Icons.arrow_drop_down),
+            onChanged: (newValue) {
+              setState(() {
+                widget.filterOperator = newValue;
+              });
+            },
+            items: ['sort', '==', '>', '>=', '<=', '<']
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: DropdownButton(
+            value: widget.filterValType,
+            icon: Icon(Icons.arrow_drop_down),
+            onChanged: (newValue) {
+              setState(() {
+                widget.filterValType = newValue;
+              });
+            },
+            items: ['number', 'string', 'boolean']
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
+                .toList(),
+          ),
+        ),
+        Expanded(
+            child: TextField(
+          controller: widget.filterValue,
+          decoration: InputDecoration(labelText: "Value"),
+        )),
+      ],
     );
   }
 }
