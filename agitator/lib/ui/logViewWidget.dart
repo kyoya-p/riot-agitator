@@ -119,7 +119,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
         Text(doc["seq"].toString()),
       ]),
     );
-  }
+  }s
 }
 
 class FilterListConfigWidget extends StatelessWidget {
@@ -152,7 +152,7 @@ class FilterConfigWidget extends StatefulWidget {
   dynamic filter;
 
   TextEditingController filterField = TextEditingController(text: 'timeRec');
-  String filterOperator = "sort";
+  String filterOperator = "orderBy";
   String filterValType = "boolean";
   TextEditingController filterValue = TextEditingController(text: "false");
 
