@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riotagitator/ui/Common.dart';
+import 'package:riotagitator/ui/fsCollectionOperator.dart';
 
 class DeviceLogsPage extends StatefulWidget {
   DeviceLogsPage(this.devRef);
@@ -11,32 +13,60 @@ class DeviceLogsPage extends StatefulWidget {
 }
 
 class _DeviceLogsPageState extends State<DeviceLogsPage> {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text("Log Viewer")),
-      body: Column(children: [
-        FilterListConfigWidget(
-            widget.devRef.collection("app1").doc("filterConfig")),
-        Expanded(
-          child: PrograssiveItemViewWidget(widget.devRef
-              .collection("logs")
-              //.addWhere(widget.filterField.text, widget.filterOperator,
-              //    widget.filterValue.text)
-              .orderBy("timeRec", descending: true)
-              .limit(20)),
-        )
-      ]));
 
-  void updated() {
-    setState(() {});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text("Log Viewer")),
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: widget.devRef.snapshot(),
+            builder: (context, snapshot) {
+              return Column(children: [
+                IconButton(
+                  icon: Icon(Icons.filter_list),
+                  onPressed: () {
+                    naviPush(
+                        context,
+                        (_) => DocumentPageWidget(widget.devRef
+                            .collection("app1")
+                            .doc("filterConfig")));
+                  },
+                ),
+                FilterListConfigWidget(snapshot.data.data()["filter"]),
+                Expanded(
+                  child: PrograssiveItemViewWidget(widget.devRef
+                      .collection("logs")
+                      .addFilters(filterListConfigWidget.filterList)
+                      .limit(20)),
+                )
+              ]);
+            }));
   }
 }
 
 // QueryにFilterを追加する拡張関数
 extension QueryOperation on Query {
-  Query addWhere2(StatefulWidget w) {}
+  Query addFilters(List<dynamic> filterList) {
+    print(filterList);
+    for (dynamic e in filterList) {
+      print(e["op"]);
+    }
+    return this;
 
-  Query addWhere(String field, String filterOp, String value) {
+    filterList.map((e) => e).toList().fold(this, (a, e) {
+      if (e["op"] == "sort")
+        return a.addOrderBy(e["field"], e["value"] as bool);
+      else
+        return null; //Error
+    });
+  }
+
+  Query addOrderBy(String field, bool descending) {
+    if (field == null || field == "") return this;
+    return this.orderBy(field, descending: descending);
+  }
+
+  Query addWhere(String field, String filterOp, String type, String value) {
     if (field == "") return this;
     if (value == "") return this;
 
@@ -119,29 +149,20 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
         Text(doc["seq"].toString()),
       ]),
     );
-  }s
+  }
 }
 
 class FilterListConfigWidget extends StatelessWidget {
-  FilterListConfigWidget(this.docDevConfig);
+  FilterListConfigWidget(this.filterList);
 
-  DocumentReference docDevConfig;
-  List<Map<String, dynamic>> filterList;
+  // DocumentReference docDevConfig;
+//  List<Map<String, dynamic>> filterList;
+  List<dynamic> filterList;
 
   @override
   Widget build(BuildContext context) {
-    print(docDevConfig.path); //TODO
-    return StreamBuilder(
-      stream: docDevConfig.snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
-
-        filterList = snapshot.data["filter"];
-        return Column(
-          children: snapshot.data.map((e) => FilterConfigWidget(e)),
-        );
-      },
+    return Column(
+      children: filterList.map((e) => FilterConfigWidget(e)).toList(),
     );
   }
 }
@@ -151,33 +172,38 @@ class FilterConfigWidget extends StatefulWidget {
 
   dynamic filter;
 
-  TextEditingController filterField = TextEditingController(text: 'timeRec');
-  String filterOperator = "orderBy";
-  String filterValType = "boolean";
-  TextEditingController filterValue = TextEditingController(text: "false");
-
   @override
-  State<StatefulWidget> createState() => FilterConfigWidgetStatus();
+  State<StatefulWidget> createState() => _FilterConfigWidgetStatus();
 }
 
-class FilterConfigWidgetStatus extends State<FilterConfigWidget> {
+class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
+  String filterOperator;
+  TextEditingController filterField = TextEditingController();
+  String filterValType;
+  TextEditingController filterValue = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    filterOperator = widget.filter["op"] ?? "sort";
+    filterField.text = widget.filter["field"] ?? "timeRec";
+    filterValType = widget.filter["type"] ?? "boolean";
+    filterValue.text = widget.filter["value"] ?? "false";
+
     return Row(
       children: [
         Expanded(
             child: TextField(
-          controller: widget.filterField,
+          controller: filterField,
           decoration: InputDecoration(labelText: "Field"),
         )),
         Expanded(
           child: DropdownButton(
             hint: Icon(Icons.send),
-            value: widget.filterOperator,
+            value: filterOperator,
             icon: Icon(Icons.arrow_drop_down),
             onChanged: (newValue) {
               setState(() {
-                widget.filterOperator = newValue;
+                filterOperator = newValue;
               });
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
@@ -190,11 +216,11 @@ class FilterConfigWidgetStatus extends State<FilterConfigWidget> {
         ),
         Expanded(
           child: DropdownButton(
-            value: widget.filterValType,
+            value: filterValType,
             icon: Icon(Icons.arrow_drop_down),
             onChanged: (newValue) {
               setState(() {
-                widget.filterValType = newValue;
+                filterValType = newValue;
               });
             },
             items: ['number', 'string', 'boolean']
@@ -207,7 +233,7 @@ class FilterConfigWidgetStatus extends State<FilterConfigWidget> {
         ),
         Expanded(
             child: TextField(
-          controller: widget.filterValue,
+          controller: filterValue,
           decoration: InputDecoration(labelText: "Value"),
         )),
       ],
