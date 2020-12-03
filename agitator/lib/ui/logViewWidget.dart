@@ -16,55 +16,86 @@ class _DeviceLogsPageState extends State<DeviceLogsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Log Viewer")),
-        body: StreamBuilder<DocumentSnapshot>(
-            stream: widget.devRef.snapshots(),
-            builder: (context, docSnapshot) {
-              print(docSnapshot.data.reference.path); //TODO
-              if (!docSnapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-              DocumentReference filterConfig = docSnapshot.data.reference
-                  .collection("app1")
-                  .doc("filterConfig");
-              return Column(children: [
-                IconButton(
-                  icon: Icon(Icons.filter_list),
-                  onPressed: () {
-                    naviPush(context, (_) => DocumentPageWidget(filterConfig));
-                  },
-                ),
-                FilterListConfigWidget(docSnapshot.data.data()["filter"]),
-                Expanded(
-                  child: PrograssiveItemViewWidget(widget.devRef
-                      .collection("logs")
-                      .addFilters(filterList)
-                      .limit(20)),
-                )
-              ]);
-            }));
+      appBar: AppBar(title: Text("Log Viewer")),
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: widget.devRef.snapshots(),
+          builder: (context, devSnapshot) {
+            if (!devSnapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+
+            DocumentReference filterConfig = devSnapshot.data.reference
+                .collection("app1")
+                .doc("filterConfig");
+            return StreamBuilder<DocumentSnapshot>(
+                stream: devSnapshot.data.reference
+                    .collection("app1")
+                    .doc("filterConfig")
+                    .snapshots(),
+                builder: (context, devApp1FilterSnapshot) {
+                  if (!devApp1FilterSnapshot.hasData)
+                    return Center(child: CircularProgressIndicator());
+                  List<dynamic> filterList =
+                      devApp1FilterSnapshot.data.data()["filter"];
+                  print("F1: $filterList"); //TODO
+
+                  return Column(children: [
+                    IconButton(
+                      icon: Icon(Icons.filter_list),
+                      onPressed: () {
+                        naviPush(
+                            context, (_) => DocumentPageWidget(filterConfig));
+                      },
+                    ),
+                    FilterListConfigWidget(filterList),
+                    Expanded(
+                      child: PrograssiveItemViewWidget(devSnapshot
+                          .data.reference
+                          .collection("logs")
+                          .addFilters(filterList)
+                          .limit(20)),
+                    ),
+                  ]);
+                });
+          }),
+    );
   }
 }
 
 // QueryにFilterを追加する拡張関数
 extension QueryOperation on Query {
   Query addFilters(List<dynamic> filterList) {
-    print(filterList);
-    for (dynamic e in filterList) {
-      print(e["op"]);
-    }
-    return this;
+    return filterList.fold(this, (a, e) {
+      print("Filter: $e"); //TODO
+      String filterOp = e["op"];
+      String field = e["field"];
+      String value = e["value"];
+      String type = e["type"];
 
-    filterList.map((e) => e).toList().fold(this, (a, e) {
-      if (e["op"] == "sort")
-        return a.addOrderBy(e["field"], e["value"] as bool);
-      else
-        return null; //Error
+      if (filterOp == "sort") {
+        return a.orderBy(field, descending: value == "true");
+      } else if (filterOp == "==") {
+        return this.where(field, isEqualTo: int.parse(value));
+      } else if (filterOp == ">=") {
+        return this
+            //.orderBy(field)
+            .where(field, isGreaterThanOrEqualTo: int.parse(value));
+      } else if (filterOp == "<=") {
+        return this
+            //.orderBy(field)
+            .where(field, isLessThanOrEqualTo: int.parse(value));
+      } else if (filterOp == ">") {
+        return this
+            //.orderBy(field)
+            .where(field, isGreaterThan: int.parse(value));
+      } else if (filterOp == "<") {
+        return this
+            //.orderBy(field)
+            .where(field, isLessThan: int.parse(value));
+      } else {
+        print("throw:");
+        throw Exception();
+      }
     });
-  }
-
-  Query addOrderBy(String field, bool descending) {
-    if (field == null || field == "") return this;
-    return this.orderBy(field, descending: descending);
   }
 
   Query addWhere(String field, String filterOp, String type, String value) {
@@ -114,7 +145,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
           } else if (index > widget.listDocSnapshot.length) {
             return null;
           }
-          widget.qrItems.limit(20).get().then((value) {
+          widget.qrItems.get().then((value) {
             setState(() {
               if (value.size == 0) {
                 widget.itemCount = widget.listDocSnapshot.length;
@@ -162,6 +193,12 @@ class FilterListConfigWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    try {
+      if (filterList == null) throw Exception();
+    } catch (e, st) {
+      print("Exception: $st");
+    }
+
     return Column(
       children: filterList.map((e) => FilterConfigWidget(e)).toList(),
     );
