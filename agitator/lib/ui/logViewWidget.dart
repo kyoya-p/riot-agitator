@@ -13,30 +13,31 @@ class DeviceLogsPage extends StatefulWidget {
 }
 
 class _DeviceLogsPageState extends State<DeviceLogsPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("Log Viewer")),
         body: StreamBuilder<DocumentSnapshot>(
-            stream: widget.devRef.snapshot(),
-            builder: (context, snapshot) {
+            stream: widget.devRef.snapshots(),
+            builder: (context, docSnapshot) {
+              print(docSnapshot.data.reference.path); //TODO
+              if (!docSnapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+              DocumentReference filterConfig = docSnapshot.data.reference
+                  .collection("app1")
+                  .doc("filterConfig");
               return Column(children: [
                 IconButton(
                   icon: Icon(Icons.filter_list),
                   onPressed: () {
-                    naviPush(
-                        context,
-                        (_) => DocumentPageWidget(widget.devRef
-                            .collection("app1")
-                            .doc("filterConfig")));
+                    naviPush(context, (_) => DocumentPageWidget(filterConfig));
                   },
                 ),
-                FilterListConfigWidget(snapshot.data.data()["filter"]),
+                FilterListConfigWidget(docSnapshot.data.data()["filter"]),
                 Expanded(
                   child: PrograssiveItemViewWidget(widget.devRef
                       .collection("logs")
-                      .addFilters(filterListConfigWidget.filterList)
+                      .addFilters(filterList)
                       .limit(20)),
                 )
               ]);
