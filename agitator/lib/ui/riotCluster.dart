@@ -16,23 +16,23 @@ class ClusterViewerPageWidget extends StatelessWidget {
   final String clusterId;
   final db = FirebaseFirestore.instance;
 
-  ClusterViewerPageWidget({@required this.clusterId});
+  ClusterViewerPageWidget({required this.clusterId});
 
   @override
   Widget build(BuildContext context) {
     return FsQueryOperatorAppWidget(
       db.collection("device").where("cluster", isEqualTo: clusterId),
       itemBuilder: (context, index, devSnapshots) =>
-          buildCellWidget(context, devSnapshots.data.docs[index]),
+          buildCellWidget(context, devSnapshots.data!.docs[index]),
       appBar: AppBar(
         title: Text("${clusterId} - Cluster"),
         actions: [
           buildBell(context),
-          PopupMenuButton(
+          PopupMenuButton<Widget Function(BuildContext)>(
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
                   child: Text("Add Generic Device Entry"),
-                  value: (_) => DocumentPageWidget(
+                  value: (_) => DocumentPage(
                       db.collection("group").doc(clusterId))),
               PopupMenuItem(child: Text("Add SNMP Device Entry"), value: null),
               PopupMenuItem(
@@ -55,7 +55,7 @@ class ClusterViewerPageWidget extends StatelessWidget {
         ],
       ),
       onAddButtonPressed: (_) {
-        return DocumentPageWidget(
+        return DocumentPage(
             FirebaseFirestore.instance.collection("device").doc());
       },
     );

@@ -40,11 +40,11 @@ class RiotApp extends StatelessWidget {
 }
 
 class RiotGroupTreePage extends StatelessWidget {
-  RiotGroupTreePage({@required this.user, this.tgGroup = null});
+  RiotGroupTreePage({required this.user, this.tgGroup});
 
 //  final String title;
   final User user;
-  final String tgGroup;
+  final String? tgGroup;
   final db = FirebaseFirestore.instance;
   bool v = false;
 
@@ -64,13 +64,14 @@ class RiotGroupTreePage extends StatelessWidget {
       //drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
           stream: queryMyClusters.snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData)
+          builder: (context, myClustersSnapshot) {
+            if (myClustersSnapshot.data == null)
               return Center(child: CircularProgressIndicator());
+            QuerySnapshot myClustersSnapshotData = myClustersSnapshot.data!;
 
             // 自分の属する全グループ
             Map<String, QueryDocumentSnapshot> myGrs = Map.fromIterable(
-              snapshot.data.docs,
+              myClustersSnapshotData.docs,
               key: (e) => e.id,
               value: (e) => e,
             );
@@ -96,7 +97,7 @@ class RiotGroupTreePage extends StatelessWidget {
           }),
 
       floatingActionButton:
-          (user?.uid == null) ? null : makeFloatingActionButton(context),
+          (user.uid == null) ? null : makeFloatingActionButton(context),
     );
   }
 
@@ -166,7 +167,7 @@ class RiotGroupTreePage extends StatelessWidget {
 
 class GroupTreeWidget extends StatelessWidget {
   GroupTreeWidget(
-      {@required this.user, @required this.myGrs, @required this.listGrs});
+      {required this.user, required this.myGrs, required this.listGrs});
 
   final User user;
   final Map<String, QueryDocumentSnapshot> myGrs;
@@ -195,8 +196,7 @@ class GroupTreeWidget extends StatelessWidget {
 }
 
 class GroupWidget extends StatelessWidget {
-  GroupWidget(
-      {@required this.user, @required this.myGrs, @required this.group});
+  GroupWidget({required this.user, required this.myGrs, required this.group});
 
   final User user;
   final Map<String, QueryDocumentSnapshot> myGrs;
@@ -209,14 +209,10 @@ class GroupWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        bool isCluster = group.data()["isDevCluster"];
+        bool? isCluster = group.data()["isDevCluster"];
         if (isCluster != null && isCluster)
-          return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ClusterViewerPageWidget(clusterId: group.id)),
-          );
+          return naviPush(
+              context, (_) => ClusterViewerPageWidget(clusterId: group.id));
         else
           return naviPush(
               context, (_) => RiotGroupTreePage(user: user, tgGroup: group.id));

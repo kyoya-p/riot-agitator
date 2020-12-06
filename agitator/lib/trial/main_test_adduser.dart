@@ -46,7 +46,8 @@ class _MyAuthPageState extends State<MyAuthPage> {
             children: <Widget>[
               TextFormField(
                 // テキスト入力のラベルを設定
-                decoration: InputDecoration(labelText: "Login ID (Mail Address)"),
+                decoration:
+                    InputDecoration(labelText: "Login ID (Mail Address)"),
                 onChanged: (String value) {
                   setState(() {
                     newUserEmail = value;
@@ -75,7 +76,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                     );
 
                     // 登録したユーザー情報
-                    final FirebaseUser user = result.user;
+                    final User user = result.user;
                     setState(() {
                       infoText = "Success: ${user.email}";
                     });

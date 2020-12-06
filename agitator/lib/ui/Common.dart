@@ -35,50 +35,49 @@ Widget buildCellWidget(
 // 長押しでメニュー
 // - Document編集
 // - logs表示
-Widget buildGenericCard(BuildContext context, DocumentReference devRef) =>
-    Card(
-        color: Theme.of(context).cardColor,
-        child: StreamBuilder<DocumentSnapshot>(
-            stream: devRef.snapshots(),
-            builder: (streamCtx, snapshot) {
-              if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-              String label =
-                  snapshot.data.data()["dev"]["name"] ?? snapshot.data.id;
-              return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.black12,
-                  ),
-                  child: GestureDetector(
-                      child: Text(label, overflow: TextOverflow.ellipsis),
-                      onTap: () {
-                        return showDialog(
-                          context: streamCtx,
-                          builder: (dialogCtx) {
-                            return SimpleDialog(
-                              title: Text(label),
-                              children: [
-                                SimpleDialogOption(
-                                    child: Text("Edit"),
-                                    onPressed: () {
-                                      Navigator.pop(dialogCtx);
-                                      naviPush(context,
-                                          (_) => DeviceLogsPage(devRef));
-                                    }),
-                                SimpleDialogOption(
-                                    child: Text("Logs"),
-                                    onPressed: () {
-                                      Navigator.pop(dialogCtx);
-                                      naviPush(context,
-                                          (_) => DeviceLogsPage(devRef));
-                                    }),
-                              ],
-                            );
-                          },
+Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
+    color: Theme.of(context).cardColor,
+    child: StreamBuilder<DocumentSnapshot>(
+        stream: devRef.snapshots(),
+        builder: (streamCtx, snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+          String label =
+              snapshot.data?.data()["dev"]["name"] ?? snapshot.data?.id;
+          return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.black12,
+              ),
+              child: GestureDetector(
+                  child: Text(label, overflow: TextOverflow.ellipsis),
+                  onTap: () {
+                    showDialog(
+                      context: streamCtx,
+                      builder: (dialogCtx) {
+                        return SimpleDialog(
+                          title: Text(label),
+                          children: [
+                            SimpleDialogOption(
+                                child: Text("Edit"),
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  naviPush(
+                                      context, (_) => DeviceLogsPage(devRef.collection("logs")));
+                                }),
+                            SimpleDialogOption(
+                                child: Text("Logs"),
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  naviPush(
+                                      context, (_) => DeviceLogsPage(devRef.collection("logs")));
+                                }),
+                          ],
                         );
-                      }));
-            }));
+                      },
+                    );
+                  }));
+        }));
 
 // Common Styles
 Decoration genericCellDecoration = BoxDecoration(
@@ -124,7 +123,7 @@ Widget fsStreamBuilder(Query ref, AsyncWidgetBuilder builder) =>
         builder: (context, snapshots) {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
-          builder(context, snapshots);
+          return builder(context, snapshots);
         });
 
 Timer runPeriodicTimer(int start) =>
@@ -138,7 +137,7 @@ Timer runPeriodicTimer(int start) =>
     });
 
 class MySwitchListTile extends StatefulWidget {
-  MySwitchListTile({this.title, this.value = false});
+  MySwitchListTile({required this.title, this.value = false});
 
   Widget title;
   bool value;

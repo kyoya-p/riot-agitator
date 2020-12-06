@@ -19,7 +19,7 @@ class FirebaseSignInWidget extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
-          User user = snapshot.data;
+          User user = snapshot.data!;
           return RiotApp(user);
         } else {
           return FbLoginPage();
