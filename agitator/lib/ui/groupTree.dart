@@ -3,41 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riotagitator/login.dart';
 import 'package:riotagitator/ui/riotCluster.dart';
-import 'file:///C:/works/riot-agitator/agitator/lib/login.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
 import 'fsCollectionOperator.dart';
 
-/*
-  Cluster List Page (User Initial Page)
-  - Move to Cluster Manager
-  - Application Menu (Admin menus)
-  - Login page
- */
-class RiotApp extends StatelessWidget {
-  RiotApp(User this.user);
-
-  final User user;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RIOT HQ',
-      theme: ThemeData(
-        primarySwatch: Colors.brown,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: RiotGroupTreePage(user: user),
-      routes: <String, WidgetBuilder>{
-        "/home": (BuildContext context) => FirebaseSignInWidget(),
-        "/wide": (BuildContext context) => FirebaseSignInWidget(), //TODO
-        "/float": (BuildContext context) =>
-            naviPush(context, (_) => FloatSample()), //TODO
-      },
-    );
-  }
-}
 
 class RiotGroupTreePage extends StatelessWidget {
   RiotGroupTreePage({required this.user, this.tgGroup});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'file:///C:/works/riot-agitator/agitator/lib/login.dart';
 import 'package:http/http.dart' as http;
+import 'package:riotagitator/login.dart';
 
 /*
 Firestore認証Widget
