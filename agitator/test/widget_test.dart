@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riotagitator/ui/riotOrganizer.dart';
+import 'file:///C:/works/riot-agitator/agitator/lib/login.dart';
 
 
 void main() {

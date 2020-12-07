@@ -99,6 +99,12 @@ class PrograssiveItemViewWidget extends StatefulWidget {
 
 class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
   @override
+  void dispose() {
+    widget.listDocSnapshot = [];
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListView.builder(
         itemCount: null, //widget.itemCount,
@@ -109,13 +115,15 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
             return Text("");
           }
           widget.qrItems.limit(20).get().then((value) {
-            setState(() {
-              if (value.size > 0) {
-                widget.listDocSnapshot.addAll(value.docs);
-                widget.qrItems =
-                    widget.qrItems.startAfterDocument(value.docs.last);
-              } else {}
-            });
+            if (mounted) {
+              setState(() {
+                if (value.size > 0) {
+                  widget.listDocSnapshot.addAll(value.docs);
+                  widget.qrItems =
+                      widget.qrItems.startAfterDocument(value.docs.last);
+                } else {}
+              });
+            }
           });
           //return Center(child: CircularProgressIndicator());
           return Card(

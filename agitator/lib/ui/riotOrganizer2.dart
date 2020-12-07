@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotCluster.dart';
-import 'package:riotagitator/ui/riotOrganizer.dart';
+import 'file:///C:/works/riot-agitator/agitator/lib/login.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
 import 'fsCollectionOperator.dart';
@@ -25,7 +25,7 @@ class RiotApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.brown,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: RiotGroupTreePage(user: user),

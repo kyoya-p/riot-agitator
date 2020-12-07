@@ -72,7 +72,9 @@ Widget buildBell(BuildContext context) {
             .limit(1)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.data!=null || snapshot.data?.size == 0) return normalButton;
+          if (!snapshot.hasData || snapshot.data?.size == 0)
+            return normalButton;
+          print("Notifire: ${snapshot.data!.docs[0]}"); //TODO
           return alertButton(timeCheckNotification);
         },
       );

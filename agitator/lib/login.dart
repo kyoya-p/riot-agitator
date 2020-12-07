@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/ui/riotOrganizer2.dart';
-import 'firestoreWidget.dart';
+import 'ui/firestoreWidget.dart';
 
 /* Landing page
   - Authentication Check
