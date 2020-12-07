@@ -62,8 +62,8 @@ Widget buildBell(BuildContext context) {
     builder: (context, snapshot) {
       if (!snapshot.hasData) return normalButton;
       var timeCheckNotification =
-          snapshot.data.get("timeCheckNotification") ?? 0;
-      return StreamBuilder(
+          snapshot.data?.get("timeCheckNotification") ?? 0;
+      return StreamBuilder<QuerySnapshot>(
         stream: db
             .collectionGroup("logs")
             .orderBy("time", descending: true)
@@ -72,7 +72,7 @@ Widget buildBell(BuildContext context) {
             .limit(1)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data.size == 0) return normalButton;
+          if (snapshot.data!=null || snapshot.data?.size == 0) return normalButton;
           return alertButton(timeCheckNotification);
         },
       );

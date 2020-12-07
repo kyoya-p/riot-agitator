@@ -59,7 +59,7 @@ class DemoHumanHeatSensorCreatePage extends StatelessWidget {
 }
 
 class DemoHumanHeatSensorCell extends StatefulWidget {
-  DemoHumanHeatSensorCell({this.devSnapshot});
+  DemoHumanHeatSensorCell({required this.devSnapshot});
 
   QueryDocumentSnapshot devSnapshot;
 
@@ -70,12 +70,12 @@ class DemoHumanHeatSensorCell extends StatefulWidget {
 
 class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
     with SingleTickerProviderStateMixin {
-  DemoHumanHeatSensorCellStatus(QueryDocumentSnapshot this.devSnapshot);
+  DemoHumanHeatSensorCellStatus(this.devSnapshot);
 
   final QueryDocumentSnapshot devSnapshot;
-  Color bgColor = Colors.grey[200];
-  Timer timer;
-  AnimationController _controller;
+  Color bgColor = Colors.grey[200]!;
+  late Timer timer;
+  //AnimationController _controllerAA;
 
   DecorationTween makeDecorationTween(Color c) => DecorationTween(
         begin: BoxDecoration(
@@ -91,17 +91,17 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 5000),
-    )..forward();
+    //_controllerAA = AnimationController(
+    //  vsync: this,
+    //  duration: const Duration(milliseconds: 5000),
+    //)..forward();
     //..repeat(reverse: false);
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    //_controllerAA.dispose();
     super.dispose();
   }
 
@@ -130,21 +130,29 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
-          Color c;
-          if (snapshots.data.size != 0) {
-            Map<String, dynamic> log = snapshots.data.docs[0].data();
-            int intr =
-                DateTime.now().toUtc().millisecondsSinceEpoch - log["time"];
-            c = log["value"] > 0
+          QuerySnapshot logsSnapshotData = snapshots.data!;
+
+          AnimationController controllerAA = AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 5000),
+          )..forward();
+
+          Color c = Colors.black12;
+          if (logsSnapshotData.size != 0) {
+            Map<String, dynamic> log = logsSnapshotData.docs[0].data();
+            int intr = DateTime.now().toUtc().millisecondsSinceEpoch -
+                log["time"] as int;
+            Color c = log["value"] > 0
                 ? Color.fromRGBO(255, 0, 0, 1)
                 : Color.fromRGBO(0, 0, 255, 1);
-            _controller.value = intr / 10000;
+            controllerAA.value = intr / 10000;
+            makeDecorationTween(c).animate(controllerAA..forward());
           }
 
           return GestureDetector(
             child: DecoratedBoxTransition(
                 decoration:
-                    makeDecorationTween(c).animate(_controller..forward()),
+                    makeDecorationTween(c).animate(controllerAA..forward()),
                 child: Column(children: [
                   Row(children: [
                     Text("${devSnapshot.id}"),
@@ -161,6 +169,13 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
           );
         });
   }
+
+  //@override
+  //void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  //  super.debugFillProperties(properties);
+  //  properties.add(
+  //      DiagnosticsProperty<AnimationController>('_controller', _controllerAA));
+  //}
 }
 
 class DeviceLogPage extends StatelessWidget {
@@ -180,8 +195,9 @@ class DeviceLogPage extends StatelessWidget {
           builder: (context, snapshots) {
             if (!snapshots.hasData)
               return Center(child: CircularProgressIndicator());
+            QuerySnapshot logsSnapshotsData = snapshots.data!;
             return Table(
-              children: snapshots.data.docs
+              children: logsSnapshotsData.docs
                   .map((e) => TableRow(children: [
                         TableCell(
                             child: Text(DateTime.fromMillisecondsSinceEpoch(

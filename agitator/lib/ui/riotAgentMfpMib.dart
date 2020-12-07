@@ -34,7 +34,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
               if (!snapshot.hasData)
                 return Center(child: CircularProgressIndicator());
               textController.text =
-                  JsonEncoder.withIndent(" ").convert(snapshot.data.data());
+                  JsonEncoder.withIndent(" ").convert(snapshot.data!.data());
               return Scaffold(
                 appBar: AppBar(
                     title: Text("${docRef.path} - Configuration"),
@@ -46,7 +46,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
                     bottom: TabBar(tabs: _tabs)),
                 body: TabBarView(children: <Widget>[
                   deviceSettings(context, snapshot),
-                  scanSettingsTable(context, snapshot),
+                  scanSettingsTable(context, snapshot.data!),
                   Center(child: Text("Under Construction...")),
                 ]),
                 //body: form(context, snapshot),
@@ -65,11 +65,12 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
 
   Widget deviceSettings(
       BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-    name.text = snapshot.data.data()["name"];
-    password.text = snapshot.data.data()["password"];
-    cluster.text = snapshot.data.data()["cluster"];
+    DocumentSnapshot snapshotData = snapshot.data!;
+    name.text = snapshotData.data()["name"];
+    password.text = snapshotData.data()["password"];
+    cluster.text = snapshotData.data()["cluster"];
     config.text =
-        JsonEncoder.withIndent("  ").convert(snapshot.data.data()["config"]);
+        JsonEncoder.withIndent("  ").convert(snapshotData.data()["config"]);
 
     return Column(
       children: [
@@ -90,14 +91,14 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
           title: Text("Automatic registration of detected devices"),
           value: true,
           controlAffinity: ListTileControlAffinity.leading,
+          onChanged: null,
         ),
       ],
     );
   }
 
-  Widget scanSettingsTable(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-    List<dynamic> scans = snapshot.data.data()["config"]["scanAddrSpecs"];
+  Widget scanSettingsTable(BuildContext context, DocumentSnapshot snapshot) {
+    List<dynamic> scans = snapshot.data()["config"]["scanAddrSpecs"];
     return DataTable(
       columns: ["IP", "Range", "Broadcast", ""]
           .map((e) => DataColumn(label: Text(e)))
@@ -116,9 +117,13 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
         decoration: InputDecoration(
             hintText: "If empty, scan one address or broadcast"),
       )),
-      DataCell(Checkbox(value: scanAddr["isBroadcast"] ?? false)),
+      DataCell(Checkbox(
+        value: scanAddr["isBroadcast"] ?? false,
+        onChanged: (value) {},
+      )),
       DataCell(IconButton(
         icon: Icon(Icons.delete_rounded),
+        onPressed: () {},
       ))
     ]);
   }
@@ -172,7 +177,7 @@ SNMP Agent検索用コンソール
 class SnmpDiscoveryWidget extends StatelessWidget {
   final String groupId;
 
-  SnmpDiscoveryWidget({this.groupId});
+  SnmpDiscoveryWidget({required this.groupId});
 
   @override
   Widget build(BuildContext context) {

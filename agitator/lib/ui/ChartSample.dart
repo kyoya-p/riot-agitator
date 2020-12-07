@@ -32,8 +32,8 @@ class SummaryLog {
   int count;
 }
 
-Function summarizeLogs(CollectionReference srcLog,
-    CollectionReference summaryLog, int since, int period) {
+void summarizeLogs(CollectionReference srcLog, CollectionReference summaryLog,
+    int since, int period) {
   srcLog
       .where("time", isGreaterThanOrEqualTo: since)
       .where("time", isLessThan: since + period)
@@ -41,7 +41,7 @@ Function summarizeLogs(CollectionReference srcLog,
       .then((data) {
     int count = data.size;
     SummaryLog slog = SummaryLog(since, since + period, period, count);
-    summaryLog.doc().set(slog as Map<String,dynamic>);
+    summaryLog.doc().set(slog as Map<String, dynamic>);
   });
 }
 
@@ -90,7 +90,7 @@ class LogCountBarChart extends StatelessWidget {
               ]),
             );
           return Table(
-            children: snapshots.data.docs
+            children: snapshots.data!.docs
                 .map((e) => TableRow(children: [
                       TableCell(
                           child: Text(DateTime.fromMillisecondsSinceEpoch(
@@ -109,7 +109,7 @@ class LogCountBarChart extends StatelessWidget {
   /// Create one series with sample hard coded data.
   /// TODO
   static List<charts.Series<LogCountValue, String>> _createSampleData() {
-    final data = [];
+    final List<LogCountValue> data = [];
 
     return [
       charts.Series<LogCountValue, String>(

@@ -22,6 +22,7 @@ class _DeviceLogsPageState extends State<DeviceLogsPage> {
           builder: (context, devSnapshot) {
             if (!devSnapshot.hasData)
               return Center(child: CircularProgressIndicator());
+
             DocumentReference filterConfig = devSnapshot.data.reference
                 .collection("app1")
                 .doc("filterConfig");
@@ -36,6 +37,7 @@ class _DeviceLogsPageState extends State<DeviceLogsPage> {
                   List<dynamic> filterList =
                       devApp1FilterSnapshot.data.data()["filter"];
                   print("F1: $filterList"); //TODO
+
                   return Column(children: [
                     IconButton(
                       icon: Icon(Icons.filter_list),

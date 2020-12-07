@@ -68,7 +68,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
       await auth.signInWithEmailAndPassword(
           email: mailAddr, password: password);
       //final User user = result.user;
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context)!.pushReplacement(
         MaterialPageRoute(
           builder: (context) => FirebaseSignInWidget(),
         ),
@@ -109,13 +109,14 @@ class _FbLoginPageState extends State<FbLoginPage> {
      */
   }
 
-  Future<String> fetchCustomToken(String deviceId, String password) async {
+  Future<http.Response> fetchCustomToken(
+      String deviceId, String password) async {
     String url =
         //"http://shokkaa.0t0.jp:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
         //"http://192.168.3.102:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
         "http://192.168.3.9:8080/customToken?id=$deviceId&pw=$password"; // This is Kawano's private service
 
-    var res = await http.get(url, headers: {
+    return http.get(url, headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': 'true'
     });

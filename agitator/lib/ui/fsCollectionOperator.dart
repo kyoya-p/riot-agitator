@@ -16,10 +16,12 @@ import 'Common.dart';
 // ignore: must_be_immutable
 class FsQueryOperatorAppWidget extends StatelessWidget {
   FsQueryOperatorAppWidget(this.query,
-      {@required this.itemBuilder,this.appBar, this.onAddButtonPressed});
+      {required this.itemBuilder,
+      required this.appBar,
+      required this.onAddButtonPressed});
 
   Query query;
-  AppBar appBar;
+  AppBar? appBar;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
@@ -29,10 +31,11 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar ?? AppBar(
-        title: Text("Title"),
-        actions: [buildBell(context)],
-      ),
+      appBar: appBar ??
+          AppBar(
+            title: Text("Title"),
+            actions: [buildBell(context)],
+          ),
       body: FsQueryOperatorWidget(
         query,
         itemBuilder: (context, index, snapshots) =>
@@ -56,10 +59,10 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
 class FsQueryOperatorWidget extends StatelessWidget {
   final Query query;
 
+  FsQueryOperatorWidget(this.query, {required this.itemBuilder});
+
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
-
-  FsQueryOperatorWidget(this.query, {@required this.itemBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +74,7 @@ class FsQueryOperatorWidget extends StatelessWidget {
             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
+          QuerySnapshot querySnapshotData = snapshots.data!;
 
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -78,49 +82,25 @@ class FsQueryOperatorWidget extends StatelessWidget {
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),
-              itemCount: snapshots.data.size,
+              itemCount: querySnapshotData.size,
               itemBuilder: (BuildContext context, int index) {
                 return Container(
                   child: Dismissible(
-                    key: Key(snapshots.data.docs[index].id),
+                    key: Key(querySnapshotData.docs[index].id),
                     child: itemBuilder(context, index, snapshots),
                     onDismissed: (_) =>
-                        snapshots.data.docs[index].reference.delete(),
+                        querySnapshotData.docs[index].reference.delete(),
                   ),
                 );
               });
         });
-  }
-
-  Widget defaultItemBuilder(BuildContext context, int index,
-          AsyncSnapshot<QuerySnapshot> snapshots) =>
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: Theme.of(context).primaryColorLight,
-        ),
-        child: Row(children: [
-          Icon(Icons.text_snippet_outlined),
-          Text(snapshots.data.docs[index].id)
-        ]),
-//        child: Text(snapshots.data.docs[index].id),
-      );
-
-  defaultOnTapItem(
-      BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) {
-        QueryDocumentSnapshot doc = snapshots.data.docs[index];
-        return DocumentPageWidget(doc.reference);
-      },
-    ));
   }
 }
 
 class FsCollectionOperatorAppWidget extends StatelessWidget {
   final String collectionId;
 
-  FsCollectionOperatorAppWidget({this.collectionId});
+  FsCollectionOperatorAppWidget({required this.collectionId});
 
   @override
   Widget build(BuildContext context) {
@@ -128,15 +108,17 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
         FirebaseFirestore.instance.collection(collectionId);
     return Scaffold(
         appBar: AppBar(title: Text("$collectionId - Collection")),
-        body: FsCollectionOperatorWidget(query: collectionRef),
+        body: FsCollectionOperatorWidget(
+          query: collectionRef,
+          itemBuilder: (context, index, snapshots) => Text("XXX"),
+        ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.note_add),
             onPressed: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) =>
-                          DocumentPageWidget(collectionRef.doc(null))));
+                      builder: (_) => DocumentPage(collectionRef.doc(null))));
             }));
   }
 }
@@ -149,15 +131,13 @@ class FsCollectionOperatorAppWidget extends StatelessWidget {
 class FsCollectionOperatorWidget extends StatelessWidget {
   CollectionReference query;
 
-  Widget Function(BuildContext context, int index, List<QueryDocumentSnapshot>)
-      itemBuilder;
+  Widget Function(BuildContext context, int index,
+      List<QueryDocumentSnapshot> snapshots) itemBuilder;
 
-  Function(BuildContext context, int index,
-      AsyncSnapshot<QuerySnapshot> snapshots) onTapItem;
+  Function(BuildContext context, int index, QuerySnapshot snapshots)? onTapItem;
 
-  // Stream<QuerySnapshot> _dbSnapshot;
-
-  FsCollectionOperatorWidget({this.query, this.itemBuilder, this.onTapItem}) {
+  FsCollectionOperatorWidget(
+      {required this.query, required this.itemBuilder, this.onTapItem = null}) {
     //_dbSnapshot = query.snapshots();
     if (itemBuilder == null) {
       itemBuilder = (context, index, docs) => Container(
@@ -178,7 +158,7 @@ class FsCollectionOperatorWidget extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    DocumentPageWidget(snapshot.data.docs[index].reference)
+                    DocumentPage(snapshot.docs[index].reference!)
                 //ObjectOperatorWidget(docRef: query.doc(docs[index].id)),
                 ));
       };
@@ -194,13 +174,14 @@ class FsCollectionOperatorWidget extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
+          QuerySnapshot snapshotData = snapshot.data!;
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: w ~/ 160,
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 5,
                 childAspectRatio: 2.0),
-            itemCount: snapshot.data.size,
+            itemCount: snapshotData.size,
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 //child: GestureDetector(
@@ -208,8 +189,8 @@ class FsCollectionOperatorWidget extends StatelessWidget {
                 //  onTapItem(context, index, snapshot);
                 //},
                 child: Dismissible(
-                  key: Key(snapshot.data.docs[index].id),
-                  child: itemBuilder(context, index, snapshot.data.docs),
+                  key: Key(snapshotData.docs[index].id),
+                  child: itemBuilder(context, index, snapshotData.docs),
                   onDismissed: (direction) {
                     //query.doc(snapshot.data.docs[index].id).delete();
                     //snapshot.data.docs[index].delete();
@@ -223,30 +204,28 @@ class FsCollectionOperatorWidget extends StatelessWidget {
   }
 }
 
-// Document更新Widget (リアルタイム更新)
-class DocumentPageWidget extends StatelessWidget {
-  DocumentPageWidget(this.dRef, {this.isIdEditable = false});
+// Document編集Widget
+class DocumentPage extends StatelessWidget {
+  DocumentPage(DocumentReference dRef, {this.isIdEditable = true})
+      : setDocWidget = DocumentWidget(dRef, isIdEditable: isIdEditable);
 
-  DocumentReference dRef;
   final bool isIdEditable;
+  DocumentWidget setDocWidget;
 
   @override
   Widget build(BuildContext context) {
-    DocumentWidget setDocWidget =
-        DocumentWidget(dRef, isIdEditable: isIdEditable);
     return Scaffold(
-      appBar: AppBar(
-          title: Text("${dRef.parent.id} / ${dRef.id} - Document Editor")),
+      appBar: AppBar(title: Text("Document")),
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send),
         onPressed: () {
           try {
-            dRef
+            setDocWidget.documentRef
                 .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
-                .then((_) => Navigator.pop(context))
+                //.then((_) => Navigator.pop(context))
                 .catchError((e) => showAlertDialog(context,
-                    e.message + "\nrequest: ${setDocWidget.textDocBody.text}"));
+                    "${e.message}\nReq:${setDocWidget.documentRef.path}\nBody: ${setDocWidget.textDocBody.text}"));
           } catch (ex) {
             showAlertDialog(context, ex.toString());
           }
@@ -258,44 +237,57 @@ class DocumentPageWidget extends StatelessWidget {
 
 pushDocEditor(BuildContext context, DocumentReference docRef) => Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => DocumentPageWidget(docRef)),
+      MaterialPageRoute(builder: (_) => DocumentPage(docRef)),
     );
 
-class DocumentWidget extends StatelessWidget {
-  DocumentWidget(this.dRef, {this.isIdEditable = false});
+class DocumentWidget extends StatefulWidget {
+  DocumentWidget(this.documentRef, {this.isIdEditable = false});
 
-  DocumentReference dRef;
+  TextEditingController textDocBody = TextEditingController(text: "");
+
+  DocumentReference documentRef;
   final bool isIdEditable;
 
-  var textDocId = TextEditingController(text: "");
-  var textDocBody = TextEditingController(text: "{}");
+  @override
+  _DocumentWidgetState createState() => _DocumentWidgetState();
+}
 
+class _DocumentWidgetState extends State<DocumentWidget> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController docPath =
+        TextEditingController(text: widget.documentRef.path);
+
     return Column(
       children: [
         TextField(
-          controller: textDocId..text = dRef.id,
-          enabled: isIdEditable,
+          controller: docPath,
+          enabled: widget.isIdEditable,
+          onSubmitted: widget.isIdEditable
+              ? (v) => setState(() =>
+                  widget.documentRef = widget.documentRef.firestore.doc(v))
+              : null,
           decoration: InputDecoration(
-            icon: Icon(Icons.label),
-            hintText: 'If empty, the ID will be generated automatically.',
-            //labelText: 'Document ID',
+            icon: Icon(Icons.location_pin),
+            hintText:
+                'Document Path. CollectionId/DocumentId/CollectionId/DocumentId/...',
           ),
         ),
         StreamBuilder(
-            stream: dRef.snapshots(),
+            //stream: widget.dRef.snapshots(),
+            stream: FirebaseFirestore.instance.doc(docPath.text).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) widget.textDocBody.text = "";
               if (snapshot.hasData)
-                textDocBody.text =
-                    JsonEncoder.withIndent("  ").convert(snapshot.data.data());
+                widget.textDocBody.text =
+                    JsonEncoder.withIndent("  ").convert(snapshot.data?.data());
               return TextField(
-                controller: textDocBody,
+                controller: widget.textDocBody,
                 decoration: InputDecoration(
                   icon: Icon(Icons.edit),
-                  hintText: 'This text must be in JSON format.',
+                  hintText: 'No document. This text must be in JSON format.',
                   //labelText: 'Document'
                 ),
                 maxLines: null,
