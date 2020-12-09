@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:riotagitator/ui/Common.dart';
-import 'package:riotagitator/ui/fsCollectionOperator.dart';
+import 'fsCollectionOperator.dart';
 
 class DeviceLogsPage extends StatefulWidget {
   DeviceLogsPage(this.logsRef);
