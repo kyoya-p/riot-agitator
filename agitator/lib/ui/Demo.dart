@@ -35,9 +35,11 @@ class DemoHumanHeatSensorCreatePage extends StatelessWidget {
         child: Icon(Icons.send),
         onPressed: () {
           Map<String, Object> devDoc = {
-            "cluster": clusterId,
+            "dev": {
+              "cluster": clusterId,
+              "type": type,
+            },
             "password": "Sharp_#1",
-            "type": type,
           };
           db
               .collection("device")
@@ -75,6 +77,7 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
   final QueryDocumentSnapshot devSnapshot;
   Color bgColor = Colors.grey[200]!;
   late Timer timer;
+
   //AnimationController _controllerAA;
 
   DecorationTween makeDecorationTween(Color c) => DecorationTween(
@@ -170,12 +173,12 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
         });
   }
 
-  //@override
-  //void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  //  super.debugFillProperties(properties);
-  //  properties.add(
-  //      DiagnosticsProperty<AnimationController>('_controller', _controllerAA));
-  //}
+//@override
+//void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+//  super.debugFillProperties(properties);
+//  properties.add(
+//      DiagnosticsProperty<AnimationController>('_controller', _controllerAA));
+//}
 }
 
 class DeviceLogPage extends StatelessWidget {

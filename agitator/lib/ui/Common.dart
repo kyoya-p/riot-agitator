@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
 
 import 'Demo.dart';
+import 'fsCollectionOperator.dart';
 import 'logViewWidget.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
@@ -21,7 +22,7 @@ DecorationTween makeDecorationTween(Color c) => DecorationTween(
 Widget buildCellWidget(
     BuildContext context, QueryDocumentSnapshot devSnapshot) {
   Map<String, dynamic> data = devSnapshot.data();
-  String type = data["type"];
+  String type = data["dev.type"];
   if (type == RiotAgentMfpMibAppWidget.type) {
     return RiotAgentMfpMibAppWidget.makeCellWidget(context, devSnapshot);
   } else if (type == DemoHumanHeatSensorCreatePage.type) {
@@ -63,7 +64,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
-                                      context, (_) => DeviceLogsPage(devRef.collection("logs")));
+                                      context, (_) => DocumentPage(devRef));
                                 }),
                             SimpleDialogOption(
                                 child: Text("Logs"),

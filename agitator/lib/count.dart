@@ -13,55 +13,80 @@ import 'package:firebase_core/firebase_core.dart';
 */
 
 void countTest() async {
+  print("get last log..");
   Firebase.initializeApp();
   await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: "kyoya.p4@gmail.com", password: "kyoyap4");
 
-  User user = FirebaseAuth.instance.currentUser;
+  //User user = FirebaseAuth.instance.currentUser;//TODO
   //print(user); //TODO
   FirebaseFirestore db = FirebaseFirestore.instance;
-  Query targetItems = db.collection("device/KK1/logs").orderBy("time");
+  //Query targetItems = db.collectionGroup("device/KK1/logs").orderBy("time").limit(1000);
+
+  int lastTotalCount = 0;
+  int lastTime = 0;
+
   CollectionReference summaryCollection = db.collection("tmpCount");
-  makeCountSummary(
+  // 最後のログから継続する場合
+  QuerySnapshot lastSummary = await summaryCollection
+      .orderBy("endTime", descending: true)
+      .limit(1)
+      .get();
+  if (lastSummary.size != 0) {
+    lastTime = lastSummary.docs[0]["endTime"];
+    lastTotalCount = lastSummary.docs[0]["totalCount"];
+  }
+  print("lastTime=$lastTime");
+  print("lastTotalCount=$lastTotalCount");
+
+  Query targetItems = db
+      .collectionGroup("logs")
+      .orderBy("time")
+      .where("time", isGreaterThan: lastTime)
+      .limit(100);
+
+  print("start counting..");
+  int res = await makeCountSummary(
     targetItems,
     summaryCollection,
     "time",
     DateTime.now().toUtc().millisecondsSinceEpoch,
     1000,
+    lastTotalCount: lastTotalCount,
+    lastTime: lastTime,
   );
+  print("totalCount= $res");
 }
 
-makeCountSummary(
-  Query targetItems,
-  CollectionReference summaryCollection,
-  String timeField,
-  int time,
-  int resolutionInSecond,
-) async {
-  int totalCount = 0;
-  int lastTotalCount = 0;
-  int lastTime = 0;
+Future<int> makeCountSummary(
+    Query targetItems,
+    CollectionReference summaryCollection,
+    String timeField,
+    int time,
+    int resolutionInSecond,
+    {int lastTotalCount = 0,
+    int lastTime = 0}) async {
+  int totalCount = lastTotalCount;
 
   await listItems(targetItems, timeField, time, (e) {
     int t = e[timeField] ~/ resolutionInSecond * resolutionInSecond;
     if (t != lastTime) {
-      //Count Fix
       CountSegment seg = CountSegment(lastTime, t - lastTime,
-          totalCount: totalCount, count: totalCount - lastTotalCount);
+          totalCount: totalCount, periodCount: totalCount - lastTotalCount);
       lastTotalCount = totalCount;
-      print(seg);
-      summaryCollection.doc("${seg.since}:${seg.period}").set(seg.toMap());
+      print("${DateTime.fromMillisecondsSinceEpoch(seg.startTime)} $seg");
+      summaryCollection.doc("${seg.startTime}:${seg.period}").set(seg.toMap());
       lastTime = t;
-    } else {
-      print(totalCount);
     }
     totalCount = totalCount + 1;
   });
   if (time ~/ resolutionInSecond != lastTime) {
-    print(CountSegment(
+    CountSegment seg = CountSegment(
         lastTime, (time ~/ resolutionInSecond * resolutionInSecond) - lastTime,
-        totalCount: totalCount, count: totalCount - lastTotalCount));
+        totalCount: totalCount, periodCount: totalCount - lastTotalCount);
+    print("${DateTime.fromMillisecondsSinceEpoch(seg.startTime)} $seg");
   }
+  return totalCount;
 }
 
 /*Future<int> makeCountSummary_X1(
@@ -116,20 +141,22 @@ List<CountSegment> makeSegments(int time /*[sec]*/) {
 }
 
 class CountSegment {
-  CountSegment(this.since, this.period, {this.totalCount = 0, this.count = 0});
+  CountSegment(this.startTime, this.period,
+      {this.totalCount = 0, this.periodCount = 0});
 
-  final int since;
+  final int startTime;
   final int period;
   final int totalCount;
-  final int count;
+  final int periodCount;
 
-  String toString() => "${since}~${period}:${totalCount}(+$count)";
+  String toString() => "${startTime}~${period}:${totalCount}(+$periodCount)";
 
   Map<String, dynamic> toMap() => {
-        "since": since,
+        "timeStart": startTime,
+        "timeEnd": startTime + period,
         "period": period,
         "totalCount": totalCount,
-        "count": count,
+        "periodCount": periodCount,
         "type": "test",
       };
 }

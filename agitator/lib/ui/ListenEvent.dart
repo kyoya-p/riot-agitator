@@ -68,7 +68,7 @@ Widget buildBell(BuildContext context) {
             .collectionGroup("logs")
             .orderBy("time", descending: true)
             .where("time", isGreaterThanOrEqualTo: timeCheckNotification)
-            .where("type", isEqualTo: "mfp.mib")
+            .where("dev.type", isEqualTo: "mfp.mib")
             .limit(1)
             .snapshots(),
         builder: (context, snapshot) {
@@ -93,7 +93,7 @@ logListenerX(BuildContext context) async {
         isGreaterThanOrEqualTo:
             DateTime.now().toUtc().millisecondsSinceEpoch - 1 * 1000,
       )
-      .where("type", isEqualTo: "mfp.mib")
+      .where("dev.type", isEqualTo: "mfp.mib")
       .limit(1)
       .snapshots()
       .listen((event) {

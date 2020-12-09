@@ -223,7 +223,7 @@ class DocumentPage extends StatelessWidget {
           try {
             setDocWidget.documentRef
                 .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
-                //.then((_) => Navigator.pop(context))
+                .then((_) => Navigator.pop(context))
                 .catchError((e) => showAlertDialog(context,
                     "${e.message}\nReq:${setDocWidget.documentRef.path}\nBody: ${setDocWidget.textDocBody.text}"));
           } catch (ex) {
