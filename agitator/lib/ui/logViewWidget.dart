@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:riotagitator/ui/Common.dart';
-import 'fsCollectionOperator.dart';
+import 'documentPage.dart';
 
 class DeviceLogsPage extends StatefulWidget {
-  DeviceLogsPage(this.logsRef);
+  DeviceLogsPage(this.logsRef, this.filterConfigRef);
 
   CollectionReference logsRef;
+  DocumentReference filterConfigRef;
 
   @override
   _DeviceLogsPageState createState() => _DeviceLogsPageState();

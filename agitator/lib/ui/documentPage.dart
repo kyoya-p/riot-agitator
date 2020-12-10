@@ -221,14 +221,13 @@ class DocumentPage extends StatelessWidget {
         child: Icon(Icons.send),
         onPressed: () {
           try {
-            setDocWidget.documentRef
+            FirebaseFirestore.instance
+                .doc(setDocWidget.docPath.text)
                 .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
                 .then((_) {
 //                  Navigator.pop(context);
-                }
-            )
-                .catchError((e) => showAlertDialog(context,
-                    "${e.message}\nReq:${setDocWidget.documentRef.path}\nBody: ${setDocWidget.textDocBody.text}"));
+            }).catchError((e) => showAlertDialog(context,
+                    "${e.message}\nReq:${setDocWidget.docPath.text}\nBody: ${setDocWidget.textDocBody.text}"));
           } catch (ex) {
             showAlertDialog(context, ex.toString());
           }
@@ -244,11 +243,13 @@ pushDocEditor(BuildContext context, DocumentReference docRef) => Navigator.push(
     );
 
 class DocumentWidget extends StatefulWidget {
-  DocumentWidget(this.documentRef, {this.isIdEditable = false});
+  DocumentWidget(DocumentReference documentRef, {this.isIdEditable = false})
+      : docPath = TextEditingController(text: documentRef.path);
 
   TextEditingController textDocBody = TextEditingController(text: "");
+  TextEditingController docPath;
 
-  DocumentReference documentRef;
+  //DocumentReference documentRef;
   final bool isIdEditable;
 
   @override
@@ -258,18 +259,15 @@ class DocumentWidget extends StatefulWidget {
 class _DocumentWidgetState extends State<DocumentWidget> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController docPath =
-        TextEditingController(text: widget.documentRef.path);
+    //TextEditingController docPath =
+    //    TextEditingController(text: widget.documentRef.path);
 
     return Column(
       children: [
         TextField(
-          controller: docPath,
+          controller: widget.docPath,
           enabled: widget.isIdEditable,
-          onSubmitted: widget.isIdEditable
-              ? (v) => setState(() =>
-                  widget.documentRef = widget.documentRef.firestore.doc(v))
-              : null,
+          onSubmitted: widget.isIdEditable ? (v) => setState(() {}) : null,
           decoration: InputDecoration(
             icon: Icon(Icons.location_pin),
             hintText:
@@ -278,7 +276,8 @@ class _DocumentWidgetState extends State<DocumentWidget> {
         ),
         StreamBuilder(
             //stream: widget.dRef.snapshots(),
-            stream: FirebaseFirestore.instance.doc(docPath.text).snapshots(),
+            stream:
+                FirebaseFirestore.instance.doc(widget.docPath.text).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());

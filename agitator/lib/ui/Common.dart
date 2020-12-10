@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
 
 import 'Demo.dart';
-import 'fsCollectionOperator.dart';
+import 'documentPage.dart';
 import 'logViewWidget.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
@@ -65,6 +65,13 @@ Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
                                   Navigator.pop(dialogCtx);
                                   naviPush(
                                       context, (_) => DocumentPage(devRef));
+                                }),
+                            SimpleDialogOption(
+                                child: Text("Query"),
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  naviPush(
+                                      context, (_) => DocumentPage(devRef.collection("query").doc()));
                                 }),
                             SimpleDialogOption(
                                 child: Text("Logs"),

@@ -5,7 +5,7 @@ import 'ChartSample.dart';
 import 'Common.dart';
 import 'Demo.dart';
 import 'ListenEvent.dart';
-import 'fsCollectionOperator.dart';
+import 'documentPage.dart';
 
 /* Cluster管理画面
    - 登録デバイス一覧表示
