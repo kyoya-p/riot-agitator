@@ -12,15 +12,17 @@ import 'documentPage.dart';
    - 新規デバイス登録
    - Cluster情報の編集
 */
-class ClusterViewerPageWidget extends StatelessWidget {
+class ClusterViewerPage extends StatelessWidget {
   final String clusterId;
   final db = FirebaseFirestore.instance;
 
-  ClusterViewerPageWidget({required this.clusterId});
+  ClusterViewerPage({required this.clusterId});
 
   @override
   Widget build(BuildContext context) {
-    return FsQueryOperatorAppWidget(
+
+
+    return CollectionPage(
       db.collection("device").where("dev.cluster", isEqualTo: clusterId),
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data!.docs[index]),

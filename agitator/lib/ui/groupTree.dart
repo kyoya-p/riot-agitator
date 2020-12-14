@@ -4,16 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
-import 'package:riotagitator/ui/riotCluster.dart';
+import 'package:riotagitator/ui/clusterView.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
 import 'documentPage.dart';
 
+class GroupTreePage extends StatelessWidget {
+  GroupTreePage({required this.user, this.tgGroup});
 
-class RiotGroupTreePage extends StatelessWidget {
-  RiotGroupTreePage({required this.user, this.tgGroup});
-
-//  final String title;
   final User user;
   final String? tgGroup;
   final db = FirebaseFirestore.instance;
@@ -129,7 +127,9 @@ class RiotGroupTreePage extends StatelessWidget {
         Map<String, Object> docGroup = {
           "parent": tgGroup ?? "world",
           "users": {user.uid: true},
-          "isDevCluster": sw.value,
+        };
+        docGroup["type"] = {
+          "group": sw.value ? {"cluster": {}} : {}
         };
         print("${name.text}: ${docGroup}"); //TODO
         db.collection("group").doc(name.text).set(docGroup);
@@ -180,13 +180,12 @@ class GroupWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        bool? isCluster = group.data()["isDevCluster"];
-        if (isCluster != null && isCluster)
+        if (group.data().nestedGet(["type", "group", "cluster"]) != null)
           return naviPush(
-              context, (_) => ClusterViewerPageWidget(clusterId: group.id));
+              context, (_) => ClusterViewerPage(clusterId: group.id));
         else
           return naviPush(
-              context, (_) => RiotGroupTreePage(user: user, tgGroup: group.id));
+              context, (_) => GroupTreePage(user: user, tgGroup: group.id));
       },
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
@@ -196,9 +195,9 @@ class GroupWidget extends StatelessWidget {
               top: BorderSide(color: Colors.white, width: 2.0),
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
-            color: group.data()["isDevCluster"] == true
-                ? Theme.of(context).focusColor
-                : Colors.brown[100],
+            color: group.data().nestedGet(["type", "group", "cluster"]) != null
+                ? Theme.of(context).accentColor.shift(50,50,50)
+                : Theme.of(context).primaryColor.withOpacity(0.1),
           ),
           child: Column(children: [
             Row(
@@ -214,4 +213,12 @@ class GroupWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+extension ColorExt on Color {
+  Color scale(double v) => Color.fromARGB(this.alpha, (this.red * v).toInt(),
+      (this.green * v).toInt(), (this.blue * v).toInt());
+
+  Color shift(int r, int g, int b) =>
+      Color.fromARGB(this.alpha, this.red + r, this.green + g, this.blue + b);
 }

@@ -14,8 +14,8 @@ import 'Common.dart';
  */
 
 // ignore: must_be_immutable
-class FsQueryOperatorAppWidget extends StatelessWidget {
-  FsQueryOperatorAppWidget(this.query,
+class CollectionPage extends StatelessWidget {
+  CollectionPage(this.query,
       {required this.itemBuilder,
       required this.appBar,
       required this.onAddButtonPressed});
@@ -36,7 +36,7 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
             title: Text("Title"),
             actions: [buildBell(context)],
           ),
-      body: FsQueryOperatorWidget(
+      body: CollectionWidget(
         query,
         itemBuilder: (context, index, snapshots) =>
             itemBuilder(context, index, snapshots),
@@ -56,10 +56,10 @@ class FsQueryOperatorAppWidget extends StatelessWidget {
   }
 }
 
-class FsQueryOperatorWidget extends StatelessWidget {
+class CollectionWidget extends StatelessWidget {
   final Query query;
 
-  FsQueryOperatorWidget(this.query, {required this.itemBuilder});
+  CollectionWidget(this.query, {required this.itemBuilder});
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots) itemBuilder;
@@ -75,7 +75,6 @@ class FsQueryOperatorWidget extends StatelessWidget {
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
           QuerySnapshot querySnapshotData = snapshots.data!;
-
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: w ~/ 170,
@@ -85,13 +84,18 @@ class FsQueryOperatorWidget extends StatelessWidget {
               itemCount: querySnapshotData.size,
               itemBuilder: (BuildContext context, int index) {
                 return Container(
-                  child: Dismissible(
-                    key: Key(querySnapshotData.docs[index].id),
-                    child: itemBuilder(context, index, snapshots),
-                    onDismissed: (_) =>
-                        querySnapshotData.docs[index].reference.delete(),
-                  ),
-                );
+                    child: InkResponse(
+                      onLongPress: () {
+                        print("long");
+                      },
+                      child: Dismissible(
+                      key: Key(querySnapshotData.docs[index].id),
+                      child: itemBuilder(context, index, snapshots),
+                      onDismissed: (_) =>
+                          querySnapshotData.docs[index].reference.delete(),
+                    ),
+              ));
+
               });
         });
   }

@@ -7,6 +7,7 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 import 'Demo.dart';
 import 'documentPage.dart';
 import 'logViewWidget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
       begin: BoxDecoration(
@@ -45,6 +46,8 @@ Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
             return Center(child: CircularProgressIndicator());
           String label =
               snapshot.data?.data()["dev"]["name"] ?? snapshot.data?.id;
+          User user = FirebaseAuth.instance.currentUser;
+
           return Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
@@ -71,14 +74,24 @@ Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
-                                      context, (_) => DocumentPage(devRef.collection("query").doc()));
+                                      context,
+                                      (_) => DocumentPage(
+                                          devRef.collection("query").doc()));
                                 }),
                             SimpleDialogOption(
                                 child: Text("Logs"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
-                                      context, (_) => DeviceLogsPage(devRef.collection("logs")));
+                                      context,
+                                      (_) => DeviceLogsPage(
+                                            devRef.collection("logs"),
+                                            FirebaseFirestore.instance
+                                                .collection("user")
+                                                .doc(user.uid)
+                                                .collection("app1")
+                                                .doc("filterConfig"),
+                                          ));
                                 }),
                           ],
                         );
@@ -163,4 +176,31 @@ class _MySwitchTileState extends State<MySwitchListTile> {
         value: widget.value,
         title: widget.title,
       );
+}
+
+// extention functions for debug
+extension Debug on Object {
+  pby(Function f) {
+    print(f(this));
+    return this;
+  }
+
+  p() {
+    print(this);
+    return this;
+  }
+}
+
+extension MapExt on Map<String, dynamic?>? {
+  T? nestedGet<T>(List<String> keys) {
+    Map<String, dynamic?>? map = this;
+    T? t = null;
+    for (String key in keys) {
+      if (map == null) return null;
+      if (!map.containsKey(key)) return null;
+      t = map[key];
+      if (map[key] is Map<String, dynamic?>?) map = map[key];
+    }
+    return t;
+  }
 }

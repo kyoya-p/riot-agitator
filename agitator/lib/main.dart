@@ -8,7 +8,6 @@ import 'package:riotagitator/ui/groupTree.dart';
 //import 'trial/main_test_firestore.dart' as test_firestore;
 //import 'trial/main_test_adduser.dart' as test_adduser;
 //import 'trial/main_test_login.dart' as test_login;
-import 'count.dart';
 import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -39,7 +38,7 @@ class RiotApp extends StatelessWidget {
         primarySwatch: Colors.brown,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RiotGroupTreePage(user: user),
+      home: GroupTreePage(user: user),
       routes: <String, WidgetBuilder>{
         "/home": (BuildContext context) => FirebaseSignInWidget(),
         "/wide": (BuildContext context) => FirebaseSignInWidget(), //TODO

@@ -78,8 +78,6 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
   Color bgColor = Colors.grey[200]!;
   late Timer timer;
 
-  //AnimationController _controllerAA;
-
   DecorationTween makeDecorationTween(Color c) => DecorationTween(
         begin: BoxDecoration(
           color: c,
@@ -94,17 +92,10 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
   @override
   void initState() {
     super.initState();
-    //_controllerAA = AnimationController(
-    //  vsync: this,
-    //  duration: const Duration(milliseconds: 5000),
-    //)..forward();
-    //..repeat(reverse: false);
-    super.initState();
   }
 
   @override
   void dispose() {
-    //_controllerAA.dispose();
     super.dispose();
   }
 
