@@ -5,6 +5,7 @@ import 'ChartSample.dart';
 import 'Common.dart';
 import 'Demo.dart';
 import 'ListenEvent.dart';
+import 'collectionPage.dart';
 import 'documentPage.dart';
 
 /* Cluster管理画面
@@ -13,16 +14,14 @@ import 'documentPage.dart';
    - Cluster情報の編集
 */
 class ClusterViewerPage extends StatelessWidget {
+  ClusterViewerPage({required this.clusterId});
+
   final String clusterId;
   final db = FirebaseFirestore.instance;
 
-  ClusterViewerPage({required this.clusterId});
-
   @override
   Widget build(BuildContext context) {
-
-
-    return CollectionPage(
+    return QueryViewPage(
       db.collection("device").where("dev.cluster", isEqualTo: clusterId),
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data!.docs[index]),
@@ -34,8 +33,8 @@ class ClusterViewerPage extends StatelessWidget {
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
                   child: Text("Add Generic Device Entry"),
-                  value: (_) => DocumentPage(
-                      db.collection("group").doc(clusterId))),
+                  value: (_) =>
+                      DocumentPage(db.collection("group").doc(clusterId))),
               PopupMenuItem(child: Text("Add SNMP Device Entry"), value: null),
               PopupMenuItem(
                   child: Text("Add HTTP Device Entry"),
@@ -56,10 +55,6 @@ class ClusterViewerPage extends StatelessWidget {
           )
         ],
       ),
-      onAddButtonPressed: (_) {
-        return DocumentPage(
-            FirebaseFirestore.instance.collection("device").doc());
-      },
     );
   }
 }

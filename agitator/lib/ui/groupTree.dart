@@ -7,6 +7,7 @@ import 'package:riotagitator/login.dart';
 import 'package:riotagitator/ui/clusterView.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
+import 'collectionPage.dart';
 import 'documentPage.dart';
 
 class GroupTreePage extends StatelessWidget {
@@ -180,7 +181,7 @@ class GroupWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (group.data().nestedGet(["type", "group", "cluster"]) != null)
+        if (group.data().getNested(["type", "group", "cluster"]) != null)
           return naviPush(
               context, (_) => ClusterViewerPage(clusterId: group.id));
         else
@@ -195,7 +196,7 @@ class GroupWidget extends StatelessWidget {
               top: BorderSide(color: Colors.white, width: 2.0),
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
-            color: group.data().nestedGet(["type", "group", "cluster"]) != null
+            color: group.data().getNested(["type", "group", "cluster"]) != null
                 ? Theme.of(context).accentColor.shift(50,50,50)
                 : Theme.of(context).primaryColor.withOpacity(0.1),
           ),

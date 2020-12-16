@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
 
 import 'Demo.dart';
+import 'collectionPage.dart';
 import 'documentPage.dart';
 import 'logViewWidget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,15 +38,17 @@ Widget buildCellWidget(
 // 長押しでメニュー
 // - Document編集
 // - logs表示
-Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
+Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
     color: Theme.of(context).cardColor,
     child: StreamBuilder<DocumentSnapshot>(
-        stream: devRef.snapshots(),
+        stream: dRef.snapshots(),
         builder: (streamCtx, snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
           String label =
-              snapshot.data?.data()["dev"]["name"] ?? snapshot.data?.id;
+              snapshot.data?.data().getNested<String>(["dev", "name"]) ??
+                  snapshot.data?.id ??
+                  "no title";
           User user = FirebaseAuth.instance.currentUser;
 
           return Container(
@@ -66,26 +69,49 @@ Widget buildGenericCard(BuildContext context, DocumentReference devRef) => Card(
                                 child: Text("Edit"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
-                                  naviPush(
-                                      context, (_) => DocumentPage(devRef));
+                                  naviPush(context, (_) => DocumentPage(dRef));
                                 }),
                             SimpleDialogOption(
-                                child: Text("Query"),
+                                child: Text(
+                                    "Publish (Update 'time' field and set)"),
+                                onPressed: () {
+                                  //Navigator.pop(dialogCtx);
+                                  dRef.get().then((DocumentSnapshot doc) {
+                                    Map<String, dynamic> map = doc.data();
+                                    map["time"] = DateTime.now()
+                                        .toUtc()
+                                        .millisecondsSinceEpoch;
+                                    dRef.set(map);
+                                  });
+                                }),
+                            SimpleDialogOption(
+                                child:
+                                    Text("View Sub Collection: [device].query"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
                                       context,
-                                      (_) => DocumentPage(
-                                          devRef.collection("query").doc()));
+                                      (_) => CollectionPage(
+                                          dRef.collection("query")));
                                 }),
                             SimpleDialogOption(
-                                child: Text("Logs"),
+                                child: Text(
+                                    "View Sub Collection: [device.query].results"),
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  naviPush(
+                                      context,
+                                      (_) => CollectionPage(
+                                          dRef.collection("results")));
+                                }),
+                            SimpleDialogOption(
+                                child: Text("View Sub Collection: [*].logs"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
                                       context,
                                       (_) => DeviceLogsPage(
-                                            devRef.collection("logs"),
+                                            dRef.collection("logs"),
                                             FirebaseFirestore.instance
                                                 .collection("user")
                                                 .doc(user.uid)
@@ -192,15 +218,25 @@ extension Debug on Object {
 }
 
 extension MapExt on Map<String, dynamic?>? {
-  T? nestedGet<T>(List<String> keys) {
+  T? get<T>(String key) {
+    if (this == null) return null;
+    dynamic t = (this as Map<String, dynamic?>)[key];
+    if (t == null) return null;
+    if (!(t is T)) return null;
+    return t as T;
+  }
+
+  T? getNested<T>(List<String> keys) {
     Map<String, dynamic?>? map = this;
-    T? t = null;
+    dynamic t = null;
     for (String key in keys) {
       if (map == null) return null;
       if (!map.containsKey(key)) return null;
       t = map[key];
       if (map[key] is Map<String, dynamic?>?) map = map[key];
     }
-    return t;
+    if (t == null) return null;
+    if (!(t is T)) return null;
+    return t as T;
   }
 }
