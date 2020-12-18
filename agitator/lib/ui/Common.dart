@@ -72,8 +72,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
                                   naviPush(context, (_) => DocumentPage(dRef));
                                 }),
                             SimpleDialogOption(
-                                child: Text(
-                                    "Publish (Update 'time' field and set)"),
+                                child: Text("Publish (Update 'time' and set)"),
                                 onPressed: () {
                                   //Navigator.pop(dialogCtx);
                                   dRef.get().then((DocumentSnapshot doc) {
@@ -85,18 +84,16 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
                                   });
                                 }),
                             SimpleDialogOption(
-                                child:
-                                    Text("View Sub Collection: [device].query"),
+                                child: Text("SubCollection: query"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
                                       context,
                                       (_) => CollectionPage(
-                                          dRef.collection("query")));
+                                          dRef.collection("query")),);
                                 }),
                             SimpleDialogOption(
-                                child: Text(
-                                    "View Sub Collection: [device.query].results"),
+                                child: Text("SubCollection: results"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(
@@ -105,7 +102,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
                                           dRef.collection("results")));
                                 }),
                             SimpleDialogOption(
-                                child: Text("View Sub Collection: [*].logs"),
+                                child: Text("SubCollection: logs"),
                                 onPressed: () {
                                   Navigator.pop(dialogCtx);
                                   naviPush(

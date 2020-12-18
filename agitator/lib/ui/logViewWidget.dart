@@ -152,9 +152,9 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
       );
     } catch (e) {
       return Card(
-          color: Theme.of(context).disabledColor,
+          color: Colors.grey[200], //Theme.of(context).backgroundColor,
           child: Row(
-              children: [Text("$index"), padding, Text("Illegal Data: $doc")]));
+              children: [Text("$index"), padding, Text("$doc")]));
     }
   }
 }

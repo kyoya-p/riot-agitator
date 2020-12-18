@@ -21,8 +21,8 @@ class CollectionPage extends StatelessWidget {
   AppBar? appBar;
   Widget? floatingActionButton;
 
-  AppBar defaultAppBar(BuildContext context) =>
-      AppBar(title: Text("Title"), actions: [buildBell(context)]);
+  AppBar defaultAppBar(BuildContext context) => AppBar(
+      title: Text("${cRef.path} - Collection"), actions: [buildBell(context)]);
 
   FloatingActionButton defaultFloatingActionButton(
           BuildContext context, DocumentReference dRef) =>
@@ -62,8 +62,9 @@ class QueryViewPage extends StatelessWidget {
   AppBar? appBar;
   Widget? floatingActionButton;
 
-  AppBar defaultAppBar(BuildContext context) =>
-      AppBar(title: Text("Title"), actions: [buildBell(context)]);
+  AppBar defaultAppBar(BuildContext context) => AppBar(
+      title: Text("${query.parameters} - Query"),
+      actions: [buildBell(context)]);
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
