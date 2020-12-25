@@ -28,7 +28,7 @@ class GroupTreePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Organization View"),
+        title: Text("${tgGroup} - Group View"),
         actions: [buildBell(context), loginButton(context)],
       ),
       //drawer: appDrawer(context),
@@ -68,21 +68,6 @@ class GroupTreePage extends StatelessWidget {
 
       floatingActionButton:
           (user.uid == null) ? null : makeFloatingActionButton(context),
-    );
-  }
-
-  Widget appDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Text('Debugger for Admin'),
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-          ),
-          collectionListTile(context, "device"),
-          collectionListTile(context, "group"),
-        ],
-      ),
     );
   }
 
@@ -188,10 +173,11 @@ class GroupWidget extends StatelessWidget {
           return naviPush(
               context, (_) => GroupTreePage(user: user, tgGroup: group.id));
       },
+      onLongPress: () => showDocumentOperationMenu(group.reference, context),
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
         child: Container(
-          decoration: BoxDecoration(
+           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(color: Colors.white, width: 2.0),
               left: BorderSide(color: Colors.white, width: 2.0),
@@ -200,6 +186,11 @@ class GroupWidget extends StatelessWidget {
                 ? Theme.of(context).accentColor.shift(50,50,50)
                 : Theme.of(context).primaryColor.withOpacity(0.1),
           ),
+          //elevation: 4,
+          /*color: group.data().getNested(["type", "group", "cluster"]) != null
+              ? Theme.of(context).focusColor
+              : Theme.of(context).cardColor,
+          */
           child: Column(children: [
             Row(
               children: [Text("${group.id}")],

@@ -46,7 +46,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
           String label =
-              snapshot.data?.data().getNested<String>(["dev", "name"]) ??
+               snapshot.data?.data().getNested<String>(["dev", "name"]) ??
                   snapshot.data?.id ??
                   "no title";
           User user = FirebaseAuth.instance.currentUser;
@@ -58,70 +58,70 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
               ),
               child: GestureDetector(
                   child: Text(label, overflow: TextOverflow.ellipsis),
-                  onTap: () {
-                    showDialog(
-                      context: streamCtx,
-                      builder: (dialogCtx) {
-                        return SimpleDialog(
-                          title: Text(label),
-                          children: [
-                            SimpleDialogOption(
-                                child: Text("Edit"),
-                                onPressed: () {
-                                  Navigator.pop(dialogCtx);
-                                  naviPush(context, (_) => DocumentPage(dRef));
-                                }),
-                            SimpleDialogOption(
-                                child: Text("Publish (Update 'time' and set)"),
-                                onPressed: () {
-                                  //Navigator.pop(dialogCtx);
-                                  dRef.get().then((DocumentSnapshot doc) {
-                                    Map<String, dynamic> map = doc.data();
-                                    map["time"] = DateTime.now()
-                                        .toUtc()
-                                        .millisecondsSinceEpoch;
-                                    dRef.set(map);
-                                  });
-                                }),
-                            SimpleDialogOption(
-                                child: Text("SubCollection: query"),
-                                onPressed: () {
-                                  Navigator.pop(dialogCtx);
-                                  naviPush(
-                                      context,
-                                      (_) => CollectionPage(
-                                          dRef.collection("query")),);
-                                }),
-                            SimpleDialogOption(
-                                child: Text("SubCollection: results"),
-                                onPressed: () {
-                                  Navigator.pop(dialogCtx);
-                                  naviPush(
-                                      context,
-                                      (_) => CollectionPage(
-                                          dRef.collection("results")));
-                                }),
-                            SimpleDialogOption(
-                                child: Text("SubCollection: logs"),
-                                onPressed: () {
-                                  Navigator.pop(dialogCtx);
-                                  naviPush(
-                                      context,
-                                      (_) => DeviceLogsPage(
-                                            dRef.collection("logs"),
-                                            FirebaseFirestore.instance
-                                                .collection("user")
-                                                .doc(user.uid)
-                                                .collection("app1")
-                                                .doc("filterConfig"),
-                                          ));
-                                }),
-                          ],
-                        );
-                      },
-                    );
-                  }));
+                  onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
         }));
+
+showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
+  User user = FirebaseAuth.instance.currentUser;
+
+  return showDialog(
+    context: context,
+    builder: (dialogCtx) {
+      return SimpleDialog(
+        title: Text(dRef.path),
+        children: [
+          SimpleDialogOption(
+              child: Text("View/Edit"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(context, (_) => DocumentPage(dRef));
+              }),
+          SimpleDialogOption(
+              child: Text("Publish (Update 'time' and set)"),
+              onPressed: () {
+                //Navigator.pop(dialogCtx);
+                dRef.get().then((DocumentSnapshot doc) {
+                  Map<String, dynamic> map = doc.data();
+                  map["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
+                  dRef.set(map);
+                });
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: query"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                  context,
+                  (_) => CollectionPage(dRef.collection("query")),
+                );
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: results"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                    context, (_) => CollectionPage(dRef.collection("results")));
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: logs"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                    context,
+                    (_) => DeviceLogsPage(
+                          dRef.collection("logs"),
+                          FirebaseFirestore.instance
+                              .collection("user")
+                              .doc(user.uid)
+                              .collection("app1")
+                              .doc("filterConfig"),
+                        ));
+              }),
+        ],
+      );
+    },
+  );
+}
 
 // Common Styles
 Decoration genericCellDecoration = BoxDecoration(
