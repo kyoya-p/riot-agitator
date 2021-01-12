@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Demo.dart';
+import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
 import 'logViewWidget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
       begin: BoxDecoration(
@@ -122,6 +123,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
     },
   );
 }
+
 
 // Common Styles
 Decoration genericCellDecoration = BoxDecoration(
@@ -237,3 +239,30 @@ extension MapExt on Map<String, dynamic?>? {
     return t as T;
   }
 }
+
+
+Widget globalGroupMenu(BuildContext context) {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
+  return PopupMenuButton<Widget Function(BuildContext)>(
+    itemBuilder: (BuildContext context) => [
+      PopupMenuItem(
+          child: Text("User List"),
+          value: (_) => CollectionPage(db.collection("user"))),
+      PopupMenuItem(
+          child: Text("Device List"),
+          value: (_) => CollectionPage(db.collection("device"))),
+      PopupMenuItem(
+          child: Text("Group List"),
+          value: (_) => CollectionPage(db.collection("group"))),
+      PopupMenuItem(
+          child: Text("Notification List"),
+          value: (_) => CollectionPage(db.collection("notification"))),
+      PopupMenuItem(
+          child: Text("Log List"),
+          value: (_) => CollectionGroupPage(db.collectionGroup("logs").)),
+    ],
+    onSelected: (value) => naviPush(context, value),
+  );
+}
+

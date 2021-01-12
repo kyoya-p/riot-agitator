@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/ListenEvent.dart';
@@ -15,14 +16,19 @@ import 'documentPage.dart';
 // ignore: must_be_immutable
 class CollectionPage extends StatelessWidget {
   CollectionPage(this.cRef,
-      {this.itemBuilder, AppBar? appBar, this.floatingActionButton});
+      {this.query = null,
+      this.itemBuilder,
+      AppBar? appBar,
+      this.floatingActionButton});
 
   CollectionReference cRef;
+  Query? query; //TODO
   AppBar? appBar;
   Widget? floatingActionButton;
 
   AppBar defaultAppBar(BuildContext context) => AppBar(
-      title: Text("${cRef.path} - Collection"), actions: [buildBell(context)]);
+      title: Text("${cRef.parameters} - Collection"),
+      actions: [buildBell(context)]);
 
   FloatingActionButton defaultFloatingActionButton(
           BuildContext context, DocumentReference dRef) =>
@@ -45,7 +51,7 @@ class CollectionPage extends StatelessWidget {
     return Scaffold(
       appBar: appBar ?? defaultAppBar(context),
       body: QueryViewWidget(
-        cRef,
+        query ?? cRef,
         itemBuilder: itemBuilder,
       ),
       floatingActionButton: floatingActionButton ??
