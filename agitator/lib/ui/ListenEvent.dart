@@ -4,6 +4,11 @@ import 'package:floatingpanel/floatingpanel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'Common.dart';
+import 'collectionGroupPage.dart';
+import 'collectionPage.dart';
+import 'documentPage.dart';
+
 class FloatSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,6 +37,31 @@ class FloatSample extends StatelessWidget {
   }
 }
 
+Widget globalGroupMenu(BuildContext context) {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
+  return PopupMenuButton<Widget Function(BuildContext)>(
+    itemBuilder: (BuildContext context) => [
+      PopupMenuItem(
+          child: Text("User List"),
+          value: (_) => CollectionPage(db.collection("user"))),
+      PopupMenuItem(
+          child: Text("Device List"),
+          value: (_) => CollectionPage(db.collection("device"))),
+      PopupMenuItem(
+          child: Text("Group List"),
+          value: (_) => CollectionPage(db.collection("group"))),
+      PopupMenuItem(
+          child: Text("Notification List"),
+          value: (_) => CollectionPage(db.collection("notification"))),
+      PopupMenuItem(
+          child: Text("Log List"),
+          value: (_) => CollectionGroupPage(db.collectionGroup("logs"))),
+    ],
+    onSelected: (value) => naviPush(context, value),
+  );
+}
+
 Widget buildBell(BuildContext context) {
   User user = FirebaseAuth.instance.currentUser;
   if (user.uid == null) return Center(child: CircularProgressIndicator());
@@ -50,10 +80,10 @@ Widget buildBell(BuildContext context) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text("After $d, Some devices informed something //TODO"),
           ));
-          docUser.set({
-            "timeCheckNotification":
-                DateTime.now().toUtc().millisecondsSinceEpoch
-          });
+          // docUser.update({
+          //   "timeCheckNotification":
+          //       DateTime.now().toUtc().millisecondsSinceEpoch
+          // });
         },
       );
 
@@ -62,7 +92,7 @@ Widget buildBell(BuildContext context) {
     builder: (context, snapshot) {
       if (!snapshot.hasData) return normalButton;
       var timeCheckNotification =
-          snapshot.data?.get("timeCheckNotification") ?? 0;
+          snapshot.data?.data()["timeCheckNotification"] ?? 0;
       return StreamBuilder<QuerySnapshot>(
         stream: db
             .collectionGroup("logs")

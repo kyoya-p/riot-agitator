@@ -29,7 +29,7 @@ class GroupTreePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("${tgGroup} - Group View"),
-        actions: [buildBell(context), loginButton(context)],
+        actions: [globalGroupMenu(context),buildBell(context), loginButton(context)],
       ),
       //drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
