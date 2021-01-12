@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Common.dart';
 import 'documentPage.dart';
@@ -22,10 +23,13 @@ class CollectionGroupPage extends StatefulWidget {
 class _CollectionGroupPageState extends State<CollectionGroupPage> {
   @override
   Widget build(BuildContext context) {
+    FirebaseFirestore db = widget.query.firestore;
+    User user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(title: Text("Log Viewer")),
       body: StreamBuilder<DocumentSnapshot>(
-          stream: widget.filterConfigRef?.snapshots(),
+          stream: db.doc("user/${user.uid}").snapshots(),
           builder: (context, _filterSnapshot) {
             if (!_filterSnapshot.hasData)
               return Center(child: CircularProgressIndicator());
