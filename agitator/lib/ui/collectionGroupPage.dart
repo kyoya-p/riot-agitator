@@ -10,17 +10,17 @@ import 'documentPage.dart';
  Firestore CollectionGroupを表示するPage/Widget
  */
 
-class CollectionGroupPage extends StatefulWidget {
-  CollectionGroupPage(this.query, {this.filterConfigRef});
+class QueryViewPageX extends StatefulWidget {
+  QueryViewPageX(this.query, {this.filterConfigRef});
 
   Query query;
   DocumentReference? filterConfigRef;
 
   @override
-  _CollectionGroupPageState createState() => _CollectionGroupPageState();
+  _QueryViewPageState createState() => _QueryViewPageState();
 }
 
-class _CollectionGroupPageState extends State<CollectionGroupPage> {
+class _QueryViewPageState extends State<QueryViewPageX> {
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore db = widget.query.firestore;

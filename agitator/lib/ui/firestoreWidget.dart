@@ -68,7 +68,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
       await auth.signInWithEmailAndPassword(
           email: mailAddr, password: password);
       //final User user = result.user;
-      Navigator.of(context)!.pushReplacement(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => FirebaseSignInWidget(),
         ),

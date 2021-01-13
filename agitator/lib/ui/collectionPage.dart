@@ -15,19 +15,16 @@ import 'documentPage.dart';
 
 // ignore: must_be_immutable
 class CollectionPage extends StatelessWidget {
-  CollectionPage(this.cRef,
-      {this.query = null,
-      this.itemBuilder,
-      AppBar? appBar,
-      this.floatingActionButton});
+  CollectionPage(this.query,
+      {this.cRef, this.itemBuilder, AppBar? appBar, this.floatingActionButton});
 
-  CollectionReference cRef;
-  Query? query; //TODO
+  Query query;
+  CollectionReference? cRef;
   AppBar? appBar;
   Widget? floatingActionButton;
 
   AppBar defaultAppBar(BuildContext context) => AppBar(
-      title: Text("${cRef.parameters} - Collection"),
+      title: Text("${cRef?.parameters} - Collection"),
       actions: [buildBell(context)]);
 
   FloatingActionButton defaultFloatingActionButton(
@@ -51,26 +48,23 @@ class CollectionPage extends StatelessWidget {
     return Scaffold(
       appBar: appBar ?? defaultAppBar(context),
       body: QueryViewWidget(
-        query ?? cRef,
+        query,
         itemBuilder: itemBuilder,
       ),
-      floatingActionButton: floatingActionButton ??
-          defaultFloatingActionButton(context, cRef.doc()),
+      floatingActionButton: (cRef != null && floatingActionButton != null)
+          ? defaultFloatingActionButton(context, cRef!.doc())
+          : null,
     );
   }
 }
 
 class QueryViewPage extends StatelessWidget {
   QueryViewPage(this.query,
-      {this.itemBuilder, AppBar? appBar, this.floatingActionButton});
+      {this.itemBuilder, this.appBar, this.floatingActionButton});
 
   Query query;
   AppBar? appBar;
   Widget? floatingActionButton;
-
-  AppBar defaultAppBar(BuildContext context) => AppBar(
-      title: Text("${query.parameters} - Query"),
-      actions: [buildBell(context)]);
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -83,8 +77,26 @@ class QueryViewPage extends StatelessWidget {
         query,
         itemBuilder: itemBuilder,
       ),
+      floatingActionButton:
+          floatingActionButton, //TODO ?? defaultFloatingActionButton(context, dRef)
     );
   }
+
+  AppBar defaultAppBar(BuildContext context) => AppBar(
+      title: Text("${query.parameters} - Query"),
+      actions: [buildBell(context)]);
+
+  FloatingActionButton defaultFloatingActionButton(
+          BuildContext context, DocumentReference dRef) =>
+      FloatingActionButton(
+        child: Icon(Icons.note_add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DocumentPage(dRef)),
+          );
+        },
+      );
 }
 
 class QueryViewWidget extends StatelessWidget {
@@ -141,6 +153,22 @@ class QueryViewWidget extends StatelessWidget {
               });
         });
   }
+
+  AppBar defaultAppBar(BuildContext context) => AppBar(
+      title: Text("${query.parameters} - Query"),
+      actions: [buildBell(context)]);
+
+  FloatingActionButton defaultFloatingActionButton(
+          BuildContext context, DocumentReference dRef) =>
+      FloatingActionButton(
+        child: Icon(Icons.note_add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DocumentPage(dRef)),
+          );
+        },
+      );
 }
 
 class FsCollectionOperatorAppWidget extends StatelessWidget {

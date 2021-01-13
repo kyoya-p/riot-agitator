@@ -248,19 +248,19 @@ Widget globalGroupMenu(BuildContext context) {
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
           child: Text("User List"),
-          value: (_) => CollectionPage(db.collection("user"))),
+          value: (_) => QueryViewPage(db.collection("user"))),
       PopupMenuItem(
           child: Text("Device List"),
-          value: (_) => CollectionPage(db.collection("device"))),
+          value: (_) => QueryViewPage(db.collection("device"))),
       PopupMenuItem(
           child: Text("Group List"),
-          value: (_) => CollectionPage(db.collection("group"))),
+          value: (_) => QueryViewPage(db.collection("group"))),
       PopupMenuItem(
           child: Text("Notification List"),
-          value: (_) => CollectionPage(db.collection("notification"))),
+          value: (_) => QueryViewPage(db.collection("notification"))),
       PopupMenuItem(
           child: Text("Log List"),
-          value: (_) => CollectionGroupPage(db.collectionGroup("logs").)),
+          value: (_) => QueryViewPage(db.collectionGroup("logs"))),
     ],
     onSelected: (value) => naviPush(context, value),
   );
