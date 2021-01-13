@@ -27,7 +27,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
     User user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Log Viewer")),
+      appBar: AppBar(title: Text("CollectionGroup")),
       body: StreamBuilder<DocumentSnapshot>(
           stream: db.doc("user/${user.uid}").snapshots(),
           builder: (context, _filterSnapshot) {

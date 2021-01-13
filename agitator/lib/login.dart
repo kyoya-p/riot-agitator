@@ -8,6 +8,9 @@ import 'ui/firestoreWidget.dart';
 /* Landing page
   - Authentication Check
  */
+
+FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
 class FirebaseSignInWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,7 @@ class FirebaseSignInWidget extends StatelessWidget {
 
   Widget _getLandingPage() {
     return StreamBuilder<User>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: firebaseAuth.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           User user = snapshot.data!;

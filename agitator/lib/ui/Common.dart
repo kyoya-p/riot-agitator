@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../login.dart';
 import 'Demo.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
@@ -260,7 +261,7 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => CollectionPage(db.collection("notification"))),
       PopupMenuItem(
           child: Text("Log List"),
-          value: (_) => CollectionGroupPage(db.collectionGroup("logs").)),
+          value: (_) => CollectionGroupPage(db.collectionGroup("logs"))),
     ],
     onSelected: (value) => naviPush(context, value),
   );

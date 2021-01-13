@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'package:riotagitator/ui/ListenEvent.dart';
-import 'package:riotagitator/ui/groupTree.dart';
+import 'package:riotagitator/ui/groupTreePage.dart';
 
 //import 'trial/main_test_firestore.dart' as test_firestore;
 //import 'trial/main_test_adduser.dart' as test_adduser;
