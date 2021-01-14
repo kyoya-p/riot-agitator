@@ -10,17 +10,17 @@ import 'documentPage.dart';
  Firestore CollectionGroupを表示するPage/Widget
  */
 
-class QueryViewPageX extends StatefulWidget {
-  QueryViewPageX(this.query, {this.filterConfigRef});
+class CollectionGroupPage extends StatefulWidget {
+  CollectionGroupPage(this.query, {this.filterConfigRef});
 
   Query query;
   DocumentReference? filterConfigRef;
 
   @override
-  _QueryViewPageState createState() => _QueryViewPageState();
+  _CollectionGroupPageState createState() => _CollectionGroupPageState();
 }
 
-class _QueryViewPageState extends State<QueryViewPageX> {
+class _CollectionGroupPageState extends State<CollectionGroupPage> {
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore db = widget.query.firestore;
@@ -41,7 +41,7 @@ class _QueryViewPageState extends State<QueryViewPageX> {
                 onPressed: widget.filterConfigRef == null
                     ? null
                     : () => naviPush(
-                        context, (_) => DocumentPage(widget.filterConfigRef!)),
+                    context, (_) => DocumentPage(widget.filterConfigRef!)),
               ),
               FilterListConfigWidget(filterList),
               Expanded(
@@ -206,9 +206,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-          controller: filterField,
-          decoration: InputDecoration(labelText: "Field"),
-        )),
+              controller: filterField,
+              decoration: InputDecoration(labelText: "Field"),
+            )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -222,9 +222,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
                 .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+              value: value,
+              child: Text(value),
+            ))
                 .toList(),
           ),
         ),
@@ -240,17 +240,17 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
             },
             items: ['number', 'string', 'boolean']
                 .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+              value: value,
+              child: Text(value),
+            ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-          controller: filterValue,
-          decoration: InputDecoration(labelText: "Value"),
-        )),
+              controller: filterValue,
+              decoration: InputDecoration(labelText: "Value"),
+            )),
       ],
     );
   }

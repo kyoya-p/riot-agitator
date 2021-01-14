@@ -125,7 +125,13 @@ class GroupTreePage extends StatelessWidget {
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
         naviPush(context,
-            (_)=> DocumentPage(db.collection("group").doc())
+            (_)=> DocumentPage(db.collection("group").doc("__GroupName__"))..setDocWidget.textDocBody.text= """
+{
+  "type":{"group":{}},
+  "users":{
+    "${firebaseAuth.currentUser.uid}": true
+  }
+}"""
         );
       });
 }

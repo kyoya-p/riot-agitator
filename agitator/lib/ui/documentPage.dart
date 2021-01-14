@@ -50,8 +50,6 @@ class DocumentWidget extends StatefulWidget {
 
   TextEditingController textDocBody = TextEditingController(text: "");
   TextEditingController docPath;
-
-  //DocumentReference documentRef;
   final bool isIdEditable;
 
   @override
@@ -61,9 +59,6 @@ class DocumentWidget extends StatefulWidget {
 class _DocumentWidgetState extends State<DocumentWidget> {
   @override
   Widget build(BuildContext context) {
-    //TextEditingController docPath =
-    //    TextEditingController(text: widget.documentRef.path);
-
     return Column(
       children: [
         TextField(
@@ -83,7 +78,7 @@ class _DocumentWidgetState extends State<DocumentWidget> {
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
-              if (!snapshot.hasData) widget.textDocBody.text = "";
+              //if (!snapshot.hasData) widget.textDocBody.text = "";
               if (snapshot.hasData)
                 widget.textDocBody.text =
                     JsonEncoder.withIndent("  ").convert(snapshot.data?.data());
