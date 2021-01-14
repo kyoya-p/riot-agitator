@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
-import 'package:riotagitator/ui/clusterView.dart';
+import 'package:riotagitator/ui/clusterViewPage.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
 import 'collectionPage.dart';
@@ -67,7 +67,7 @@ class GroupTreePage extends StatelessWidget {
           }),
 
       floatingActionButton:
-          (user.uid == null) ? null : makeFloatingActionButton(context),
+          (user.uid == null) ? null : floatingActionButtonBuilder2(context),
     );
   }
 
@@ -87,28 +87,28 @@ class GroupTreePage extends StatelessWidget {
     );
   }
 
-  makeFloatingActionButton(BuildContext context) => FloatingActionButton(
+  floatingActionButtonBuilder1(BuildContext context) => FloatingActionButton(
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
         MySwitchListTile sw =
-            MySwitchListTile(title: Text("As device cluster"));
+        MySwitchListTile(title: Text("As device cluster"));
         TextEditingController name = TextEditingController();
 
         await showDialog(
             context: context,
             builder: (BuildContext context) => AlertDialog(
-                    title: Text('Create Group/Cluster'),
-                    content: Column(children: [
-                      TextField(
-                          controller: name,
-                          decoration: InputDecoration(labelText: "Name")),
-                      sw,
-                    ]),
-                    actions: <Widget>[
-                      new SimpleDialogOption(
-                          child: new Text('OK'),
-                          onPressed: () => Navigator.pop(context)),
-                    ]));
+                title: Text('Create Group/Cluster'),
+                content: Column(children: [
+                  TextField(
+                      controller: name,
+                      decoration: InputDecoration(labelText: "Name")),
+                  sw,
+                ]),
+                actions: <Widget>[
+                  new SimpleDialogOption(
+                      child: new Text('OK'),
+                      onPressed: () => Navigator.pop(context)),
+                ]));
 
         Map<String, Object> docGroup = {
           "parent": tgGroup ?? "world",
@@ -119,6 +119,14 @@ class GroupTreePage extends StatelessWidget {
         };
         print("${name.text}: ${docGroup}"); //TODO
         db.collection("group").doc(name.text).set(docGroup);
+      });
+
+  floatingActionButtonBuilder2(BuildContext context) => FloatingActionButton(
+      child: Icon(Icons.create_new_folder),
+      onPressed: () async {
+        naviPush(context,
+            (_)=> DocumentPage(db.collection("group").doc())
+        );
       });
 }
 
