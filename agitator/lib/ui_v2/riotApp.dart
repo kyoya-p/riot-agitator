@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
 import 'package:riotagitator/ui/groupTreePage.dart';
 
-
 void main() {
   runApp(FirebaseSignInWidget(
     appBuilder: (context, snapshot) => RiotAppWide(snapshot.data!),
@@ -29,7 +28,7 @@ class RiotAppWide extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.brown,
+        primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),
