@@ -1,12 +1,11 @@
 library v2;
 
 import 'package:flutter/material.dart';
-import 'package:riotagitator/ui/groupTreePage.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../login.dart';
-import '../main.dart';
+import 'package:riotagitator/login.dart';
+import 'package:riotagitator/ui/groupTreePage.dart';
+
 
 void main() {
   runApp(FirebaseSignInWidget(
