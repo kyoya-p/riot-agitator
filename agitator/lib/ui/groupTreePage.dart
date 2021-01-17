@@ -29,7 +29,11 @@ class GroupTreePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("${tgGroup} - Group View"),
-        actions: [globalGroupMenu(context),buildBell(context), loginButton(context)],
+        actions: [
+          globalGroupMenu(context),
+          buildBell(context),
+          loginButton(context)
+        ],
       ),
       //drawer: appDrawer(context),
       body: StreamBuilder<QuerySnapshot>(
@@ -91,24 +95,24 @@ class GroupTreePage extends StatelessWidget {
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
         MySwitchListTile sw =
-        MySwitchListTile(title: Text("As device cluster"));
+            MySwitchListTile(title: Text("As device cluster"));
         TextEditingController name = TextEditingController();
 
         await showDialog(
             context: context,
             builder: (BuildContext context) => AlertDialog(
-                title: Text('Create Group/Cluster'),
-                content: Column(children: [
-                  TextField(
-                      controller: name,
-                      decoration: InputDecoration(labelText: "Name")),
-                  sw,
-                ]),
-                actions: <Widget>[
-                  new SimpleDialogOption(
-                      child: new Text('OK'),
-                      onPressed: () => Navigator.pop(context)),
-                ]));
+                    title: Text('Create Group/Cluster'),
+                    content: Column(children: [
+                      TextField(
+                          controller: name,
+                          decoration: InputDecoration(labelText: "Name")),
+                      sw,
+                    ]),
+                    actions: <Widget>[
+                      new SimpleDialogOption(
+                          child: new Text('OK'),
+                          onPressed: () => Navigator.pop(context)),
+                    ]));
 
         Map<String, Object> docGroup = {
           "parent": tgGroup ?? "world",
@@ -124,15 +128,16 @@ class GroupTreePage extends StatelessWidget {
   floatingActionButtonBuilder2(BuildContext context) => FloatingActionButton(
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
-        naviPush(context,
-            (_)=> DocumentPage(db.collection("group").doc("__GroupName__"))..setDocWidget.textDocBody.text= """
+        naviPush(
+            context,
+            (_) => DocumentPage(db.collection("group").doc("__GroupName__"))
+              ..setDocWidget.textDocBody.text = """
 {
   "type":{"group":{}},
   "users":{
     "${firebaseAuth.currentUser.uid}": true
   }
-}"""
-        );
+}""");
       });
 }
 
@@ -191,13 +196,13 @@ class GroupWidget extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
         child: Container(
-           decoration: BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
               top: BorderSide(color: Colors.white, width: 2.0),
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
             color: group.data().getNested(["type", "group", "cluster"]) != null
-                ? Theme.of(context).accentColor.shift(50,50,50)
+                ? Theme.of(context).accentColor.shift(50, 50, 50)
                 : Theme.of(context).primaryColor.withOpacity(0.1),
           ),
           //elevation: 4,

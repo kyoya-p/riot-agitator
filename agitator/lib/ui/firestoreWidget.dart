@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:riotagitator/login.dart';
 
+import '../main.dart';
+
 /*
 Firestore認証Widget
 */
@@ -70,7 +72,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
       //final User user = result.user;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => FirebaseSignInWidget(),
+          builder: (context) => FirebaseSignInWidget(appBuilder: (context, snapshot) => RiotApp(snapshot.data),),
         ),
       );
     } catch (e) {

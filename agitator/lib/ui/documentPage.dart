@@ -72,22 +72,19 @@ class _DocumentWidgetState extends State<DocumentWidget> {
           ),
         ),
         StreamBuilder(
-            //stream: widget.dRef.snapshots(),
             stream:
                 FirebaseFirestore.instance.doc(widget.docPath.text).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
-              //if (!snapshot.hasData) widget.textDocBody.text = "";
-              if (snapshot.hasData)
+              if (snapshot.data?.data() != null)
                 widget.textDocBody.text =
                     JsonEncoder.withIndent("  ").convert(snapshot.data?.data());
               return TextField(
                 controller: widget.textDocBody,
                 decoration: InputDecoration(
                   icon: Icon(Icons.edit),
-                  hintText: 'No document. This text must be in JSON format.',
-                  //labelText: 'Document'
+                  hintText: 'JSON format.',
                 ),
                 maxLines: null,
               );

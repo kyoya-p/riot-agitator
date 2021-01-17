@@ -12,18 +12,21 @@ import 'ui/firestoreWidget.dart';
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
 class FirebaseSignInWidget extends StatelessWidget {
+  FirebaseSignInWidget({required this.appBuilder});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(title: 'RIOT Sign In', home: _getLandingPage());
   }
+
+  AsyncWidgetBuilder<User> appBuilder;
 
   Widget _getLandingPage() {
     return StreamBuilder<User>(
       stream: firebaseAuth.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
-          User user = snapshot.data!;
-          return RiotApp(user);
+          return appBuilder(context, snapshot);
         } else {
           return FbLoginPage();
         }

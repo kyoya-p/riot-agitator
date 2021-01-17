@@ -1,14 +1,17 @@
-// @dart=2.9
+library v2;
 
 import 'package:flutter/material.dart';
 import 'package:riotagitator/ui/groupTreePage.dart';
-import 'package:riotagitator/ui_v2/riotApp.dart';
 
-import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../login.dart';
+import '../main.dart';
+
 void main() {
-  runApp(FirebaseSignInWidget(appBuilder: (context, snapshot) => RiotApp(snapshot.data),));
+  runApp(FirebaseSignInWidget(
+    appBuilder: (context, snapshot) => RiotAppWide(snapshot.data!),
+  ));
 }
 
 /*
@@ -17,8 +20,8 @@ void main() {
   - Application Menu (Admin menus)
   - Login page
  */
-class RiotApp extends StatelessWidget {
-  RiotApp(User this.user);
+class RiotAppWide extends StatelessWidget {
+  RiotAppWide(User this.user);
 
   final User user;
 
@@ -31,12 +34,6 @@ class RiotApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),
-      routes: <String, WidgetBuilder>{
-        "/home": (BuildContext context) => FirebaseSignInWidget(
-            appBuilder: (context, snapshot) => RiotApp(snapshot.data)),
-        "/v2": (BuildContext context) => FirebaseSignInWidget(
-            appBuilder: (context, snapshot) => RiotAppWide(snapshot.data)),
-      },
     );
   }
 }

@@ -55,6 +55,18 @@ class ClusterViewerPage extends StatelessWidget {
           )
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.note_add_rounded),
+        onPressed: () => naviPush(
+          context,
+          (_) => DocumentPage(db.collection("device").doc())
+            ..setDocWidget.textDocBody.text = """{
+  "dev": {"cluster":"${clusterId}"},
+  "type":{"device":{}},
+  "group":["${clusterId}"]
+}""",
+        ),
+      ),
     );
   }
 }
