@@ -10,6 +10,8 @@ import 'documentPage.dart';
  Firestore CollectionGroupを表示するPage/Widget
  */
 
+
+
 class CollectionGroupPage extends StatefulWidget {
   CollectionGroupPage(this.query, {this.filterConfigRef});
 

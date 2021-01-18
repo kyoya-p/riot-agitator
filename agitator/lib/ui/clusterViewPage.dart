@@ -67,6 +67,15 @@ class ClusterViewerPage extends StatelessWidget {
 }""",
         ),
       ),
+      floatingActionButton: defaultFloatingActionButton(context),
+    );
+  }
+
+  Widget defaultFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: null,
+      tooltip: "Create a new device",
+      child: Icon(Icons.note_add_rounded),
     );
   }
 }
