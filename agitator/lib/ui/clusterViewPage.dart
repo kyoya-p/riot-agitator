@@ -55,7 +55,12 @@ class ClusterViewerPage extends StatelessWidget {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: defaultFloatingActionButton(context),
+    );
+  }
+
+  Widget defaultFloatingActionButton(BuildContext context) =>
+      FloatingActionButton(
         child: Icon(Icons.note_add_rounded),
         onPressed: () => naviPush(
           context,
@@ -66,16 +71,5 @@ class ClusterViewerPage extends StatelessWidget {
   "group":["${clusterId}"]
 }""",
         ),
-      ),
-      floatingActionButton: defaultFloatingActionButton(context),
-    );
-  }
-
-  Widget defaultFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: null,
-      tooltip: "Create a new device",
-      child: Icon(Icons.note_add_rounded),
-    );
-  }
+      );
 }
