@@ -10,7 +10,7 @@ import 'documentPage.dart';
 
 /* Cluster管理画面
    - 登録デバイス一覧表示
-   - 新規デバイス登録
+   - 新規デバイス登__GroupName__録
    - Cluster情報の編集
 */
 class ClusterViewerPage extends StatelessWidget {
@@ -64,7 +64,7 @@ class ClusterViewerPage extends StatelessWidget {
         child: Icon(Icons.note_add_rounded),
         onPressed: () => naviPush(
           context,
-          (_) => DocumentPage(db.collection("device").doc())
+          (_) => DocumentPage(db.collection("device").doc("__DeviceID__"))
             ..setDocWidget.textDocBody.text = """{
   "dev": {"cluster":"${clusterId}"},
   "type":{"device":{}},

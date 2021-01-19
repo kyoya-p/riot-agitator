@@ -130,7 +130,7 @@ class GroupTreePage extends StatelessWidget {
       onPressed: () async {
         naviPush(
             context,
-            (_) => DocumentPage(db.collection("group").doc("__GroupName__"))
+            (_) => DocumentPage(db.collection("group").doc("__GroupID__"))
               ..setDocWidget.textDocBody.text = """
 {
   "type":{"group":{}},
