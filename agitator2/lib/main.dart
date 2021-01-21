@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:riotagitator/ui/groupTreePage.dart';
-import 'package:riotagitator/ui_v2/riotApp.dart';
 
 import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,15 +26,15 @@ class RiotApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ',
       theme: ThemeData(
-        primarySwatch: Colors.brown,
+        primarySwatch: Colors.green ,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),
       routes: <String, WidgetBuilder>{
         "/home": (BuildContext context) => FirebaseSignInWidget(
             appBuilder: (context, snapshot) => RiotApp(snapshot.data)),
-        "/v2": (BuildContext context) => FirebaseSignInWidget(
-            appBuilder: (context, snapshot) => RiotAppWide(snapshot.data)),
+        // "/v2": (BuildContext context) => FirebaseSignInWidget(
+        //     appBuilder: (context, snapshot) => RiotAppWide(snapshot.data)),
       },
     );
   }
