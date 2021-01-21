@@ -5,6 +5,7 @@ import 'ChartSample.dart';
 import 'Common.dart';
 import 'Demo.dart';
 import 'ListenEvent.dart';
+import 'QueryViewPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
 

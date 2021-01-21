@@ -74,7 +74,7 @@ class GroupTreePage extends StatelessWidget {
           (user.uid == null) ? null : floatingActionButtonBuilder2(context),
     );
   }
-
+/*
   Widget collectionListTile(BuildContext context, String collectionId) {
     return ListTile(
       title: Text("${collectionId} collection"),
@@ -90,7 +90,7 @@ class GroupTreePage extends StatelessWidget {
       },
     );
   }
-
+*/
   floatingActionButtonBuilder1(BuildContext context) => FloatingActionButton(
       child: Icon(Icons.create_new_folder),
       onPressed: () async {

@@ -6,6 +6,7 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Demo.dart';
+import 'QueryViewPage.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
@@ -248,16 +249,16 @@ Widget globalGroupMenu(BuildContext context) {
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
           child: Text("User List"),
-          value: (_) => CollectionPage(db.collection("user"))),
+          value: (_) => QueryViewPage(db.collection("user"))),
       PopupMenuItem(
           child: Text("Device List"),
-          value: (_) => CollectionPage(db.collection("device"))),
+          value: (_) => QueryViewPage(db.collection("device"))),
       PopupMenuItem(
           child: Text("Group List"),
-          value: (_) => CollectionPage(db.collection("group"))),
+          value: (_) => QueryViewPage(db.collection("group"))),
       PopupMenuItem(
           child: Text("Notification List"),
-          value: (_) => CollectionPage(db.collection("notification"))),
+          value: (_) => QueryViewPage(db.collection("notification"))),
       PopupMenuItem(
           child: Text("Log List"),
           value: (_) => CollectionGroupPage(db.collectionGroup("logs"))),
