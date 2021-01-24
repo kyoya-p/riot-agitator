@@ -59,7 +59,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
           return Column(
             children: [
               AlertDialog(
-                title: Text("タイトル"),
+//                title: Text("タイトル"),
                 content: SingleChildScrollView(
                   child: DocumentWidget(widget.filterConfigRef),
                 ),
