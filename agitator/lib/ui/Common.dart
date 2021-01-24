@@ -12,7 +12,8 @@ import 'collectionPage.dart';
 import 'documentPage.dart';
 import 'logViewWidget.dart';
 
-DecorationTween makeDecorationTween(Color c) => DecorationTween(
+DecorationTween makeDecorationTween(Color c) =>
+    DecorationTween(
       begin: BoxDecoration(
         color: c,
         borderRadius: BorderRadius.circular(5.0),
@@ -23,8 +24,8 @@ DecorationTween makeDecorationTween(Color c) => DecorationTween(
       ),
     );
 
-Widget buildCellWidget(
-    BuildContext context, QueryDocumentSnapshot devSnapshot) {
+Widget buildCellWidget(BuildContext context,
+    QueryDocumentSnapshot devSnapshot) {
   Map<String, dynamic> data = devSnapshot.data();
   String type = data["dev.type"];
   if (type == RiotAgentMfpMibAppWidget.type) {
@@ -40,28 +41,31 @@ Widget buildCellWidget(
 // 長押しでメニュー
 // - Document編集
 // - logs表示
-Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
-    color: Theme.of(context).cardColor,
-    child: StreamBuilder<DocumentSnapshot>(
-        stream: dRef.snapshots(),
-        builder: (streamCtx, snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          String label =
-               snapshot.data?.data().getNested<String>(["dev", "name"]) ??
-                  snapshot.data?.id ??
-                  "no title";
-          User user = FirebaseAuth.instance.currentUser;
+Widget buildGenericCard(BuildContext context, DocumentReference dRef) =>
+    Card(
+        color: Theme
+            .of(context)
+            .cardColor,
+        child: StreamBuilder<DocumentSnapshot>(
+            stream: dRef.snapshots(),
+            builder: (streamCtx, snapshot) {
+              if (!snapshot.hasData)
+                return Center(child: CircularProgressIndicator());
+              String label =
+                  snapshot.data?.data().getNested<String>(["dev", "name"]) ??
+                      snapshot.data?.id ??
+                      "no title";
+              User user = FirebaseAuth.instance.currentUser;
 
-          return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.black12,
-              ),
-              child: GestureDetector(
-                  child: Text(label, overflow: TextOverflow.ellipsis),
-                  onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
-        }));
+              return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.black12,
+                  ),
+                  child: GestureDetector(
+                      child: Text(label, overflow: TextOverflow.ellipsis),
+                      onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
+            }));
 
 showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
   User user = FirebaseAuth.instance.currentUser;
@@ -84,7 +88,10 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                 //Navigator.pop(dialogCtx);
                 dRef.get().then((DocumentSnapshot doc) {
                   Map<String, dynamic> map = doc.data();
-                  map["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
+                  map["time"] = DateTime
+                      .now()
+                      .toUtc()
+                      .millisecondsSinceEpoch;
                   dRef.set(map);
                 });
               }),
@@ -94,7 +101,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                 Navigator.pop(dialogCtx);
                 naviPush(
                   context,
-                  (_) => CollectionPage(dRef.collection("query")),
+                      (_) => CollectionPage(dRef.collection("query")),
                 );
               }),
           SimpleDialogOption(
@@ -110,7 +117,8 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                 Navigator.pop(dialogCtx);
                 naviPush(
                     context,
-                    (_) => DeviceLogsPage(
+                        (_) =>
+                        DeviceLogsPage(
                           dRef.collection("logs"),
                           FirebaseFirestore.instance
                               .collection("user")
@@ -154,7 +162,8 @@ naviPushReplacement(BuildContext context, WidgetBuilder builder) {
 Future showAlertDialog(context, String value) async {
   await showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext context) =>
+          AlertDialog(
               title: Text('AlertDialog'),
               content: Text(value),
               actions: <Widget>[
@@ -175,7 +184,10 @@ Widget fsStreamBuilder(Query ref, AsyncWidgetBuilder builder) =>
 
 Timer runPeriodicTimer(int start) =>
     Timer.periodic(Duration(milliseconds: 250), (timer) {
-      int d = DateTime.now().toUtc().millisecondsSinceEpoch - start;
+      int d = DateTime
+          .now()
+          .toUtc()
+          .millisecondsSinceEpoch - start;
       if (d >= 5000) {
         timer.cancel();
       } else {
@@ -195,7 +207,8 @@ class MySwitchListTile extends StatefulWidget {
 
 class _MySwitchTileState extends State<MySwitchListTile> {
   @override
-  Widget build(BuildContext context) => SwitchListTile(
+  Widget build(BuildContext context) =>
+      SwitchListTile(
         onChanged: (sw) {
           setState(() => widget.value = sw);
         },
@@ -244,9 +257,11 @@ extension MapExt on Map<String, dynamic?>? {
 
 Widget globalGroupMenu(BuildContext context) {
   FirebaseFirestore db = FirebaseFirestore.instance;
+  User user = FirebaseAuth.instance.currentUser;
 
   return PopupMenuButton<Widget Function(BuildContext)>(
-    itemBuilder: (BuildContext context) => [
+    itemBuilder: (BuildContext context) =>
+    [
       PopupMenuItem(
           child: Text("User List"),
           value: (_) => QueryViewPage(db.collection("user"))),
@@ -261,7 +276,9 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => QueryViewPage(db.collection("notification"))),
       PopupMenuItem(
           child: Text("Log List"),
-          value: (_) => CollectionGroupPage(db.collectionGroup("logs"))),
+          value: (_) =>
+              CollectionGroupPage(db.collectionGroup("logs"),
+                  filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
     ],
     onSelected: (value) => naviPush(context, value),
   );

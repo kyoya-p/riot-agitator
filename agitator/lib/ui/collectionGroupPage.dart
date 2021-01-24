@@ -10,13 +10,11 @@ import 'documentPage.dart';
  Firestore CollectionGroupを表示するPage/Widget
  */
 
-
-
 class CollectionGroupPage extends StatefulWidget {
-  CollectionGroupPage(this.query, {this.filterConfigRef});
+  CollectionGroupPage(this.query, {required this.filterConfigRef});
 
   Query query;
-  DocumentReference? filterConfigRef;
+  DocumentReference filterConfigRef;
 
   @override
   _CollectionGroupPageState createState() => _CollectionGroupPageState();
@@ -31,7 +29,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
     return Scaffold(
       appBar: AppBar(title: Text("CollectionGroup")),
       body: StreamBuilder<DocumentSnapshot>(
-          stream: db.doc("user/${user.uid}").snapshots(),
+          stream: widget.filterConfigRef.snapshots(),
           builder: (context, _filterSnapshot) {
             if (!_filterSnapshot.hasData)
               return Center(child: CircularProgressIndicator());
@@ -39,12 +37,11 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
                 _filterSnapshot.data?.data()["filter"] ?? [];
             return Column(children: [
               IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: widget.filterConfigRef == null
-                    ? null
-                    : () => naviPush(
-                    context, (_) => DocumentPage(widget.filterConfigRef!)),
-              ),
+                  icon: Icon(Icons.filter_list),
+                  onPressed: widget.filterConfigRef == null
+                      ? null
+                      //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)),
+                      : () => showFilterDialog(context)),
               FilterListConfigWidget(filterList),
               Expanded(
                 child: PrograssiveItemViewWidget(
@@ -53,6 +50,23 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
             ]);
           }),
     );
+  }
+
+  showFilterDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Column(
+            children: [
+              AlertDialog(
+                title: Text("タイトル"),
+                content: SingleChildScrollView(
+                  child: DocumentWidget(widget.filterConfigRef),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }
 
@@ -208,9 +222,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-              controller: filterField,
-              decoration: InputDecoration(labelText: "Field"),
-            )),
+          controller: filterField,
+          decoration: InputDecoration(labelText: "Field"),
+        )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -224,9 +238,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
                 .map((String value) => DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            ))
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
@@ -242,17 +256,17 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
             },
             items: ['number', 'string', 'boolean']
                 .map((String value) => DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            ))
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-              controller: filterValue,
-              decoration: InputDecoration(labelText: "Value"),
-            )),
+          controller: filterValue,
+          decoration: InputDecoration(labelText: "Value"),
+        )),
       ],
     );
   }
