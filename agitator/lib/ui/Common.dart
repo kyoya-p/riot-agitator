@@ -10,7 +10,6 @@ import 'QueryViewPage.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
-import 'logViewWidget.dart';
 
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
       begin: BoxDecoration(
@@ -258,7 +257,9 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => QueryViewPage(db.collection("device"))),
       PopupMenuItem(
           child: Text("Group List"),
-          value: (_) => QueryViewPage(db.collection("group"))),
+          value: (_) => CollectionGroupPage(
+              db.collection("group").where("user", arrayContains: user.uid),
+              filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
       PopupMenuItem(
           child: Text("Notification List"),
           value: (_) => QueryViewPage(db.collection("notification"))),
