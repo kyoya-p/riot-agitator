@@ -80,7 +80,7 @@ class QueryViewWidget extends StatelessWidget {
           QuerySnapshot querySnapshotData = snapshots.data!;
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: w ~/ 170,
+                  crossAxisCount: w ~/ 160,
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),

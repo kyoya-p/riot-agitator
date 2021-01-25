@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Common.dart';
 import 'documentPage.dart';
@@ -15,6 +14,7 @@ class CollectionGroupPage extends StatefulWidget {
 
   Query query;
   DocumentReference filterConfigRef;
+  CollectionReference? containerOfNewDocument; //TODO
 
   @override
   _CollectionGroupPageState createState() => _CollectionGroupPageState();
@@ -23,11 +23,18 @@ class CollectionGroupPage extends StatefulWidget {
 class _CollectionGroupPageState extends State<CollectionGroupPage> {
   @override
   Widget build(BuildContext context) {
-    FirebaseFirestore db = widget.query.firestore;
-    User user = FirebaseAuth.instance.currentUser;
+    IconButton filterButton = IconButton(
+        icon: Icon(Icons.filter_list),
+        onPressed: widget.filterConfigRef == null
+            ? null
+        //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)), // Page遷移
+            : () => showFilterDialog(context)); // Dialog表示
 
     return Scaffold(
-      appBar: AppBar(title: Text("CollectionGroup")),
+      appBar: AppBar(
+        title: Text("CollectionGroup ${widget.query.parameters}"),
+        actions: [filterButton],
+      ),
       body: StreamBuilder<DocumentSnapshot>(
           stream: widget.filterConfigRef.snapshots(),
           builder: (context, _filterSnapshot) {
@@ -36,13 +43,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
             List<dynamic> filterList =
                 _filterSnapshot.data?.data()["filter"] ?? [];
             return Column(children: [
-              IconButton(
-                  icon: Icon(Icons.filter_list),
-                  onPressed: widget.filterConfigRef == null
-                      ? null
-                      //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)),
-                      : () => showFilterDialog(context)),
-              FilterListConfigWidget(filterList),
+              //FilterListConfigWidget(filterList),
               Expanded(
                 child: PrograssiveItemViewWidget(
                     widget.query.addFilters(filterList)),
@@ -56,16 +57,19 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
     return showDialog(
         context: context,
         builder: (context) {
-          return Column(
-            children: [
-              AlertDialog(
-//                title: Text("タイトル"),
-                content: SingleChildScrollView(
-                  child: DocumentWidget(widget.filterConfigRef),
-                ),
-              ),
-            ],
+          DocumentWidget docWidget = DocumentWidget(widget.filterConfigRef);
+          FlatButton applyButton = FlatButton(
+              onPressed: () => docWidget.setDocument(context),
+              child: Text("Apply"));
+          FlatButton closeButton = FlatButton(
+              onPressed: () => naviPop(context), child: Text("Close"));
+
+          return AlertDialog(
+            title: Row(
+                children: [Text("Filter Setting"), applyButton, closeButton]),
+            content: docWidget,
           );
+
         });
   }
 }
@@ -130,7 +134,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
         itemCount: null, //widget.itemCount,
         itemBuilder: (context, index) {
           if (index < widget.listDocSnapshot.length) {
-            return buildListTile(index, widget.listDocSnapshot[index].data());
+            return buildListTile(index, widget.listDocSnapshot[index]);
           } else if (index > widget.listDocSnapshot.length) {
             return Text("");
           }
@@ -147,32 +151,45 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
           });
           //return Center(child: CircularProgressIndicator());
           return Card(
-              color: Theme.of(context).disabledColor,
+              color: Theme
+                  .of(context)
+                  .disabledColor,
               child: Center(child: Text("End of Data")));
         });
   }
 
-  Widget buildListTile(int index, Map<String, dynamic> doc) {
+  Widget buildListTile(int index, DocumentSnapshot docSs) {
+    Map<String, dynamic> doc = docSs.data();
     Widget padding = Padding(padding: EdgeInsets.only(left: 10));
     try {
       return Card(
-        color: Theme.of(context).cardColor,
-        child: Row(children: [
-          Text("$index"),
-          padding,
-          Text((doc["timeRec"] as Timestamp).toDate()?.toString() ?? "no data"),
-          padding,
-          Text(doc["dev"]?["id"] ?? "no data"),
-          padding,
-          Text(doc["dev"]?["type"] ?? "no data"),
-          padding,
-          Text(doc["seq"].toString()),
-        ]),
-      );
+          color: Theme
+              .of(context)
+              .cardColor,
+          child: GestureDetector(
+            child: Row(children: [
+              Text("$index"),
+              padding,
+              Text((doc["timeRec"] as Timestamp).toDate()?.toString() ??
+                  "no data"),
+              padding,
+              Text(doc["dev"] ? ["id"] ?? "no data"),
+              padding,
+              Text(doc["dev"] ? ["type"] ?? "no data"),
+              padding,
+              Text(doc["seq"].toString()),
+            ]),
+            onTap: () =>
+                naviPush(context, (_) => DocumentPage(docSs.reference)),
+          ));
     } catch (e) {
       return Card(
           color: Colors.grey[200], //Theme.of(context).backgroundColor,
-          child: Row(children: [Text("$index"), padding, Text("$doc")]));
+          child: GestureDetector(
+            child: Row(children: [Text("$index"), padding, Text("$doc")]),
+            onTap: () =>
+                naviPush(context, (_) => DocumentPage(docSs.reference)),
+          ));
     }
   }
 }
@@ -222,9 +239,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-          controller: filterField,
-          decoration: InputDecoration(labelText: "Field"),
-        )),
+              controller: filterField,
+              decoration: InputDecoration(labelText: "Field"),
+            )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -237,10 +254,11 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
-                .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+                .map((String value) =>
+                DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ))
                 .toList(),
           ),
         ),
@@ -255,18 +273,19 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['number', 'string', 'boolean']
-                .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+                .map((String value) =>
+                DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-          controller: filterValue,
-          decoration: InputDecoration(labelText: "Value"),
-        )),
+              controller: filterValue,
+              decoration: InputDecoration(labelText: "Value"),
+            )),
       ],
     );
   }

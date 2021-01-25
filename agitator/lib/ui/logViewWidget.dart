@@ -5,8 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'documentPage.dart';
 
-class DeviceLogsPage extends StatefulWidget {
-  DeviceLogsPage(this.logsRef, this.filterConfigRef);
+/*
+class DeviceLogsPage_X extends StatefulWidget {
+  DeviceLogsPage_X(this.logsRef, this.filterConfigRef);
 
   CollectionReference logsRef;
   DocumentReference filterConfigRef;
@@ -15,7 +16,7 @@ class DeviceLogsPage extends StatefulWidget {
   _DeviceLogsPageState createState() => _DeviceLogsPageState();
 }
 
-class _DeviceLogsPageState extends State<DeviceLogsPage> {
+class _DeviceLogsPageState extends State<DeviceLogsPage_X> {
   @override
   Widget build(BuildContext context) {
     User user = FirebaseAuth.instance.currentUser;
@@ -51,6 +52,7 @@ class _DeviceLogsPageState extends State<DeviceLogsPage> {
   }
 }
 
+
 // QueryにFilterを追加する拡張関数
 extension QueryOperation on Query {
   dynamic parseValue(String type, String value) {
@@ -85,6 +87,7 @@ extension QueryOperation on Query {
     });
   }
 }
+
 
 // Firestoreで大きなリストを使う際のテンプレ
 class PrograssiveItemViewWidget extends StatefulWidget {
@@ -253,3 +256,4 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
     );
   }
 }
+*/

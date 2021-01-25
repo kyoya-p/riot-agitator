@@ -17,23 +17,11 @@ class DocumentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Document")),
+      appBar: AppBar(title: Text("${setDocWidget.docPath.text} - Document")),
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send),
-        onPressed: () {
-          try {
-            FirebaseFirestore.instance
-                .doc(setDocWidget.docPath.text)
-                .set(JsonDecoder().convert(setDocWidget.textDocBody.text))
-                .then((_) {
-//                  Navigator.pop(context);
-            }).catchError((e) => showAlertDialog(context,
-                    "${e.message}\nReq:${setDocWidget.docPath.text}\nBody: ${setDocWidget.textDocBody.text}"));
-          } catch (ex) {
-            showAlertDialog(context, ex.toString());
-          }
-        },
+        onPressed: () => setDocWidget.setDocument(context),
       ),
     );
   }
@@ -51,6 +39,20 @@ class DocumentWidget extends StatefulWidget {
   TextEditingController textDocBody = TextEditingController(text: "");
   TextEditingController docPath;
   final bool isIdEditable;
+
+  setDocument(BuildContext context) {
+    try {
+      FirebaseFirestore.instance
+          .doc(docPath.text)
+          .set(JsonDecoder().convert(textDocBody.text))
+          .then((_) {
+//                  Navigator.pop(context);
+      }).catchError((e) => showAlertDialog(context,
+              "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}"));
+    } catch (ex) {
+      showAlertDialog(context, ex.toString());
+    }
+  }
 
   @override
   _DocumentWidgetState createState() => _DocumentWidgetState();
@@ -80,13 +82,17 @@ class _DocumentWidgetState extends State<DocumentWidget> {
               if (snapshot.data?.data() != null)
                 widget.textDocBody.text =
                     JsonEncoder.withIndent("  ").convert(snapshot.data?.data());
-              return TextField(
-                controller: widget.textDocBody,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.edit),
-                  hintText: 'JSON format.',
+              return Expanded(
+                child: SingleChildScrollView(
+                  child: TextField(
+                    controller: widget.textDocBody,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.edit),
+                      hintText: 'JSON format.',
+                    ),
+                    maxLines: null,
+                  ),
                 ),
-                maxLines: null,
               );
             }),
       ],
