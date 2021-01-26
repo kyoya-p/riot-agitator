@@ -318,3 +318,4 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
     );
   }
 }
+                                                                                        
