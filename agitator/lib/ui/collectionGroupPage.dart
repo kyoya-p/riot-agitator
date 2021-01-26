@@ -27,7 +27,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
         icon: Icon(Icons.filter_list),
         onPressed: widget.filterConfigRef == null
             ? null
-        //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)), // Page遷移
+            //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)), // Page遷移
             : () => showFilterDialog(context)); // Dialog表示
 
     return Scaffold(
@@ -63,14 +63,46 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
               child: Text("Apply"));
           FlatButton closeButton = FlatButton(
               onPressed: () => naviPop(context), child: Text("Close"));
-
           return AlertDialog(
-            title: Row(
-                children: [Text("Filter Setting"), applyButton, closeButton]),
+            title: Row(children: [
+              Text("Filter Setting"),
+              sampleFiltersButton(context),
+              applyButton,
+              closeButton
+            ]),
             content: docWidget,
           );
-
         });
+  }
+
+  Widget sampleFiltersButton(BuildContext context) {
+    String sampleFilters= """
+"Sort by 'time' decending":
+{"filter":[
+  {"op":"sort", "field":"time", "type":"boolean", "value":"false"}
+]}
+
+"Select item which target is 'deviceA'":
+{"filter":[
+  {"op":"==", "field":"target", "type":"string", "value":"deviceA"}
+]}
+
+""";
+
+/*"Select 'target' is 'deviceA' or 'deviceB'":
+{"filter":[
+  {"op":"in", "field":"target", "type":"string", "values":["deviceA","deviceB"]}
+]}*/
+
+    return FlatButton(
+      child: Text("Sample filters"),
+      onPressed: () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: SelectableText(sampleFilters),
+        ),
+      ),
+    );
   }
 }
 
@@ -94,6 +126,8 @@ extension QueryOperation on Query {
         return a.orderBy(field, descending: value == "true");
       } else if (filterOp == "==") {
         return a.where(field, isEqualTo: parseValue(type, value));
+      } else if (filterOp == "!=") {
+        return a.where(field, isNotEqualTo: parseValue(type, value));
       } else if (filterOp == ">=") {
         return a.where(field, isGreaterThanOrEqualTo: parseValue(type, value));
       } else if (filterOp == "<=") {
@@ -151,9 +185,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
           });
           //return Center(child: CircularProgressIndicator());
           return Card(
-              color: Theme
-                  .of(context)
-                  .disabledColor,
+              color: Theme.of(context).disabledColor,
               child: Center(child: Text("End of Data")));
         });
   }
@@ -163,9 +195,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
     Widget padding = Padding(padding: EdgeInsets.only(left: 10));
     try {
       return Card(
-          color: Theme
-              .of(context)
-              .cardColor,
+          color: Theme.of(context).cardColor,
           child: GestureDetector(
             child: Row(children: [
               Text("$index"),
@@ -173,9 +203,9 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
               Text((doc["timeRec"] as Timestamp).toDate()?.toString() ??
                   "no data"),
               padding,
-              Text(doc["dev"] ? ["id"] ?? "no data"),
+              Text(doc["dev"]?["id"] ?? "no data"),
               padding,
-              Text(doc["dev"] ? ["type"] ?? "no data"),
+              Text(doc["dev"]?["type"] ?? "no data"),
               padding,
               Text(doc["seq"].toString()),
             ]),
@@ -239,9 +269,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-              controller: filterField,
-              decoration: InputDecoration(labelText: "Field"),
-            )),
+          controller: filterField,
+          decoration: InputDecoration(labelText: "Field"),
+        )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -254,11 +284,10 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
-                .map((String value) =>
-                DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                ))
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
@@ -273,19 +302,18 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['number', 'string', 'boolean']
-                .map((String value) =>
-                DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                ))
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-              controller: filterValue,
-              decoration: InputDecoration(labelText: "Value"),
-            )),
+          controller: filterValue,
+          decoration: InputDecoration(labelText: "Value"),
+        )),
       ],
     );
   }

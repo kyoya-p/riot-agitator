@@ -258,7 +258,7 @@ Widget globalGroupMenu(BuildContext context) {
       PopupMenuItem(
           child: Text("Group List"),
           value: (_) => CollectionGroupPage(
-              db.collection("group").where("user", arrayContains: user.uid),
+              db.collection("group").where("users", arrayContains: user.uid),
               filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
       PopupMenuItem(
           child: Text("Notification List"),

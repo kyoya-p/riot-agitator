@@ -184,7 +184,7 @@ class DeviceLogPage extends StatelessWidget {
           stream: devSnapshot.reference
               .collection("logs")
               .orderBy("time", descending: true)
-              .limit(20)
+              .limit(30)
               .snapshots(),
           builder: (context, snapshots) {
             if (!snapshots.hasData)
