@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
 import 'documentPage.dart';
+import 'QueryFilter.dart';
 
 /*
  Firestore CollectionGroupを表示するPage/Widget
@@ -77,22 +78,32 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
 
   Widget sampleFiltersButton(BuildContext context) {
     String sampleFilters= """
-"Sort by 'time' decending":
+"Sort items by 'time' decending":
 {"filter":[
   {"op":"sort", "field":"time", "type":"boolean", "value":"false"}
 ]}
 
-"Select item which target is 'deviceA'":
+"Select items which target is 'deviceA'":
 {"filter":[
   {"op":"==", "field":"target", "type":"string", "value":"deviceA"}
 ]}
 
-""";
-
-/*"Select 'target' is 'deviceA' or 'deviceB'":
+"Select items which 'target' is 'deviceA' or 'deviceB'":
 {"filter":[
-  {"op":"in", "field":"target", "type":"string", "values":["deviceA","deviceB"]}
-]}*/
+  {"op":"in", "field":"target", "type":"list<string>", "values":["deviceA","deviceB"]}
+]}
+
+"Select items which 'tags' contains 'word'":
+{"filter":[
+  {"op":"contains", "field":"tags", "type":"string", "value":"word"}
+]}
+
+"Select items which 'tags' contains 'word1' or 'word2' ":
+{"filter":[
+  {"op":"containsAny", "field":"tags", "type":"list<string>", "values":["word1","word2"]}
+]}
+
+""";
 
     return FlatButton(
       child: Text("Sample filters"),
@@ -106,45 +117,6 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
   }
 }
 
-// QueryにFilterを追加する拡張関数
-extension QueryOperation on Query {
-  dynamic parseValue(String type, var value) {
-    if (type == "boolean") return value == "true";
-    if (type == "number") return num.parse(value);
-    if (type == "string") return value;
-    if (type == "list<string>") return value.map((e)=>e);
-    return null;
-  }
-
-  Query addFilters(List<dynamic> filterList) {
-    return filterList.fold(this, (a, e) {
-      String filterOp = e["op"];
-      String field = e["field"];
-      var value = e["value"];
-      String type = e["type"];
-
-      if (filterOp == "sort") {
-        return a.orderBy(field, descending: value == "true");
-      } else if (filterOp == "==") {
-        return a.where(field, isEqualTo: parseValue(type, value));
-      } else if (filterOp == "!=") {
-        return a.where(field, isNotEqualTo: parseValue(type, value));
-      } else if (filterOp == ">=") {
-        return a.where(field, isGreaterThanOrEqualTo: parseValue(type, value));
-      } else if (filterOp == "<=") {
-        return a.where(field, isLessThanOrEqualTo: parseValue(type, value));
-      } else if (filterOp == ">") {
-        return a.where(field, isGreaterThan: parseValue(type, value));
-      } else if (filterOp == "<") {
-        return a.where(field, isLessThan: parseValue(type, value));
-      } else if (filterOp == "in") {
-        return a.where(field, whereIn: parseValue(type, value));
-      } else {
-        throw Exception();
-      }
-    });
-  }
-}
 
 // Firestoreで大きなリストを使う際のテンプレ
 class PrograssiveItemViewWidget extends StatefulWidget {
@@ -175,7 +147,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
           } else if (index > widget.listDocSnapshot.length) {
             return Text("");
           }
-          widget.qrItems.limit(20).get().then((value) {
+          widget.qrItems.limit(30).get().then((value) {
             if (mounted) {
               setState(() {
                 if (value.size > 0) {

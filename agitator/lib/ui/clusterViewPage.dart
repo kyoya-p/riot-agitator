@@ -30,25 +30,7 @@ class ClusterViewerPage extends StatelessWidget {
         title: Text("${clusterId} - Cluster"),
         actions: [
           buildBell(context),
-          PopupMenuButton<Widget Function(BuildContext)>(
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
-                  child: Text("Add Generic Device Entry"),
-                  value: (_) =>
-                      DocumentPage(db.collection("group").doc(clusterId))),
-              PopupMenuItem(child: Text("Add SNMP Device Entry"), value: null),
-              PopupMenuItem(
-                  child: Text("Add HTTP Device Entry"),
-                  value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
-              PopupMenuItem(
-                  child: Text("😊体感温度センサーデバイス追加"),
-                  value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
-              PopupMenuItem(
-                  child: Text("Log Viewer"),
-                  value: (_) => LogCountBarChartPage()),
-            ],
-            onSelected: (value) => naviPush(context, value),
-          ),
+          clusterMenu(context),
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () =>
@@ -59,6 +41,26 @@ class ClusterViewerPage extends StatelessWidget {
       floatingActionButton: defaultFloatingActionButton(context),
     );
   }
+
+  Widget clusterMenu(BuildContext context) =>
+      PopupMenuButton<Widget Function(BuildContext)>(
+        itemBuilder: (BuildContext context) => [
+          PopupMenuItem(
+              child: Text("Add Generic Device Entry"),
+              value: (_) =>
+                  DocumentPage(db.collection("group").doc(clusterId))),
+          PopupMenuItem(child: Text("Add SNMP Device Entry"), value: null),
+          PopupMenuItem(
+              child: Text("Add HTTP Device Entry"),
+              value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
+          PopupMenuItem(
+              child: Text("😊体感温度センサーデバイス追加"),
+              value: (_) => DemoHumanHeatSensorCreatePage(clusterId)),
+          PopupMenuItem(
+              child: Text("Log Viewer"), value: (_) => LogCountBarChartPage()),
+        ],
+        onSelected: (value) => naviPush(context, value),
+      );
 
   Widget defaultFloatingActionButton(BuildContext context) =>
       FloatingActionButton(
