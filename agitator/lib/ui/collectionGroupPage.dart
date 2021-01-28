@@ -108,10 +108,11 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
 
 // QueryにFilterを追加する拡張関数
 extension QueryOperation on Query {
-  dynamic parseValue(String type, String value) {
+  dynamic parseValue(String type, var value) {
     if (type == "boolean") return value == "true";
     if (type == "number") return num.parse(value);
     if (type == "string") return value;
+    if (type == "list<string>") return value.map((e)=>e);
     return null;
   }
 
@@ -119,7 +120,7 @@ extension QueryOperation on Query {
     return filterList.fold(this, (a, e) {
       String filterOp = e["op"];
       String field = e["field"];
-      String value = e["value"];
+      var value = e["value"];
       String type = e["type"];
 
       if (filterOp == "sort") {
@@ -136,6 +137,8 @@ extension QueryOperation on Query {
         return a.where(field, isGreaterThan: parseValue(type, value));
       } else if (filterOp == "<") {
         return a.where(field, isLessThan: parseValue(type, value));
+      } else if (filterOp == "in") {
+        return a.where(field, whereIn: parseValue(type, value));
       } else {
         throw Exception();
       }
@@ -269,9 +272,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-          controller: filterField,
-          decoration: InputDecoration(labelText: "Field"),
-        )),
+              controller: filterField,
+              decoration: InputDecoration(labelText: "Field"),
+            )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -284,10 +287,11 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
-                .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+                .map((String value) =>
+                DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ))
                 .toList(),
           ),
         ),
@@ -302,20 +306,20 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['number', 'string', 'boolean']
-                .map((String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ))
+                .map((String value) =>
+                DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-          controller: filterValue,
-          decoration: InputDecoration(labelText: "Value"),
-        )),
+              controller: filterValue,
+              decoration: InputDecoration(labelText: "Value"),
+            )),
       ],
     );
   }
 }
-                                                                                        
