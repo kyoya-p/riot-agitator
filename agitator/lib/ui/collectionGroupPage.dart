@@ -83,14 +83,20 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
   {"op":"sort", "field":"time", "type":"boolean", "value":"false"}
 ]}
 
-"Select items which target is 'deviceA'":
+"Select items which 'target:' is 'deviceA'":
 {"filter":[
   {"op":"==", "field":"target", "type":"string", "value":"deviceA"}
 ]}
 
-"Select items which 'target' is 'deviceA' or 'deviceB'":
+"Select items which 'time' is later than or equal 1612137600000 (2021-02-01 0:00:00 UTC) and earlier than 1612224000000 (2021-02-02 0:00:00 UTC).":
 {"filter":[
-  {"op":"in", "field":"target", "type":"list<string>", "values":["deviceA","deviceB"]}
+  {"op":">=", "field":"time", "type":"number", "value":"1612137600000"},
+  {"op":"<",  "field":"time", "type":"number", "value":"1612224000000"}
+]}
+
+"Select items which 'cluster' is 'clusterA' or 'clusterB'":
+{"filter":[
+  {"op":"in", "field":"cluster", "type":"list<string>", "values":["clusterA","clusterB"]}
 ]}
 
 "Select items which 'tags' contains 'word'":

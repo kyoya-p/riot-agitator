@@ -104,19 +104,36 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                     context, (_) => CollectionPage(dRef.collection("results")));
               }),
           SimpleDialogOption(
-              child: Text("SubCollection: logs"),
+              child: Text("SubCollection: state"),
               onPressed: () {
                 Navigator.pop(dialogCtx);
                 naviPush(
                   context,
-                  (_) => CollectionGroupPage(
+                      (_) => CollectionGroupPage(
                     //DeviceLogsPage(
                     dRef.collection("logs"),
                     filterConfigRef: FirebaseFirestore.instance
                         .collection("user")
                         .doc(user.uid)
                         .collection("app1")
-                        .doc("filterConfig"),
+                        .doc("filterConfig_state"),
+                  ),
+                );
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: logs"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                  context,
+                      (_) => CollectionGroupPage(
+                    //DeviceLogsPage(
+                    dRef.collection("logs"),
+                    filterConfigRef: FirebaseFirestore.instance
+                        .collection("user")
+                        .doc(user.uid)
+                        .collection("app1")
+                        .doc("filterConfig_logs"),
                   ),
                 );
               }),
@@ -250,21 +267,21 @@ Widget globalGroupMenu(BuildContext context) {
   return PopupMenuButton<Widget Function(BuildContext)>(
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
-          child: Text("User List"),
+          child: Text("User Viewer (admin)"),
           value: (_) => QueryViewPage(db.collection("user"))),
       PopupMenuItem(
-          child: Text("Device List"),
+          child: Text("Device Viewer (admin)"),
           value: (_) => QueryViewPage(db.collection("device"))),
       PopupMenuItem(
-          child: Text("Group List"),
+          child: Text("Group Viewer (admin)"),
           value: (_) => CollectionGroupPage(
               db.collection("group").where("users", arrayContains: user.uid),
               filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
       PopupMenuItem(
-          child: Text("Notification List"),
+          child: Text("Notification Viewer (admin)"),
           value: (_) => QueryViewPage(db.collection("notification"))),
       PopupMenuItem(
-          child: Text("Log List"),
+          child: Text("Log Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collectionGroup("logs"),
               filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
     ],
