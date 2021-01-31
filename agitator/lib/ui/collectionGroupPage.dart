@@ -11,10 +11,10 @@ import 'QueryFilter.dart';
  */
 
 class CollectionGroupPage extends StatefulWidget {
-  CollectionGroupPage(this.query, {required this.filterConfigRef});
+  CollectionGroupPage(this.query, {this.filterConfigRef});
 
   Query query;
-  DocumentReference filterConfigRef;
+  DocumentReference? filterConfigRef;
   CollectionReference? containerOfNewDocument; //TODO
 
   @override
@@ -33,32 +33,37 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("CollectionGroup ${widget.query.parameters}"),
+        title: Text("CollectionGroup ${widget.query}"),
         actions: [filterButton],
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: widget.filterConfigRef.snapshots(),
-          builder: (context, _filterSnapshot) {
-            if (!_filterSnapshot.hasData)
-              return Center(child: CircularProgressIndicator());
-            List<dynamic> filterList =
-                _filterSnapshot.data?.data()["filter"] ?? [];
-            return Column(children: [
-              //FilterListConfigWidget(filterList),
-              Expanded(
-                child: PrograssiveItemViewWidget(
-                    widget.query.addFilters(filterList)),
-              ),
-            ]);
-          }),
+      body: streamBuilderNotNull(widget.filterConfigRef),
     );
+  }
+
+  Widget? streamBuilderNotNull(DocumentReference? streamForFilter) {
+    if (streamForFilter == null) return PrograssiveItemViewWidget(widget.query);
+    return StreamBuilder<DocumentSnapshot>(
+        stream: streamForFilter.snapshots(),
+        builder: (context, _filterSnapshot) {
+          if (!_filterSnapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+          List<dynamic> filterList =
+              _filterSnapshot.data?.data()["filter"] ?? [];
+          return Column(children: [
+            //FilterListConfigWidget(filterList),
+            Expanded(
+              child: PrograssiveItemViewWidget(
+                  widget.query.addFilters(filterList)),
+            ),
+          ]);
+        });
   }
 
   showFilterDialog(BuildContext context) {
     return showDialog(
         context: context,
         builder: (context) {
-          DocumentWidget docWidget = DocumentWidget(widget.filterConfigRef);
+          DocumentWidget docWidget = DocumentWidget(widget.filterConfigRef!);
           FlatButton applyButton = FlatButton(
               onPressed: () => docWidget.setDocument(context),
               child: Text("Apply"));
@@ -77,7 +82,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
   }
 
   Widget sampleFiltersButton(BuildContext context) {
-    String sampleFilters= """
+    String sampleFilters = """
 "Sort items by 'time' decending":
 {"filter":[
   {"op":"sort", "field":"time", "type":"boolean", "value":"false"}
@@ -122,7 +127,6 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
     );
   }
 }
-
 
 // Firestoreで大きなリストを使う際のテンプレ
 class PrograssiveItemViewWidget extends StatefulWidget {
@@ -250,9 +254,9 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
       children: [
         Expanded(
             child: TextField(
-              controller: filterField,
-              decoration: InputDecoration(labelText: "Field"),
-            )),
+          controller: filterField,
+          decoration: InputDecoration(labelText: "Field"),
+        )),
         Expanded(
           child: DropdownButton<String>(
             hint: Icon(Icons.send),
@@ -265,11 +269,10 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['sort', '==', '>', '>=', '<=', '<']
-                .map((String value) =>
-                DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                ))
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
@@ -284,19 +287,18 @@ class _FilterConfigWidgetStatus extends State<FilterConfigWidget> {
                 });
             },
             items: ['number', 'string', 'boolean']
-                .map((String value) =>
-                DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                ))
+                .map((String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ))
                 .toList(),
           ),
         ),
         Expanded(
             child: TextField(
-              controller: filterValue,
-              decoration: InputDecoration(labelText: "Value"),
-            )),
+          controller: filterValue,
+          decoration: InputDecoration(labelText: "Value"),
+        )),
       ],
     );
   }

@@ -50,7 +50,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
               snapshot.data?.data().getNested<String>(["dev", "name"]) ??
                   snapshot.data?.id ??
                   "no title";
-          User user = FirebaseAuth.instance.currentUser;
+          //User user = FirebaseAuth.instance.currentUser;
 
           return Container(
               decoration: BoxDecoration(
@@ -109,7 +109,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                 Navigator.pop(dialogCtx);
                 naviPush(
                   context,
-                      (_) => CollectionGroupPage(
+                  (_) => CollectionGroupPage(
                     //DeviceLogsPage(
                     dRef.collection("logs"),
                     filterConfigRef: FirebaseFirestore.instance
@@ -126,7 +126,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                 Navigator.pop(dialogCtx);
                 naviPush(
                   context,
-                      (_) => CollectionGroupPage(
+                  (_) => CollectionGroupPage(
                     //DeviceLogsPage(
                     dRef.collection("logs"),
                     filterConfigRef: FirebaseFirestore.instance
@@ -267,19 +267,28 @@ Widget globalGroupMenu(BuildContext context) {
   return PopupMenuButton<Widget Function(BuildContext)>(
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
+          child: Text("Generic Query"),
+          value: (_) => QueryViewPage(querySpec: {
+                "collection": "device",
+                "orderBy": [
+                  {"field": "dev.cluster"}
+                ]
+              })),
+      PopupMenuItem(
           child: Text("User Viewer (admin)"),
-          value: (_) => QueryViewPage(db.collection("user"))),
+          value: (_) => CollectionGroupPage(db.collection("user"))),
       PopupMenuItem(
           child: Text("Device Viewer (admin)"),
-          value: (_) => QueryViewPage(db.collection("device"))),
+          value: (_) => CollectionGroupPage(db.collection("device"))),
       PopupMenuItem(
           child: Text("Group Viewer (admin)"),
           value: (_) => CollectionGroupPage(
               db.collection("group").where("users", arrayContains: user.uid),
-              filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
+              filterConfigRef:
+                  db.doc("user/${user.uid}/app1/logFilter_group"))),
       PopupMenuItem(
           child: Text("Notification Viewer (admin)"),
-          value: (_) => QueryViewPage(db.collection("notification"))),
+          value: (_) => CollectionGroupPage(db.collection("notification"))),
       PopupMenuItem(
           child: Text("Log Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collectionGroup("logs"),

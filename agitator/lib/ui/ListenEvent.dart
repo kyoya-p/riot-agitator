@@ -32,7 +32,7 @@ class FloatSample extends StatelessWidget {
   }
 }
 
-Widget buildBell(BuildContext context) {
+Widget bell(BuildContext context) {
   User user = FirebaseAuth.instance.currentUser;
   if (user.uid == null) return Center(child: CircularProgressIndicator());
 

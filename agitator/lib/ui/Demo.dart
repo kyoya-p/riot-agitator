@@ -21,7 +21,7 @@ class DemoHumanHeatSensorCreatePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("体感温度センサーデバイス追加"),
-        actions: [buildBell(context)],
+        actions: [bell(context)],
       ),
       body: TextField(
         autofocus: true,

@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/ListenEvent.dart';
 
-import 'Common.dart';
 import 'QueryViewPage.dart';
 import 'documentPage.dart';
 
@@ -31,7 +30,7 @@ class CollectionPage extends StatelessWidget {
 
   AppBar defaultAppBar(BuildContext context) => AppBar(
       title: Text("${cRef?.parameters} - Collection"),
-      actions: [buildBell(context)]);
+      actions: [bell(context)]);
 
   FloatingActionButton defaultFloatingActionButton(
           BuildContext context, DocumentReference dRef) =>
@@ -54,7 +53,7 @@ class CollectionPage extends StatelessWidget {
     return Scaffold(
       appBar: appBar ?? defaultAppBar(context),
       body: QueryViewWidget(
-        query,
+        query: query,
         itemBuilder: itemBuilder,
       ),
       floatingActionButton: (cRef != null && floatingActionButton != null)

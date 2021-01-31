@@ -6,7 +6,6 @@ import 'Common.dart';
 import 'Demo.dart';
 import 'ListenEvent.dart';
 import 'QueryViewPage.dart';
-import 'collectionPage.dart';
 import 'documentPage.dart';
 
 /* Cluster管理画面
@@ -23,13 +22,13 @@ class ClusterViewerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return QueryViewPage(
-      db.collection("device").where("dev.cluster", isEqualTo: clusterId),
+      query: db.collection("device").where("dev.cluster", isEqualTo: clusterId),
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data!.docs[index]),
       appBar: AppBar(
         title: Text("${clusterId} - Cluster"),
         actions: [
-          buildBell(context),
+          bell(context),
           clusterMenu(context),
           IconButton(
             icon: Icon(Icons.edit),

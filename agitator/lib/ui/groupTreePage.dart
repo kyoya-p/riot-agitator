@@ -7,7 +7,6 @@ import 'package:riotagitator/login.dart';
 import 'package:riotagitator/ui/clusterViewPage.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
-import 'collectionPage.dart';
 import 'documentPage.dart';
 
 class GroupTreePage extends StatelessWidget {
@@ -31,7 +30,7 @@ class GroupTreePage extends StatelessWidget {
         title: Text("${tgGroup} - Group View"),
         actions: [
           globalGroupMenu(context),
-          buildBell(context),
+          bell(context),
           loginButton(context)
         ],
       ),
