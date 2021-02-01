@@ -52,7 +52,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
             //FilterListConfigWidget(filterList),
             Expanded(
               child: PrograssiveItemViewWidget(
-                  widget.query.addFilters(filterList)),
+                  addFilters(widget.query,filterList)),
             ),
           ]);
         });

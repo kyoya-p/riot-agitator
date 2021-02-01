@@ -108,14 +108,19 @@ showDocumentEditorDialog(DocumentReference dRef, BuildContext context) {
         FlatButton applyButton = FlatButton(
             onPressed: () => docWidget.setDocument(context),
             child: Text("Apply"));
-        FlatButton closeButton = FlatButton(
-            onPressed: () => naviPop(context), child: Text("Close"));
+        FlatButton closeButton =
+            FlatButton(onPressed: () => naviPop(context), child: Text("Close"));
         return AlertDialog(
           title: Row(children: [
+            Expanded(child: Text("Query Settings")),
             applyButton,
             closeButton
           ]),
-          content: docWidget,
+          insetPadding:
+              EdgeInsets.only(top: 200.0, left: 10, right: 10, bottom: 10),
+          content: Column(children: [
+            Expanded(child: docWidget),
+          ]),
         );
       });
 }

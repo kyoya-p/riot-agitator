@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:html';
 
 import 'package:flutter/material.dart';
@@ -159,11 +158,11 @@ class QueryViewWidget extends StatelessWidget {
     {
       "collection": "collectionId",
       "subCollections": [ {"document":"documentId", "collection":"collectionId" }, ... ],
-      "sort": [
-        { "field": "sortFieldName",
-          "decending": true // true, false
-        },...
-      ]
+      "orderBy": [
+        { "field": "orderByFieldName",
+          "descending": false  // true, false
+        }//,...
+      ],
       "where": [
         { "field":"filterFieldName",
           "operator" : "==", // "==", "!=", ">", ">=", ">", ">=", "contains"
@@ -182,11 +181,12 @@ class QueryViewWidget extends StatelessWidget {
   */
   Query makeQuery(dynamic querySpec) {
     FirebaseFirestore db = FirebaseFirestore.instance;
-    Query query = db.collection(querySpec["collection"]);
-    querySpec["orderBy"]?.forEach((e) {
-      query = query.orderBy(e["field"], descending: e["descending"] == true);
-    });
-    query = querySpec["where"]?.toList().fold(query, (a, e) => a.addFilter(e));
+    CollectionReference c = db.collection(querySpec["collection"]);
+    querySpec["subCollections"]
+        ?.forEach((e) => c = c.doc(e["document"]).collection(e["collection"]));
+    Query query = c;
+    querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query, e));
+    querySpec["where"]?.forEach((e) => query = addFilter(query, e));
     return query;
   }
 
@@ -206,50 +206,50 @@ class QueryViewWidget extends StatelessWidget {
       );
 }
 
-// Query作成を補助する拡張関数
-extension QueryOperation on Query {
-  Query addFilter(dynamic filter) {
-    dynamic parseValue(String op, var value) {
-      if (op == "boolean") return value == "true";
-      if (op == "number") return num.parse(value);
-      if (op == "string") return value as String;
-      if (op == "list<string>") return value.map((e) => e as String).toList();
-      return null;
-    }
-
-    String filterOp = filter["op"];
-    String field = filter["field"];
-    String type = filter["type"];
-    dynamic value = filter["value"];
-    dynamic values = filter["values"];
-
-    if (filterOp == "sort") {
-      return orderBy(field, descending: value == "true");
-    } else if (filterOp == "==") {
-      return where(field, isEqualTo: parseValue(type, value));
-    } else if (filterOp == "!=") {
-      return where(field, isNotEqualTo: parseValue(type, value));
-    } else if (filterOp == ">=") {
-      return where(field, isGreaterThanOrEqualTo: parseValue(type, value));
-    } else if (filterOp == "<=") {
-      return where(field, isLessThanOrEqualTo: parseValue(type, value));
-    } else if (filterOp == ">") {
-      return where(field, isGreaterThan: parseValue(type, value));
-    } else if (filterOp == "<") {
-      return where(field, isLessThan: parseValue(type, value));
-    } else if (filterOp == "notIn") {
-      return where(field, whereNotIn: parseValue(type, value));
-    } else if (filterOp == "in") {
-      return where(field, whereIn: parseValue(type, values));
-    } else if (filterOp == "contains") {
-      return where(field, arrayContains: parseValue(type, value));
-    } else if (filterOp == "containsAny") {
-      return where(field, arrayContainsAny: parseValue(type, values));
-    } else {
-      throw Exception();
-    }
+Query addFilter(Query query, dynamic filter) {
+  dynamic parseValue(String op, var value) {
+    if (op == "boolean") return value == "true";
+    if (op == "number") return num.parse(value);
+    if (op == "string") return value as String;
+    if (op == "list<string>") return value.map((e) => e as String).toList();
+    return null;
   }
 
-  Query addFilters(dynamic filterList) =>
-      filterList.toList().fold(this, (a, e) => a.addFilter(e));
+  String filterOp = filter["op"];
+  String field = filter["field"];
+  String type = filter["type"];
+  dynamic value = filter["value"];
+  dynamic values = filter["values"];
+
+  if (filterOp == "sort") {
+    return query.orderBy(field, descending: value == "true");
+  } else if (filterOp == "==") {
+    return query.where(field, isEqualTo: parseValue(type, value));
+  } else if (filterOp == "!=") {
+    return query.where(field, isNotEqualTo: parseValue(type, value));
+  } else if (filterOp == ">=") {
+    return query.where(field, isGreaterThanOrEqualTo: parseValue(type, value));
+  } else if (filterOp == "<=") {
+    return query.where(field, isLessThanOrEqualTo: parseValue(type, value));
+  } else if (filterOp == ">") {
+    return query.where(field, isGreaterThan: parseValue(type, value));
+  } else if (filterOp == "<") {
+    return query.where(field, isLessThan: parseValue(type, value));
+  } else if (filterOp == "notIn") {
+    return query.where(field, whereNotIn: parseValue(type, value));
+  } else if (filterOp == "in") {
+    return query.where(field, whereIn: parseValue(type, values));
+  } else if (filterOp == "contains") {
+    return query.where(field, arrayContains: parseValue(type, value));
+  } else if (filterOp == "containsAny") {
+    return query.where(field, arrayContainsAny: parseValue(type, values));
+  } else {
+    throw Exception();
+  }
 }
+
+Query addFilters(Query query, dynamic filterList) =>
+    filterList.toList().fold(query, (a, e) => addFilter(a, e));
+
+Query addOrderBy(Query query, dynamic order) =>
+    query.orderBy(order["field"], descending: order["descending"] == true);

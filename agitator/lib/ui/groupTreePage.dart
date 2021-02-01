@@ -73,23 +73,7 @@ class GroupTreePage extends StatelessWidget {
           (user.uid == null) ? null : floatingActionButtonBuilder2(context),
     );
   }
-/*
-  Widget collectionListTile(BuildContext context, String collectionId) {
-    return ListTile(
-      title: Text("${collectionId} collection"),
-      trailing: Icon(Icons.arrow_forward),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                FsCollectionOperatorAppWidget(collectionId: collectionId),
-          ),
-        );
-      },
-    );
-  }
-*/
+
   floatingActionButtonBuilder1(BuildContext context) => FloatingActionButton(
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
@@ -184,7 +168,7 @@ class GroupWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (group.data().getNested(["type", "group", "cluster"]) != null)
+        if (isTypeCluster(group))
           return naviPush(
               context, (_) => ClusterViewerPage(clusterId: group.id));
         else
@@ -200,7 +184,7 @@ class GroupWidget extends StatelessWidget {
               top: BorderSide(color: Colors.white, width: 2.0),
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
-            color: group.data().getNested(["type", "group", "cluster"]) != null
+            color: isTypeCluster(group)
                 ? Theme.of(context).accentColor.shift(50, 50, 50)
                 : Theme.of(context).primaryColor.withOpacity(0.1),
           ),
@@ -222,6 +206,17 @@ class GroupWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool isTypeCluster(QueryDocumentSnapshot group) {
+    var type = group.data()["type"];
+    if (type is Map) { //Old style
+      return group.data().getNested(["type", "group", "cluster"]) != null;
+    } else if (type is List) {
+      return type.contains("group.cluster");
+    } else {
+      return false;
+    }
   }
 }
 
