@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
 import 'documentPage.dart';
-import 'QueryFilter.dart';
+import 'QueryViewPage.dart';
 
 /*
  Firestore CollectionGroupを表示するPage/Widget
@@ -28,8 +28,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
         icon: Icon(Icons.filter_list),
         onPressed: widget.filterConfigRef == null
             ? null
-            //: () => naviPush(context, (_) => DocumentPage(widget.filterConfigRef)), // Page遷移
-            : () => showFilterDialog(context)); // Dialog表示
+                                                                                                                                                                                                                                                                                                                                                      : () => showFilterDialog(context)); // Dialog表示
 
     return Scaffold(
       appBar: AppBar(

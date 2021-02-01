@@ -99,3 +99,23 @@ class _DocumentWidgetState extends State<DocumentWidget> {
     );
   }
 }
+
+showDocumentEditorDialog(DocumentReference dRef, BuildContext context) {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        DocumentWidget docWidget = DocumentWidget(dRef);
+        FlatButton applyButton = FlatButton(
+            onPressed: () => docWidget.setDocument(context),
+            child: Text("Apply"));
+        FlatButton closeButton = FlatButton(
+            onPressed: () => naviPop(context), child: Text("Close"));
+        return AlertDialog(
+          title: Row(children: [
+            applyButton,
+            closeButton
+          ]),
+          content: docWidget,
+        );
+      });
+}

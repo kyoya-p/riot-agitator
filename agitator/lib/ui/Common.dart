@@ -268,12 +268,8 @@ Widget globalGroupMenu(BuildContext context) {
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
           child: Text("Generic Query"),
-          value: (_) => QueryViewPage(querySpec: {
-                "collection": "device",
-                "orderBy": [
-                  {"field": "dev.cluster"}
-                ]
-              })),
+          value: (_) => QueryViewPage(
+              queryDocument: db.doc("user/${user.uid}/app1/filterGeneral"))),
       PopupMenuItem(
           child: Text("User Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collection("user"))),
@@ -297,3 +293,4 @@ Widget globalGroupMenu(BuildContext context) {
     onSelected: (value) => naviPush(context, value),
   );
 }
+
