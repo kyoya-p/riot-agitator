@@ -85,6 +85,7 @@ class QueryViewWidget extends StatelessWidget {
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
+  Widget Function(BuildContext context, String id, dynamic data)? itemBuilder2;
 
   Widget defaultItemBuilder(
       BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -95,25 +96,29 @@ class QueryViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (query != null) {
-      return buildBody(query!, context);
+      return streamWidget(query!, context);
     } else if (querySpec != null) {
-      return buildBody(makeQuery(querySpec), context);
+      Query? q = makeQuery(querySpec);
+      if (q == null) return Center(child: Text("Query Error: ${querySpec}"));
+      return streamWidget(q, context);
     } else if (queryDocument != null) {
       return StreamBuilder<DocumentSnapshot>(
         stream: queryDocument?.snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
+          if (snapshot.data == null)
             return Center(child: CircularProgressIndicator());
-          }
-          return buildBody(makeQuery(snapshot.data?.data()), context);
+          Query? q = makeQuery(snapshot.data?.data());
+          if (q == null)
+            return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
+          return streamWidget(q, context);
         },
       );
     } else {
-      return Text("No Query Parameters.");
+      return Center(child: Text("Error: No Query parameters"));
     }
   }
 
-  Widget buildBody(Query query, BuildContext context) {
+  Widget streamWidget(Query query, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
 
     return StreamBuilder<QuerySnapshot>(
@@ -153,11 +158,45 @@ class QueryViewWidget extends StatelessWidget {
         });
   }
 
-  /*
+  Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+
+    return GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: w ~/ 160,
+            mainAxisSpacing: 5,
+            crossAxisSpacing: 5,
+            childAspectRatio: 2.0),
+        itemCount: docs.length,
+        itemBuilder: (BuildContext context, int index) {
+          DocumentReference? dRef = docs[index].reference;
+
+          return Container(
+              child: InkResponse(
+            onLongPress: () {
+              print("long");
+            },
+            child: Dismissible(
+              key: Key(docs[index].id),
+              child: itemBuilder2 != null
+                  ? itemBuilder2!(context, docs[index].id, docs[index].data)
+                  : dRef != null
+                      ? buildGenericCard(context, dRef)
+                      : Text("NULL"),
+              onDismissed: (_) => docs[index].reference.delete(),
+            ),
+          ));
+        });
+  }
+
+/*
     QuerySpecification for watchDocuments()
     {
       "collection": "collectionId",
       "subCollections": [ {"document":"documentId", "collection":"collectionId" }, ... ],
+
+      "collectionGroup": "collectionGroupId",
+
       "orderBy": [
         { "field": "orderByFieldName",
           "descending": false  // true, false
@@ -179,14 +218,32 @@ class QueryViewWidget extends StatelessWidget {
       "limit": 100
     }
   */
-  Query makeQuery(dynamic querySpec) {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    CollectionReference c = db.collection(querySpec["collection"]);
-    querySpec["subCollections"]
-        ?.forEach((e) => c = c.doc(e["document"]).collection(e["collection"]));
-    Query query = c;
-    querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query, e));
-    querySpec["where"]?.forEach((e) => query = addFilter(query, e));
+  Query? makeQuery(dynamic querySpec) {
+    Query? makeCollRef(dynamic querySpec) {
+      FirebaseFirestore db = FirebaseFirestore.instance;
+      String? collection = querySpec["collection"];
+      String? collectionGroup = querySpec["collectionGroup"];
+      if (collection != null) {
+        CollectionReference c = db.collection(collection);
+        querySpec["subCollections"]?.forEach(
+            (e) => c = c.doc(e["document"]).collection(e["collection"]));
+        return c;
+      } else if (collectionGroup != null) {
+        return db.collection(querySpec["collectionGroup"]);
+      } else {
+        return null;
+      }
+    }
+
+    print(querySpec); //TODO
+
+    Query? query = makeCollRef(querySpec);
+    if (query == null)
+      return null;
+    else {
+      querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query!, e));
+      querySpec["where"]?.forEach((e) => query = addFilter(query!, e));
+    }
     return query;
   }
 

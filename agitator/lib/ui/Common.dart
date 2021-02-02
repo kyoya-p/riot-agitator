@@ -133,7 +133,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                         .collection("user")
                         .doc(user.uid)
                         .collection("app1")
-                        .doc("filterConfig_logs"),
+                        .doc("filterConfig"),
                   ),
                 );
               }),
@@ -289,8 +289,11 @@ Widget globalGroupMenu(BuildContext context) {
           child: Text("Log Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collectionGroup("logs"),
               filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
+      PopupMenuItem(
+          child: Text("Log QueryView (admin)"),
+          value: (_) => QueryViewPage(
+              queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
     ],
     onSelected: (value) => naviPush(context, value),
   );
 }
-
