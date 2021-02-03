@@ -85,7 +85,6 @@ class QueryViewWidget extends StatelessWidget {
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
-  Widget Function(BuildContext context, String id, dynamic data)? itemBuilder2;
 
   Widget defaultItemBuilder(
       BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -107,6 +106,7 @@ class QueryViewWidget extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.data == null)
             return Center(child: CircularProgressIndicator());
+          print("query=${snapshot.data?.data()}"); //TODO
           Query? q = makeQuery(snapshot.data?.data());
           if (q == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
@@ -120,11 +120,12 @@ class QueryViewWidget extends StatelessWidget {
 
   Widget streamWidget(Query query, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
-
     return StreamBuilder<QuerySnapshot>(
         stream: query.snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+          if (snapshots.hasError)
+            return SelectableText("Snapshots Error: ${snapshots.toString()}");
           if (!snapshots.hasData)
             return Center(child: CircularProgressIndicator());
           QuerySnapshot querySnapshotData = snapshots.data!;
@@ -134,10 +135,10 @@ class QueryViewWidget extends StatelessWidget {
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),
-              itemCount: querySnapshotData.size,
+              itemCount: snapshots.data?.size,
               itemBuilder: (BuildContext context, int index) {
-                DocumentReference? dRef = snapshots.data?.docs[index].reference;
-
+                QueryDocumentSnapshot doc = snapshots.data!.docs[index];
+                itemBuilder = itemBuilder ?? defaultCell;
                 return Container(
                     child: InkResponse(
                   onLongPress: () {
@@ -145,17 +146,28 @@ class QueryViewWidget extends StatelessWidget {
                   },
                   child: Dismissible(
                     key: Key(querySnapshotData.docs[index].id),
-                    child: itemBuilder != null
-                        ? itemBuilder!(context, index, snapshots)
-                        : dRef != null
-                            ? buildGenericCard(context, dRef)
-                            : Text("NULL"),
+                    child: itemBuilder!(context, index, snapshots),
                     onDismissed: (_) =>
                         querySnapshotData.docs[index].reference.delete(),
                   ),
                 ));
               });
         });
+  }
+
+  Widget defaultCell(
+      BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
+    QueryDocumentSnapshot doc = snapshots.data!.docs[index];
+    DateTime time = DateTime.fromMillisecondsSinceEpoch(doc.data()["time"]);
+    return wrapDocumentOperationMenu(doc.reference, context,
+        child: Card(
+          color: Colors.black12,
+          child: Wrap(children: [
+            Text("[$index]"),
+            Text(time.toString()),
+            Text("${doc.id}"),
+          ]),
+        ));
   }
 
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
@@ -169,23 +181,33 @@ class QueryViewWidget extends StatelessWidget {
             childAspectRatio: 2.0),
         itemCount: docs.length,
         itemBuilder: (BuildContext context, int index) {
-          DocumentReference? dRef = docs[index].reference;
+          QueryDocumentSnapshot d = docs[index];
 
           return Container(
-              child: InkResponse(
-            onLongPress: () {
-              print("long");
-            },
-            child: Dismissible(
-              key: Key(docs[index].id),
-              child: itemBuilder2 != null
-                  ? itemBuilder2!(context, docs[index].id, docs[index].data)
-                  : dRef != null
-                      ? buildGenericCard(context, dRef)
-                      : Text("NULL"),
-              onDismissed: (_) => docs[index].reference.delete(),
+            child: InkResponse(
+              onLongPress: () {
+                print("long");
+              },
+              child: Dismissible(
+                key: Key(docs[index].id),
+//              child: buildGenericCard(context, dRef),
+                onDismissed: (_) => docs[index].reference.delete(),
+                child: Card(
+                  color: Theme.of(context).cardColor,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.black12,
+                      ),
+                      child: GestureDetector(
+                        child: Text(d.id, overflow: TextOverflow.ellipsis),
+                        onTap: () =>
+                            showDocumentOperationMenu(d.reference, context),
+                      )),
+                ),
+              ),
             ),
-          ));
+          );
         });
   }
 

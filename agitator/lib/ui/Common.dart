@@ -35,34 +35,36 @@ Widget buildCellWidget(
   }
 }
 
-// Label: dev.nameまたはidを表示
-// 長押しでメニュー
-// - Document編集
-// - logs表示
 Widget buildGenericCard(BuildContext context, DocumentReference dRef) {
-  print("dRef=${dRef.path}");//TODO
+  print("dRef=${dRef.path}"); //TODO
   return Card(
-    color: Theme.of(context).cardColor,
-    child: StreamBuilder<DocumentSnapshot>(
-        stream: dRef.snapshots(),
-        builder: (streamCtx, snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          String label =
-              snapshot.data?.data().getNested<String>(["dev", "name"]) ??
-                  snapshot.data?.id ??
-                  "no title";
-          //User user = FirebaseAuth.instance.currentUser;
+      color: Theme.of(context).cardColor,
+      child: StreamBuilder<DocumentSnapshot>(
+          stream: dRef.snapshots(),
+          builder: (streamCtx, snapshot) {
+            if (snapshot.hasError)
+              return SelectableText("Snapshots Error: ${snapshot.toString()}");
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+            String label = snapshot.data?.id ?? "noLabel";
+            print("snapshot=${snapshot.data?.data()}"); //TODO
+            return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.black12,
+                ),
+                child: GestureDetector(
+                    child: Text(label, overflow: TextOverflow.ellipsis),
+                    onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
+          }));
+}
 
-          return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.black12,
-              ),
-              child: GestureDetector(
-                  child: Text(label, overflow: TextOverflow.ellipsis),
-                  onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
-        }));
+Widget wrapDocumentOperationMenu(DocumentReference dRef, BuildContext context,
+    {Widget? child}) {
+  return GestureDetector(
+    child: child,
+    onTap: () => showDocumentOperationMenu(dRef, context),
+  );
 }
 
 showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
