@@ -39,7 +39,9 @@ Widget buildCellWidget(
 // 長押しでメニュー
 // - Document編集
 // - logs表示
-Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
+Widget buildGenericCard(BuildContext context, DocumentReference dRef) {
+  print("dRef=${dRef.path}");//TODO
+  return Card(
     color: Theme.of(context).cardColor,
     child: StreamBuilder<DocumentSnapshot>(
         stream: dRef.snapshots(),
@@ -61,6 +63,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) => Card(
                   child: Text(label, overflow: TextOverflow.ellipsis),
                   onTap: () => showDocumentOperationMenu(dRef, streamCtx)));
         }));
+}
 
 showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
   User user = FirebaseAuth.instance.currentUser;

@@ -229,13 +229,12 @@ class QueryViewWidget extends StatelessWidget {
             (e) => c = c.doc(e["document"]).collection(e["collection"]));
         return c;
       } else if (collectionGroup != null) {
-        return db.collection(querySpec["collectionGroup"]);
+        print("collectionGroup($collectionGroup)"); //TODO
+        return db.collectionGroup(collectionGroup);
       } else {
         return null;
       }
     }
-
-    print(querySpec); //TODO
 
     Query? query = makeCollRef(querySpec);
     if (query == null)
@@ -244,6 +243,9 @@ class QueryViewWidget extends StatelessWidget {
       querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query!, e));
       querySpec["where"]?.forEach((e) => query = addFilter(query!, e));
     }
+    int? limit = querySpec["limit"];
+    if (limit != null) query = query?.limit(limit);
+
     return query;
   }
 

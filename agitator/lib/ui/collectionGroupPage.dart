@@ -156,7 +156,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
           } else if (index > widget.listDocSnapshot.length) {
             return Text("");
           }
-          widget.qrItems.limit(30).get().then((value) {
+          widget.qrItems.limit(50).get().then((value) {
             if (mounted) {
               setState(() {
                 if (value.size > 0) {
