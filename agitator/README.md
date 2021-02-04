@@ -33,7 +33,7 @@ flutter devices
 
 ホスト外からのアクセス許可とポート指定:
  
-> flutter run -d chrome --web-hostname=0.0.0.0 --web-port=50080
+> flutter run -d chrome --web-hostname=<自分のアドレス>> --web-port=50080
 
 - [intelliJ]デバッグ実行  
 Deviceを選択し、(Chromeまたはその他)

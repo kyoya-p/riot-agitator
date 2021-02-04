@@ -280,7 +280,8 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => CollectionGroupPage(db.collection("user"))),
       PopupMenuItem(
           child: Text("Device Viewer (admin)"),
-          value: (_) => CollectionGroupPage(db.collection("device"))),
+          value: (_) => QueryViewPage(
+              queryDocument: db.doc("user/${user.uid}/app1/logFilter_device"))),
       PopupMenuItem(
           child: Text("Group Viewer (admin)"),
           value: (_) => CollectionGroupPage(

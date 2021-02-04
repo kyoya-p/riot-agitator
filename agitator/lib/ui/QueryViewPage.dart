@@ -226,14 +226,14 @@ class QueryViewWidget extends StatelessWidget {
       ],
       "where": [
         { "field":"filterFieldName",
-          "operator" : "==", // "==", "!=", ">", ">=", ">", ">=", "contains"
-          "type": "number", // "number", "string", "boolean", "list<string>"
+          "op" : "==", // "==", "!=", ">", ">=", "<", "<=", "contains"
+          "type": "number", // "number", "string", "boolean"
           "value": "fieldValue", // if with scalor-operator
         },
         { "field":"fieldName",
           "operator" : "in", // "in", "notIn", "containsAny"
-          "type": "number", // "number", "string", "boolean", "list<string>"
-          "values": ["fieldValue1","value2",...] // if with list-operator
+          "type": "list<string>", // "list<number>", "list<string>"
+          "values": ["fieldValue1","fieldValue2",...] // if with list-operator
         }, ...
       ],
 
