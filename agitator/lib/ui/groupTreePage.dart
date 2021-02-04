@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
-import 'package:riotagitator/ui/clusterViewPage.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
+import 'QueryViewPage.dart';
 import 'documentPage.dart';
+
+final db = FirebaseFirestore.instance;
 
 class GroupTreePage extends StatelessWidget {
   GroupTreePage({required this.user, this.tgGroup});
 
   final User user;
   final String? tgGroup;
-  final db = FirebaseFirestore.instance;
   bool v = false;
 
   @override
@@ -170,10 +171,30 @@ class GroupWidget extends StatelessWidget {
       onTap: () {
         if (isTypeCluster(group))
           return naviPush(
-              context, (_) => ClusterViewerPage(clusterId: group.id));
+            context,
+//                (_) => ClusterViewerPage(clusterId: group.id),
+            (_) {
+              DocumentReference filter =
+                  db.doc("user/${user.uid}/app1/filter_ClusterView");
+              filter.set({
+                "collection": "device",
+                "where": [
+                  {
+                    "field": "dev.cluster",
+                    "op": "==",
+                    "type": "string",
+                    "value": group.id
+                  }
+                ]
+              });
+              return QueryViewPage(queryDocument: filter);
+            },
+          );
         else
           return naviPush(
-              context, (_) => GroupTreePage(user: user, tgGroup: group.id));
+            context,
+            (_) => GroupTreePage(user: user, tgGroup: group.id),
+          );
       },
       onLongPress: () => showDocumentOperationMenu(group.reference, context),
       child: Padding(
@@ -210,7 +231,8 @@ class GroupWidget extends StatelessWidget {
 
   bool isTypeCluster(QueryDocumentSnapshot group) {
     var type = group.data()["type"];
-    if (type is Map) { //Old style
+    if (type is Map) {
+      //Old style
       return group.data().getNested(["type", "group", "cluster"]) != null;
     } else if (type is List) {
       return type.contains("group.cluster");

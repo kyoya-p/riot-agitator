@@ -131,7 +131,7 @@ class QueryViewWidget extends StatelessWidget {
           QuerySnapshot querySnapshotData = snapshots.data!;
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: w ~/ 160,
+                  crossAxisCount: w ~/ 200,
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),
@@ -158,15 +158,25 @@ class QueryViewWidget extends StatelessWidget {
   Widget defaultCell(
       BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
     QueryDocumentSnapshot doc = snapshots.data!.docs[index];
-    DateTime time = DateTime.fromMillisecondsSinceEpoch(doc.data()["time"]);
+    Map<String, dynamic> data = doc.data();
+    DateTime time = DateTime.fromMillisecondsSinceEpoch(data["time"]);
+    List<Widget> chips = [];
+    data["type"]?.forEach((e) => chips.add(ChoiceChip(
+          selected: false, //TODO data["where"]?.toList().any((e)=>e["value"]==e),
+          label: Text(e),
+          onSelected: (value) {print (value);},
+        )));
+
     return wrapDocumentOperationMenu(doc.reference, context,
         child: Card(
           color: Colors.black12,
-          child: Wrap(children: [
-            Text("[$index]"),
-            Text(time.toString()),
-            Text("${doc.id}"),
-          ]),
+          child: Wrap(
+              children: chips +
+                  [
+                    Text("[$index]"),
+                    Text(time.toString()),
+                    Text("${doc.id}"),
+                  ]),
         ));
   }
 
@@ -175,7 +185,7 @@ class QueryViewWidget extends StatelessWidget {
 
     return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: w ~/ 220,
+            crossAxisCount: w ~/ 160,
             mainAxisSpacing: 5,
             crossAxisSpacing: 5,
             childAspectRatio: 2.0),

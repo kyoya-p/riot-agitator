@@ -7,7 +7,9 @@ import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
-  runApp(FirebaseSignInWidget(appBuilder: (context, snapshot) => RiotApp(snapshot.data),));
+  runApp(FirebaseSignInWidget(
+    appBuilder: (context, snapshot) => RiotApp(snapshot.data),
+  ));
 }
 
 /*
