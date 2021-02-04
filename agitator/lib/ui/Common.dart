@@ -51,7 +51,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) {
             return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
-                  color: Colors.black12,
+                  color: Colors.black26,
                 ),
                 child: GestureDetector(
                     child: Text(label, overflow: TextOverflow.ellipsis),
@@ -151,7 +151,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
 // Common Styles
 Decoration genericCellDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(5),
-  color: Colors.black12,
+  color: Colors.black26,
 );
 
 naviPop(BuildContext context) => Navigator.pop(context);

@@ -169,7 +169,7 @@ class QueryViewWidget extends StatelessWidget {
 
     return wrapDocumentOperationMenu(doc.reference, context,
         child: Card(
-          color: Colors.black12,
+          color: Colors.black26,
           child: Wrap(
               children: chips +
                   [
@@ -207,7 +207,7 @@ class QueryViewWidget extends StatelessWidget {
                   child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        color: Colors.black12,
+                        color: Colors.black26,
                       ),
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),

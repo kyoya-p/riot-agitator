@@ -131,7 +131,7 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
             duration: const Duration(milliseconds: 5000),
           )..forward();
 
-          Color c = Colors.black12;
+          Color c = Colors.black26;
           if (logsSnapshotData.size != 0) {
             Map<String, dynamic> log = logsSnapshotData.docs[0].data();
             int intr = DateTime.now().toUtc().millisecondsSinceEpoch -
