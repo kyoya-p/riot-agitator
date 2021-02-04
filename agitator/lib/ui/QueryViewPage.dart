@@ -175,7 +175,7 @@ class QueryViewWidget extends StatelessWidget {
 
     return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: w ~/ 160,
+            crossAxisCount: w ~/ 220,
             mainAxisSpacing: 5,
             crossAxisSpacing: 5,
             childAspectRatio: 2.0),
@@ -231,7 +231,7 @@ class QueryViewWidget extends StatelessWidget {
           "value": "fieldValue", // if with scalor-operator
         },
         { "field":"fieldName",
-          "operator" : "in", // "in", "notIn", "containsAny"
+          "op" : "in", // "in", "notIn", "containsAny"
           "type": "list<string>", // "list<number>", "list<string>"
           "values": ["fieldValue1","fieldValue2",...] // if with list-operator
         }, ...
