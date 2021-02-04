@@ -7,13 +7,13 @@
 1. flutter SDKの設置
   https://flutter.dev/docs/get-started/install  
   DartSDKも含まれるようだ  
-  pathを設定
+  コマンドから利用するならpathを設定
   
 2. flutterのターゲットにwebを追加し Web(beta)を有効に
 ```
-flutter config --enable-webconfig --enable-web  (*1)
 flutter channel beta
 flutter upgrade  
+flutter config --enable-web (*1)
 flutter devices
 ```                   
 *1: この設定は ~/.flutter_settings に格納される
@@ -23,8 +23,6 @@ flutter devices
 1. Flutter plugin導入: Settings > Plugin > flutterで検索
 2. Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
 3. プロジェクト設定: Project Structure > Modules > Dependancies > [+] > Libraries > Flutter plugin, Dart SDK を追加
-
-Intellijのモジュール定義ファイルは `*.iml` 
 
 # Build
 > flutter build web

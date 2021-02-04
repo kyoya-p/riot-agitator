@@ -251,7 +251,6 @@ class QueryViewWidget extends StatelessWidget {
             (e) => c = c.doc(e["document"]).collection(e["collection"]));
         return c;
       } else if (collectionGroup != null) {
-        print("collectionGroup($collectionGroup)"); //TODO
         return db.collectionGroup(collectionGroup);
       } else {
         return null;
