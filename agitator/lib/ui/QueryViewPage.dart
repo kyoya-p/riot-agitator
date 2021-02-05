@@ -265,6 +265,8 @@ class QueryViewWidget extends StatelessWidget {
     }
   */
   Query? makeQuery(dynamic querySpec) {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
     Query? makeCollRef(dynamic querySpec) {
       String? collection = querySpec["collection"];
       String? collectionGroup = querySpec["collectionGroup"];
