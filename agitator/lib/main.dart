@@ -26,7 +26,7 @@ class RiotApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RIOT HQ',
+      title: 'RIOT HQ', //TODO
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
         visualDensity: VisualDensity.adaptivePlatformDensity,

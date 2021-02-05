@@ -9,6 +9,7 @@ import 'package:riotagitator/ui/ListenEvent.dart';
 import 'Common.dart';
 import 'documentPage.dart';
 
+
 class QueryViewPage extends StatelessWidget {
   QueryViewPage({
     this.query,
@@ -131,7 +132,7 @@ class QueryViewWidget extends StatelessWidget {
           QuerySnapshot querySnapshotData = snapshots.data!;
           return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: w ~/ 200,
+                  crossAxisCount: w ~/ 220,
                   mainAxisSpacing: 5,
                   crossAxisSpacing: 5,
                   childAspectRatio: 2.0),
@@ -162,9 +163,23 @@ class QueryViewWidget extends StatelessWidget {
     DateTime time = DateTime.fromMillisecondsSinceEpoch(data["time"]);
     List<Widget> chips = [];
     data["type"]?.forEach((e) => chips.add(ChoiceChip(
-          selected: false, //TODO data["where"]?.toList().any((e)=>e["value"]==e),
-          label: Text(e),
-          onSelected: (value) {print (value);},
+          selected: false,
+          //TODO data["where"]?.toList().any((e)=>e["value"]==e),
+          label: Text((e as String).split(".").last),
+          onSelected: (isSelected) {
+            if (isSelected) {
+              queryDocument?.update({
+                "where": FieldValue.arrayUnion([
+                  {"field": "type", "op": "contains", "type": "string", "value": e}
+                ])
+              });
+            } else {
+              FirebaseFirestore.instance.runTransaction((transaction) async {
+                //TODO
+
+              });
+            }
+          },
         )));
 
     return wrapDocumentOperationMenu(doc.reference, context,
@@ -173,9 +188,8 @@ class QueryViewWidget extends StatelessWidget {
           child: Wrap(
               children: chips +
                   [
-                    Text("[$index]"),
                     Text(time.toString()),
-                    Text("${doc.id}"),
+                    Text("$index: ${doc.id}"),
                   ]),
         ));
   }
@@ -252,7 +266,6 @@ class QueryViewWidget extends StatelessWidget {
   */
   Query? makeQuery(dynamic querySpec) {
     Query? makeCollRef(dynamic querySpec) {
-      FirebaseFirestore db = FirebaseFirestore.instance;
       String? collection = querySpec["collection"];
       String? collectionGroup = querySpec["collectionGroup"];
       if (collection != null) {
