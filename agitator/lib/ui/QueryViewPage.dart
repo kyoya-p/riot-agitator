@@ -9,7 +9,6 @@ import 'package:riotagitator/ui/ListenEvent.dart';
 import 'Common.dart';
 import 'documentPage.dart';
 
-
 class QueryViewPage extends StatelessWidget {
   QueryViewPage({
     this.query,
@@ -81,7 +80,7 @@ class QueryViewWidget extends StatelessWidget {
   });
 
   final Query? query;
-  final dynamic? querySpec;
+  dynamic? querySpec;
   final DocumentReference? queryDocument;
 
   Widget Function(BuildContext context, int index,
@@ -108,6 +107,7 @@ class QueryViewWidget extends StatelessWidget {
           if (snapshot.data == null)
             return Center(child: CircularProgressIndicator());
           print("query=${snapshot.data?.data()}"); //TODO
+          querySpec = snapshot.data?.data();
           Query? q = makeQuery(snapshot.data?.data());
           if (q == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
@@ -161,26 +161,37 @@ class QueryViewWidget extends StatelessWidget {
     QueryDocumentSnapshot doc = snapshots.data!.docs[index];
     Map<String, dynamic> data = doc.data();
     DateTime time = DateTime.fromMillisecondsSinceEpoch(data["time"]);
+    Map<String,dynamic>? filterOfType = (querySpec["where"] as List)
+        .where((e) => e["field"] == "type" && e["op"] == "containsAny")
+        .first();
+    print("filterType: $filterOfType"); //TODO
     List<Widget> chips = [];
-    data["type"]?.forEach((e) => chips.add(ChoiceChip(
-          selected: false,
-          //TODO data["where"]?.toList().any((e)=>e["value"]==e),
-          label: Text((e as String).split(".").last),
-          onSelected: (isSelected) {
-            if (isSelected) {
-              queryDocument?.update({
-                "where": FieldValue.arrayUnion([
-                  {"field": "type", "op": "contains", "type": "string", "value": e}
-                ])
-              });
-            } else {
-              FirebaseFirestore.instance.runTransaction((transaction) async {
-                //TODO
 
-              });
-            }
-          },
-        )));
+    Widget chip(String typeName){return ChoiceChip(
+      label: Text(typeName.split(".").last),
+      selected: filterOfType?["values"] ?? false,
+
+      onSelected: (isSelected) {
+        if (isSelected) {
+          queryDocument?.update({
+            "where": FieldValue.arrayUnion([
+              {
+                "field": "type",
+                "op": "containsAny",
+                "type": "list<string>",
+                "values": [typeName]
+              }
+            ])
+          });
+        } else {
+          FirebaseFirestore.instance.runTransaction((transaction) async {
+            //TODO
+          });
+        }
+      },
+    );}
+
+    data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
     return wrapDocumentOperationMenu(doc.reference, context,
         child: Card(
