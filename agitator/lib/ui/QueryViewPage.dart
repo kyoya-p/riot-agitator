@@ -11,17 +11,13 @@ import 'documentPage.dart';
 
 class QueryViewPage extends StatelessWidget {
   QueryViewPage({
-    this.query,
-    this.querySpec,
-    this.queryDocument,
+    required this.query,
     this.itemBuilder,
     this.appBar,
     this.floatingActionButton,
   });
 
-  Query? query;
-  dynamic? querySpec;
-  DocumentReference? queryDocument;
+  Query query;
 
   AppBar? appBar;
   Widget? floatingActionButton;
@@ -35,28 +31,20 @@ class QueryViewPage extends StatelessWidget {
       appBar: appBar ?? defaultAppBar(context),
       body: QueryViewWidget(
         query: query,
-        querySpec: querySpec,
-        queryDocument: queryDocument,
+        //querySpec: querySpec,
+        //queryDocument: queryDocument,
         itemBuilder: itemBuilder,
       ),
       floatingActionButton: floatingActionButton,
     );
   }
 
-  AppBar defaultAppBar(BuildContext context) => AppBar(
-        title: Text(
-            "${querySpec ?? query?.parameters ?? queryDocument?.path} - Query"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: queryDocument != null
-                ? //() => naviPush(context, (_) => DocumentPage(queryDocument!))
-                () => showDocumentEditorDialog(queryDocument!, context)
-                : null,
-          ),
-          bell(context),
-        ],
-      );
+  AppBar defaultAppBar(BuildContext context) {
+    return AppBar(
+      title: Text("${query.parameters} - Query"),
+      actions: [bell(context)],
+    );
+  }
 
   FloatingActionButton defaultFloatingActionButton(
           BuildContext context, DocumentReference dRef) =>
@@ -73,15 +61,16 @@ class QueryViewPage extends StatelessWidget {
 
 class QueryViewWidget extends StatelessWidget {
   QueryViewWidget({
-    this.query,
-    this.querySpec,
-    this.queryDocument,
+    required this.query,
+    //this.querySpec,
+    //this.queryDocument,
     this.itemBuilder,
   });
 
-  final Query? query;
-  dynamic? querySpec;
-  final DocumentReference? queryDocument;
+  final Query query;
+
+  //dynamic? querySpec;
+  //final DocumentReference? queryDocument;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -94,29 +83,7 @@ class QueryViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (query != null) {
-      return streamWidget(query!, context);
-    } else if (querySpec != null) {
-      Query? q = makeQuery(querySpec);
-      if (q == null) return Center(child: Text("Query Error: ${querySpec}"));
-      return streamWidget(q, context);
-    } else if (queryDocument != null) {
-      return StreamBuilder<DocumentSnapshot>(
-        stream: queryDocument?.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.data == null)
-            return Center(child: CircularProgressIndicator());
-          print("query=${snapshot.data?.data()}"); //TODO
-          querySpec = snapshot.data?.data();
-          Query? q = makeQuery(snapshot.data?.data());
-          if (q == null)
-            return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
-          return streamWidget(q, context);
-        },
-      );
-    } else {
-      return Center(child: Text("Error: No Query parameters"));
-    }
+    return streamWidget(query, context);
   }
 
   Widget streamWidget(Query query, BuildContext context) {
@@ -161,48 +128,18 @@ class QueryViewWidget extends StatelessWidget {
     QueryDocumentSnapshot doc = snapshots.data!.docs[index];
     Map<String, dynamic> data = doc.data();
     DateTime time = DateTime.fromMillisecondsSinceEpoch(data["time"]);
-    Map<String,dynamic>? filterOfType = (querySpec["where"] as List)
-        .where((e) => e["field"] == "type" && e["op"] == "containsAny")
-        .first();
-    print("filterType: $filterOfType"); //TODO
-    List<Widget> chips = [];
-
-    Widget chip(String typeName){return ChoiceChip(
-      label: Text(typeName.split(".").last),
-      selected: filterOfType?["values"] ?? false,
-
-      onSelected: (isSelected) {
-        if (isSelected) {
-          queryDocument?.update({
-            "where": FieldValue.arrayUnion([
-              {
-                "field": "type",
-                "op": "containsAny",
-                "type": "list<string>",
-                "values": [typeName]
-              }
-            ])
-          });
-        } else {
-          FirebaseFirestore.instance.runTransaction((transaction) async {
-            //TODO
-          });
-        }
-      },
-    );}
-
-    data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
     return wrapDocumentOperationMenu(doc.reference, context,
         child: Card(
-          color: Colors.black26,
-          child: Wrap(
-              children: chips +
-                  [
-                    Text(time.toString()),
-                    Text("$index: ${doc.id}"),
-                  ]),
-        ));
+//          margin: EdgeInsets.all(3),
+            color: Colors.black26,
+            child: Padding(
+              padding: EdgeInsets.all(3),
+              child: Wrap(children: [
+                Text(time.toString()),
+                Text("$index: ${doc.id}"),
+              ]),
+            )));
   }
 
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
@@ -246,68 +183,8 @@ class QueryViewWidget extends StatelessWidget {
         });
   }
 
-/*
-    QuerySpecification for watchDocuments()
-    {
-      "collection": "collectionId",
-      "subCollections": [ {"document":"documentId", "collection":"collectionId" }, ... ],
-
-      "collectionGroup": "collectionGroupId",
-
-      "orderBy": [
-        { "field": "orderByFieldName",
-          "descending": false  // true, false
-        }//,...
-      ],
-      "where": [
-        { "field":"filterFieldName",
-          "op" : "==", // "==", "!=", ">", ">=", "<", "<=", "contains"
-          "type": "number", // "number", "string", "boolean"
-          "value": "fieldValue", // if with scalor-operator
-        },
-        { "field":"fieldName",
-          "op" : "in", // "in", "notIn", "containsAny"
-          "type": "list<string>", // "list<number>", "list<string>"
-          "values": ["fieldValue1","fieldValue2",...] // if with list-operator
-        }, ...
-      ],
-
-      "limit": 100
-    }
-  */
-  Query? makeQuery(dynamic querySpec) {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    Query? makeCollRef(dynamic querySpec) {
-      String? collection = querySpec["collection"];
-      String? collectionGroup = querySpec["collectionGroup"];
-      if (collection != null) {
-        CollectionReference c = db.collection(collection);
-        querySpec["subCollections"]?.forEach(
-            (e) => c = c.doc(e["document"]).collection(e["collection"]));
-        return c;
-      } else if (collectionGroup != null) {
-        return db.collectionGroup(collectionGroup);
-      } else {
-        return null;
-      }
-    }
-
-    Query? query = makeCollRef(querySpec);
-    if (query == null)
-      return null;
-    else {
-      querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query!, e));
-      querySpec["where"]?.forEach((e) => query = addFilter(query!, e));
-    }
-    int? limit = querySpec["limit"];
-    if (limit != null) query = query?.limit(limit);
-
-    return query;
-  }
-
   AppBar defaultAppBar(BuildContext context) => AppBar(
-      title: Text("${querySpec.parameters} - Query"), actions: [bell(context)]);
+      title: Text("${query.parameters} - Query"), actions: [bell(context)]);
 
   FloatingActionButton defaultFloatingActionButton(
           BuildContext context, DocumentReference dRef) =>

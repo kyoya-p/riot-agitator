@@ -6,6 +6,7 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Demo.dart';
+import 'QuerySpecViewPage.dart';
 import 'QueryViewPage.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
@@ -96,9 +97,13 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
               child: Text("SubCollection: query"),
               onPressed: () {
                 Navigator.pop(dialogCtx);
+                DocumentReference filter =
+                    db.doc("user/${user.uid}/app1/filter_DeviceQuery");
+                filter.set({"collection": "${dRef.path}/query"});
                 naviPush(
                   context,
-                  (_) => CollectionPage(dRef.collection("query")),
+                  //(_) => CollectionPage(dRef.collection("query")),
+                  (_) => QuerySpecViewPage(queryDocument: filter),
                 );
               }),
           SimpleDialogOption(
@@ -273,14 +278,14 @@ Widget globalGroupMenu(BuildContext context) {
     itemBuilder: (BuildContext context) => [
       PopupMenuItem(
           child: Text("Generic Query"),
-          value: (_) => QueryViewPage(
+          value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/filterGeneral"))),
       PopupMenuItem(
           child: Text("User Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collection("user"))),
       PopupMenuItem(
           child: Text("Device Viewer (admin)"),
-          value: (_) => QueryViewPage(
+          value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_device"))),
       PopupMenuItem(
           child: Text("Group Viewer (admin)"),
@@ -297,7 +302,7 @@ Widget globalGroupMenu(BuildContext context) {
               filterConfigRef: db.doc("user/${user.uid}/app1/logFilter"))),
       PopupMenuItem(
           child: Text("Log QueryView (admin)"),
-          value: (_) => QueryViewPage(
+          value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
     ],
     onSelected: (value) => naviPush(context, value),

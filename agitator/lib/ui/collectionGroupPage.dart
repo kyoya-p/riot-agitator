@@ -28,7 +28,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
         icon: Icon(Icons.filter_list),
         onPressed: widget.filterConfigRef == null
             ? null
-                                                                                                                                                                                                                                                                                                                                                      : () => showFilterDialog(context)); // Dialog表示
+            : () => showFilterDialog(context)); // Dialog表示
 
     return Scaffold(
       appBar: AppBar(
@@ -52,7 +52,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
             //FilterListConfigWidget(filterList),
             Expanded(
               child: PrograssiveItemViewWidget(
-                  addFilters(widget.query,filterList)),
+                  addFilters(widget.query, filterList)),
             ),
           ]);
         });

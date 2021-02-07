@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
 import 'Common.dart';
 import 'ListenEvent.dart';
-import 'QueryViewPage.dart';
+import 'QuerySpecViewPage.dart';
 import 'documentPage.dart';
 
 final db = FirebaseFirestore.instance;
@@ -187,7 +187,7 @@ class GroupWidget extends StatelessWidget {
                   }
                 ]
               });
-              return QueryViewPage(queryDocument: filter);
+              return QuerySpecViewPage(queryDocument: filter);
             },
           );
         else

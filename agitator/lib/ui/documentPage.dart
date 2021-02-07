@@ -104,15 +104,15 @@ showDocumentEditorDialog(DocumentReference dRef, BuildContext context) {
   return showDialog(
       context: context,
       builder: (context) {
-        DocumentWidget docWidget = DocumentWidget(dRef);
-        FlatButton applyButton = FlatButton(
+        DocumentWidget docWidget = DocumentWidget(dRef,isIdEditable: true);
+        TextButton applyButton = TextButton(
             onPressed: () => docWidget.setDocument(context),
             child: Text("Apply"));
-        FlatButton closeButton =
-            FlatButton(onPressed: () => naviPop(context), child: Text("Close"));
+        TextButton closeButton =
+            TextButton(onPressed: () => naviPop(context), child: Text("Close"));
         return AlertDialog(
           title: Row(children: [
-            Expanded(child: Text("Query Settings")),
+            Expanded(child: Text("Document Editor")),
             applyButton,
             closeButton
           ]),
