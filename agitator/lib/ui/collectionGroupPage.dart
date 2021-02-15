@@ -63,10 +63,10 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
         context: context,
         builder: (context) {
           DocumentWidget docWidget = DocumentWidget(widget.filterConfigRef!);
-          FlatButton applyButton = FlatButton(
+          TextButton applyButton = TextButton(
               onPressed: () => docWidget.setDocument(context),
               child: Text("Apply"));
-          FlatButton closeButton = FlatButton(
+          TextButton closeButton = TextButton(
               onPressed: () => naviPop(context), child: Text("Close"));
           return AlertDialog(
             title: Row(children: [
@@ -115,7 +115,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
 
 """;
 
-    return FlatButton(
+    return TextButton(
       child: Text("Sample filters"),
       onPressed: () => showDialog(
         context: context,

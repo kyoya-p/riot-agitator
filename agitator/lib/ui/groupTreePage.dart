@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
 import 'Common.dart';
-import 'ListenEvent.dart';
+import 'Bell.dart';
 import 'QuerySpecViewPage.dart';
 import 'documentPage.dart';
 
@@ -206,7 +206,7 @@ class GroupWidget extends StatelessWidget {
               left: BorderSide(color: Colors.white, width: 2.0),
             ),
             color: isTypeCluster(group)
-                ? Theme.of(context).accentColor.shift(50, 50, 50)
+                ? Theme.of(context).primaryColor.withOpacity(0.7)
                 : Theme.of(context).primaryColor.withOpacity(0.1),
           ),
           //elevation: 4,

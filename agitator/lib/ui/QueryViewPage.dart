@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/ListenEvent.dart';
+import 'package:riotagitator/ui/Bell.dart';
 
 import 'Common.dart';
 import 'documentPage.dart';
@@ -62,15 +62,10 @@ class QueryViewPage extends StatelessWidget {
 class QueryViewWidget extends StatelessWidget {
   QueryViewWidget({
     required this.query,
-    //this.querySpec,
-    //this.queryDocument,
     this.itemBuilder,
   });
 
   final Query query;
-
-  //dynamic? querySpec;
-  //final DocumentReference? queryDocument;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;

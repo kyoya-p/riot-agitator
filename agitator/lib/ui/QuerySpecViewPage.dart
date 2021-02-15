@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/ListenEvent.dart';
+import 'package:riotagitator/ui/Bell.dart';
 
 import 'Common.dart';
+import 'QueryBuilder.dart';
 import 'documentPage.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
@@ -84,6 +85,7 @@ class QuerySpecViewWidget extends StatelessWidget {
 
   final DocumentReference queryDocument;
   dynamic? querySpec;
+  //QueryBuilder queryBuilder;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -102,10 +104,13 @@ class QuerySpecViewWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           print("query=${snapshot.data?.data()}"); //TODO
           querySpec = snapshot.data?.data();
-          Query? q = makeQuery(snapshot.data?.data());
-          if (q == null)
+
+          Map<String, dynamic>? data = snapshot.data?.data();
+          if (data == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
-          return streamWidget(q, context);
+
+          QueryBuilder q = QueryBuilder(snapshot.data?.data());
+          return streamWidget(q.build()!, context);
         },
       );
 
@@ -144,10 +149,10 @@ class QuerySpecViewWidget extends StatelessWidget {
                 });
           });
 
-  Widget defaultCell(
-      BuildContext context, int index, AsyncSnapshot<QuerySnapshot> snapshots) {
-    QueryDocumentSnapshot doc = snapshots.data!.docs[index];
-    Map<String, dynamic> data = doc.data();
+  Widget defaultCell(BuildContext context, int index,
+      AsyncSnapshot<QuerySnapshot> itemSnapshots) {
+    QueryDocumentSnapshot itemDoc = itemSnapshots.data!.docs[index];
+    Map<String, dynamic> data = itemDoc.data();
     DateTime? time = data["time"] != null
         ? DateTime.fromMillisecondsSinceEpoch(data["time"])
         : null;
@@ -205,7 +210,7 @@ class QuerySpecViewWidget extends StatelessWidget {
 
     data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
-    return wrapDocumentOperationMenu(doc.reference, context,
+    return wrapDocumentOperationMenu(itemDoc.reference, context,
         child: Card(
 //          margin: EdgeInsets.all(3),
             color: Colors.grey[200],
@@ -214,8 +219,11 @@ class QuerySpecViewWidget extends StatelessWidget {
               child: Wrap(
                   children: chips +
                       [
-                        Chip(label: Text(time?.toString() ?? "no-time"),backgroundColor: Colors.orange[100],),
-                        Text("$index: ${doc.id}"),
+                        Chip(
+                          label: Text(time?.toString() ?? "no-time"),
+                          backgroundColor: Colors.orange[100],
+                        ),
+                        Text("$index: ${itemDoc.id}"),
                       ]),
             )));
   }
@@ -306,80 +314,3 @@ class QuerySpecViewWidget extends StatelessWidget {
       "limit": 100
     }
   ================================================================================ */
-
-Query? makeQuery(dynamic querySpec) {
-  Query? makeCollRef(dynamic querySpec) {
-    String? collection = querySpec["collection"];
-    String? collectionGroup = querySpec["collectionGroup"];
-    if (collection != null) {
-      CollectionReference c = db.collection(collection);
-      querySpec["subCollections"]?.forEach(
-          (e) => c = c.doc(e["document"]).collection(e["collection"]));
-      return c;
-    } else if (collectionGroup != null) {
-      return db.collectionGroup(collectionGroup);
-    } else {
-      return null;
-    }
-  }
-
-  Query? query = makeCollRef(querySpec);
-  if (query == null)
-    return null;
-  else {
-    querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query!, e));
-    querySpec["where"]?.forEach((e) => query = addFilter(query!, e));
-  }
-  int? limit = querySpec["limit"];
-  if (limit != null) query = query?.limit(limit);
-
-  return query;
-}
-
-Query addFilter(Query query, dynamic filter) {
-  dynamic parseValue(String op, var value) {
-    if (op == "boolean") return value == "true";
-    if (op == "number") return num.parse(value);
-    if (op == "string") return value as String;
-    if (op == "list<string>") return value.map((e) => e as String).toList();
-    return null;
-  }
-
-  String filterOp = filter["op"];
-  String field = filter["field"];
-  String type = filter["type"];
-  dynamic value = filter["value"];
-  dynamic values = filter["values"];
-
-  if (filterOp == "sort") {
-    return query.orderBy(field, descending: value == "true");
-  } else if (filterOp == "==") {
-    return query.where(field, isEqualTo: parseValue(type, value));
-  } else if (filterOp == "!=") {
-    return query.where(field, isNotEqualTo: parseValue(type, value));
-  } else if (filterOp == ">=") {
-    return query.where(field, isGreaterThanOrEqualTo: parseValue(type, value));
-  } else if (filterOp == "<=") {
-    return query.where(field, isLessThanOrEqualTo: parseValue(type, value));
-  } else if (filterOp == ">") {
-    return query.where(field, isGreaterThan: parseValue(type, value));
-  } else if (filterOp == "<") {
-    return query.where(field, isLessThan: parseValue(type, value));
-  } else if (filterOp == "notIn") {
-    return query.where(field, whereNotIn: parseValue(type, value));
-  } else if (filterOp == "in") {
-    return query.where(field, whereIn: parseValue(type, values));
-  } else if (filterOp == "contains") {
-    return query.where(field, arrayContains: parseValue(type, value));
-  } else if (filterOp == "containsAny") {
-    return query.where(field, arrayContainsAny: parseValue(type, values));
-  } else {
-    throw Exception();
-  }
-}
-
-Query addFilters(Query query, dynamic filterList) =>
-    filterList.toList().fold(query, (a, e) => addFilter(a, e));
-
-Query addOrderBy(Query query, dynamic order) =>
-    query.orderBy(order["field"], descending: order["descending"] == true);
