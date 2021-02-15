@@ -49,7 +49,7 @@ Widget bell(BuildContext context) {
 
   docBell.set({
     "collectionGroup": "logs",
-    "limit": 100,
+    "limit": 50,
     "orderBy": [
       {
         "field": "time",
