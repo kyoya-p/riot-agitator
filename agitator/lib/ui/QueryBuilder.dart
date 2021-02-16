@@ -5,15 +5,31 @@ FirebaseFirestore db = FirebaseFirestore.instance;
 class QueryBuilder {
   QueryBuilder(this.querySpec);
 
-  dynamic querySpec;
+  final Map<String, dynamic> querySpec;
+
+  QueryBuilder where(
+      {required String field,
+      required String op,
+      required String type,
+      String? value,
+      List<String>? values}) {
+    dynamic newQuerySpec = querySpec;
+    List<dynamic>? w = (newQuerySpec["where"] as List<dynamic>?)
+        ?.where((e) => e["field"] != field || e["op"] != op)
+        .toList();
+    if (w == null) w = [];
+    w.add({"field": field, "op": op, "type": type, "value": value});
+    newQuerySpec["where"] = w;
+    return QueryBuilder(newQuerySpec);
+  }
 
   Query? build() {
     Query? query = makeCollRef();
     if (query == null)
       return null;
     else {
-      querySpec["orderBy"]?.forEach((e) => query = addOrderBy(query!, e));
-      querySpec["where"]?.forEach((e) => query = addFilter(query!, e));
+      querySpec["orderBy"]?.forEach((e) => query = buildOrderBy(query!, e));
+      querySpec["where"]?.forEach((e) => query = buildFilter(query!, e));
     }
     int? limit = querySpec["limit"];
     if (limit != null) query = query?.limit(limit);
@@ -27,7 +43,7 @@ class QueryBuilder {
     if (collection != null) {
       CollectionReference c = db.collection(collection);
       querySpec["subCollections"]?.forEach(
-              (e) => c = c.doc(e["document"]).collection(e["collection"]));
+          (e) => c = c.doc(e["document"]).collection(e["collection"]));
       return c;
     } else if (collectionGroup != null) {
       return db.collectionGroup(collectionGroup);
@@ -36,7 +52,7 @@ class QueryBuilder {
     }
   }
 
-  Query addFilter(Query query, dynamic filter) {
+  Query buildFilter(Query query, dynamic filter) {
     dynamic parseValue(String op, var value) {
       if (op == "boolean") return value == "true";
       if (op == "number") return num.parse(value);
@@ -51,6 +67,9 @@ class QueryBuilder {
     dynamic value = filter["value"];
     dynamic values = filter["values"];
 
+    print("op=$filterOp"); //TODO
+    print("value=$value"); //TODO
+
     if (filterOp == "sort") {
       return query.orderBy(field, descending: value == "true");
     } else if (filterOp == "==") {
@@ -63,6 +82,7 @@ class QueryBuilder {
     } else if (filterOp == "<=") {
       return query.where(field, isLessThanOrEqualTo: parseValue(type, value));
     } else if (filterOp == ">") {
+      print("number=${parseValue(type, value)}"); //TODO
       return query.where(field, isGreaterThan: parseValue(type, value));
     } else if (filterOp == "<") {
       return query.where(field, isLessThan: parseValue(type, value));
@@ -79,6 +99,6 @@ class QueryBuilder {
     }
   }
 
-  Query addOrderBy(Query query, dynamic order) =>
+  Query buildOrderBy(Query query, dynamic order) =>
       query.orderBy(order["field"], descending: order["descending"] == true);
 }

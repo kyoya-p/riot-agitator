@@ -110,7 +110,7 @@ class QuerySpecViewWidget extends StatelessWidget {
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
 
           print("data= $data");//TODO
-          QueryBuilder q = QueryBuilder(snapshot.data?.data());
+          QueryBuilder q = QueryBuilder(snapshot.data!.data());
           return streamWidget(q.build()!, context);
         },
       );
