@@ -44,7 +44,7 @@ task flutterInitTask(type: Exec) {
 task flutterBuildTask(type: Exec) {
     workingDir "$projectDir"
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'flutter', 'build', 'web'
+        commandLine 'cmd', '/c', 'flutter.bat', 'build', 'web'
     } else {
         commandLine 'sh', '-c', 'flutter', 'build', 'web'
     }

@@ -149,7 +149,7 @@ class CountSegment {
   final int totalCount;
   final int periodCount;
 
-  String toString() => "${startTime}~${period}:${totalCount}(+$periodCount)";
+  String toString() => "$startTime~$period:$totalCount(+$periodCount)";
 
   Map<String, dynamic> toMap() => {
         "timeStart": startTime,

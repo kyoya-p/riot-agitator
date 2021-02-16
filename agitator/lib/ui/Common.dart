@@ -114,20 +114,18 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
                     context, (_) => CollectionPage(dRef.collection("results")));
               }),
           SimpleDialogOption(
-              child: Text("SubCollection: state"),
+              child: Text("SubCollection: status"),
               onPressed: () {
                 Navigator.pop(dialogCtx);
+                DocumentReference filter =
+                    db.doc("user/${user.uid}/app1/filter_DeviceStatus");
+                filter.set({
+                  "collection": "${dRef.path}/status",
+                  "where":[{"field":"log.cluster","op":"==","type":"string","value":""}]
+                });
                 naviPush(
                   context,
-                  (_) => CollectionGroupPage(
-                    //DeviceLogsPage(
-                    dRef.collection("logs"),
-                    filterConfigRef: FirebaseFirestore.instance
-                        .collection("user")
-                        .doc(user.uid)
-                        .collection("app1")
-                        .doc("filterConfig_state"),
-                  ),
+                  (_) => QuerySpecViewPage(queryDocument: filter),
                 );
               }),
           SimpleDialogOption(
