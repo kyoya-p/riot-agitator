@@ -1,3 +1,4 @@
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +59,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   try {
                     final FirebaseAuth auth = FirebaseAuth.instance;
@@ -74,7 +75,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                     Navigator.pop(context);
                   } catch (e) {
                     setState(() {
-                      debugMsg = "Failed: ${e}";
+                      debugMsg = "Failed: $e";
                       print(debugMsg);
                     });
                   }

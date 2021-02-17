@@ -1,8 +1,10 @@
-import 'dart:html';
+//import 'dart:html';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
 
@@ -17,12 +19,12 @@ class QueryViewPage extends StatelessWidget {
     this.floatingActionButton,
   });
 
-  Query query;
+  final Query query;
 
-  AppBar? appBar;
-  Widget? floatingActionButton;
+  final AppBar? appBar;
+  final Widget? floatingActionButton;
 
-  Widget Function(BuildContext context, int index,
+  final Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
 
   @override
@@ -98,7 +100,6 @@ class QueryViewWidget extends StatelessWidget {
                   childAspectRatio: 2.0),
               itemCount: snapshots.data?.size,
               itemBuilder: (BuildContext context, int index) {
-                QueryDocumentSnapshot doc = snapshots.data!.docs[index];
                 itemBuilder = itemBuilder ?? defaultCell;
                 return Container(
                     child: InkResponse(
@@ -166,8 +167,7 @@ class QueryViewWidget extends StatelessWidget {
                       ),
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
-                        onTap: () =>
-                            showDocumentOperationMenu(d, context),
+                        onTap: () => showDocumentOperationMenu(d, context),
                       )),
                 ),
               ),

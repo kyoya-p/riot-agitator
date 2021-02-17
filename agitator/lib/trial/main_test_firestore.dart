@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:provider/provider.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:state_notifier/state_notifier.dart';
 
-class FS_Count {
-  FS_Count(this.count);
+class FsCount {
+  FsCount(this.count);
 
   int count = 0;
 
   // Sample: Stream (Firestore Realtime Update)
-  static Stream<FS_Count> get stream {
+  static Stream<FsCount> get stream {
     Stream<DocumentSnapshot> ss = FirebaseFirestore.instance
         .collection("devConfig")
         .doc("Counter1")
         .snapshots();
     return ss.asyncMap((DocumentSnapshot ds) =>
-        FS_Count(int.parse(ds.get("count").toString())));
+        FsCount(int.parse(ds.get("count").toString())));
   }
 
   // Sample: transaction
@@ -49,6 +55,7 @@ class TestApp extends StateNotifier<int> {
     fs.collection('devConfig').doc("Counter1").get().then((value) {
       print(value.data());
       state = value.get('count');
+      // ignore: return_of_invalid_type_from_catch_error
     }).catchError((e) => print("Error $e"));
   }
 }
@@ -58,7 +65,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     streamRunCommand().skip(1).forEach((runCount) {
       for (var i = 0; i < runCount; ++i) {
-        FS_Count.increment();
+        FsCount.increment();
       }
     });
 
@@ -71,8 +78,8 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: StreamProvider<FS_Count>(
-        create: (_) => FS_Count.stream,
+      home: StreamProvider<FsCount>(
+        create: (_) => FsCount.stream,
         child: MyHomePage(title: 'RIOT Mob'),
       ),
     );
@@ -108,16 +115,16 @@ class _MyHomePageState extends State<MyHomePage> {
     // _counter without calling setState(), then the build method would not be
     // called again, and so nothing would appear to happen.
     //_counter++;
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
-    FS_Count.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
+    FsCount.increment();
     //});
   }
 
@@ -159,9 +166,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'You have pushed the button this many times:',
             ),
-            Consumer<FS_Count>(
+            Consumer<FsCount>(
                 builder: (_, app, __) => Text(
-                      (app != null) ? app.count.toString() : "Loading...",
+                      app.count.toString(),
                       style: Theme.of(context).textTheme.headline4,
                     )),
           ],

@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:floatingpanel/floatingpanel.dart';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'package:riotagitator/ui/QueryBuilder.dart';
 import 'package:riotagitator/ui/documentPage.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:badges/badges.dart';
 
 import 'QuerySpecViewPage.dart';
 
@@ -23,27 +31,31 @@ Widget bell(BuildContext context) {
 
   CollectionReference app1 = db.collection("user/${user.uid}/app1");
   DocumentReference docLastChecked = app1.doc("lastChecked");
-  DocumentReference docFilter_Bell = app1.doc("filter_bell_1");
-  DocumentReference docFilter_Alerts = app1.doc("filter_alerts");
+  DocumentReference docFilterBell = app1.doc("filter_bell_1");
+  DocumentReference docFilterBlerts = app1.doc("filter_alerts");
 
   Widget normalBell = IconButton(
     icon: Icon(Icons.wb_incandescent_outlined),
-    onPressed: () => showDocumentEditorDialog(docFilter_Bell, context),
+    onPressed: () => showDocumentEditorDialog(docFilterBell, context),
     color: Colors.grey,
   );
 
   Widget alertBell(
           BuildContext context, int timeCheckNotification, int bells) =>
       TextButton(
-        child: Icon(
-          Icons.wb_incandescent,
-          color: bells != 0 ? Colors.yellow : Theme.of(context).disabledColor,
+        child: Badge(
+          badgeContent: bells>5 ? Text("+5") : Text("$bells"),
+          badgeColor: Colors.orange, //Theme.of(context).bottomAppBarColor,
+          child: Icon(
+            Icons.wb_incandescent,
+            color: bells != 0 ? Colors.yellow : Theme.of(context).disabledColor,
+          ),
         ),
         onPressed: () async {
           int checked = DateTime.now().millisecondsSinceEpoch;
           int lastChecked = await docLastChecked["time"] ?? 0;
           docLastChecked["time"] = checked;
-          docFilter_Alerts.set({
+          docFilterBlerts.set({
             "collectionGroup": "logs",
             "limit": 50,
             "orderBy": [
@@ -59,13 +71,13 @@ Widget bell(BuildContext context) {
             ]
           });
           naviPush(context,
-              (_) => QuerySpecViewPage(queryDocument: docFilter_Alerts));
+              (_) => QuerySpecViewPage(queryDocument: docFilterBlerts));
         },
-        onLongPress: () => showDocumentEditorDialog(docFilter_Bell, context),
+        onLongPress: () => showDocumentEditorDialog(docFilterBell, context),
       );
 
   return StreamBuilder<DocumentSnapshot>(
-    stream: docFilter_Bell.snapshots(),
+    stream: docFilterBell.snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return normalBell;
       QueryBuilder queryBuilder = QueryBuilder(snapshot.data!.data());
@@ -76,7 +88,7 @@ Widget bell(BuildContext context) {
           int lastChecked = snapshot.data?.data()["time"] ?? 0;
           queryBuilder = queryBuilder.where(
               field: "time", op: ">", type: "number", value: "$lastChecked");
-          docFilter_Bell.set(queryBuilder.querySpec);
+          docFilterBell.set(queryBuilder.querySpec);
           Query? q = queryBuilder.build();
           if (q == null) {
             return normalBell;
@@ -86,7 +98,9 @@ Widget bell(BuildContext context) {
             builder: (context, snapshot) {
               if (!snapshot.hasData) return normalBell;
               int bellCount = snapshot.data?.size ?? 0;
-              return alertBell(context, lastChecked, bellCount);
+              return bellCount == 0
+                  ? normalBell
+                  : alertBell(context, lastChecked, bellCount);
             },
           );
         },

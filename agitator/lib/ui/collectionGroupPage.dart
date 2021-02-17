@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
@@ -13,9 +15,9 @@ import 'QueryViewPage.dart';
 class CollectionGroupPage extends StatefulWidget {
   CollectionGroupPage(this.query, {this.filterConfigRef});
 
-  Query query;
-  DocumentReference? filterConfigRef;
-  CollectionReference? containerOfNewDocument; //TODO
+  final Query query;
+  final DocumentReference? filterConfigRef;
+  //final CollectionReference? containerOfNewDocument; //TODO
 
   @override
   _CollectionGroupPageState createState() => _CollectionGroupPageState();
@@ -128,6 +130,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
 }
 
 // Firestoreで大きなリストを使う際のテンプレ
+// ignore: must_be_immutable
 class PrograssiveItemViewWidget extends StatefulWidget {
   PrograssiveItemViewWidget(this.qrItems);
 
@@ -211,7 +214,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
 class FilterListConfigWidget extends StatelessWidget {
   FilterListConfigWidget(this.filterList);
 
-  List<dynamic> filterList;
+  final List<dynamic> filterList;
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +233,7 @@ class FilterListConfigWidget extends StatelessWidget {
 class FilterConfigWidget extends StatefulWidget {
   FilterConfigWidget(this.filter);
 
-  dynamic filter;
+  final dynamic filter;
 
   @override
   State<StatefulWidget> createState() => _FilterConfigWidgetStatus();

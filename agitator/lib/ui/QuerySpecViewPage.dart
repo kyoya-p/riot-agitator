@@ -1,8 +1,10 @@
-import 'dart:html';
+//import 'dart:html';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
 
@@ -20,12 +22,12 @@ class QuerySpecViewPage extends StatelessWidget {
     this.floatingActionButton,
   });
 
-  DocumentReference queryDocument;
+  final DocumentReference queryDocument;
 
-  AppBar? appBar;
-  Widget? floatingActionButton;
+  final AppBar? appBar;
+  final Widget? floatingActionButton;
 
-  Widget Function(BuildContext context, int index,
+  final Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
 
   @override
@@ -89,6 +91,7 @@ class QuerySpecViewPage extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class QuerySpecViewWidget extends StatelessWidget {
   QuerySpecViewWidget({
     required this.queryDocument,
@@ -143,7 +146,6 @@ class QuerySpecViewWidget extends StatelessWidget {
                     childAspectRatio: 2.0),
                 itemCount: snapshots.data?.size,
                 itemBuilder: (BuildContext context, int index) {
-                  QueryDocumentSnapshot doc = snapshots.data!.docs[index];
                   itemBuilder = itemBuilder ?? defaultCell;
                   return Container(
                       child: InkResponse(

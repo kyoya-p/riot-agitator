@@ -19,7 +19,7 @@ void main() {
   - Login page
  */
 class RiotApp extends StatelessWidget {
-  RiotApp(User this.user);
+  RiotApp(this.user);
 
   final User user;
 
@@ -28,7 +28,7 @@ class RiotApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ', //TODO
       theme: ThemeData(
-        primarySwatch: Colors.brown,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),

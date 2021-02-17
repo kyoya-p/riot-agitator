@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:charts_flutter/flutter.dart' as charts;
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LogCountBarChartPage extends StatelessWidget {
@@ -23,7 +25,7 @@ class LogCountBarChartPage extends StatelessWidget {
   }
  */
 class SummaryLog {
-  SummaryLog(int this.since, int this.until, int this.period, int this.count);
+  SummaryLog( this.since,  this.until,  this.period,  this.count);
 
   String type = "type=log:summary";
   int since; //millisecond
@@ -104,22 +106,6 @@ class LogCountBarChart extends StatelessWidget {
                 .toList(),
           );
         });
-  }
-
-  /// Create one series with sample hard coded data.
-  /// TODO
-  static List<charts.Series<LogCountValue, String>> _createSampleData() {
-    final List<LogCountValue> data = [];
-
-    return [
-      charts.Series<LogCountValue, String>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (LogCountValue sales, _) => sales.label,
-        measureFn: (LogCountValue sales, _) => sales.value,
-        data: data,
-      )
-    ];
   }
 }
 

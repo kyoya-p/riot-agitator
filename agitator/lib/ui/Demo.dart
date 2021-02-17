@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:html';
+//import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
@@ -63,7 +64,7 @@ class DemoHumanHeatSensorCreatePage extends StatelessWidget {
 class DemoHumanHeatSensorCell extends StatefulWidget {
   DemoHumanHeatSensorCell({required this.devSnapshot});
 
-  QueryDocumentSnapshot devSnapshot;
+  final QueryDocumentSnapshot devSnapshot;
 
   @override
   State<StatefulWidget> createState() =>
@@ -108,9 +109,9 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
 
   @override
   Widget build(BuildContext context) {
-    Widget buildButton(String label, Color color, int value) => FlatButton(
-          minWidth: 80,
-          height: 70,
+    Widget buildButton(String label, Color color, int value) => TextButton(
+          //minWidth: 80,
+          //height: 70,
           child: Text(label, style: TextStyle(color: color)),
           onPressed: () => logging(widget.devSnapshot, value),
         );

@@ -1,3 +1,4 @@
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -64,7 +65,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   try {
                     // メール/パスワードでユーザー登録
@@ -83,7 +84,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                   } catch (e) {
                     // 登録に失敗した場合
                     setState(() {
-                      infoText = "Failed: ${e}";
+                      infoText = "Failed: $e";
                     });
                   }
                 },

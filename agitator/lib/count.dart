@@ -1,5 +1,8 @@
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_core/firebase_core.dart';
 
 /*
@@ -124,6 +127,7 @@ Future<int> makeCountSummary(
  */
 
 listItems(
+    // ignore: non_constant_identifier_names
     Query targetItems, String timeField, int time, op(DocumentSnapshot)) async {
   QuerySnapshot logs =
       await targetItems.where(timeField, isLessThan: time).get();

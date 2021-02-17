@@ -1,8 +1,9 @@
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
-import 'main.dart';
 import 'ui/firestoreWidget.dart';
 
 /* Landing page
@@ -19,7 +20,7 @@ class FirebaseSignInWidget extends StatelessWidget {
     return MaterialApp(title: 'RIOT Sign In', home: _getLandingPage());
   }
 
-  AsyncWidgetBuilder<User> appBuilder;
+  final AsyncWidgetBuilder<User> appBuilder;
 
   Widget _getLandingPage() {
     return StreamBuilder<User>(

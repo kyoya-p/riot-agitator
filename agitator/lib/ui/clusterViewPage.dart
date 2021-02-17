@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'ChartSample.dart';
@@ -26,7 +27,7 @@ class ClusterViewerPage extends StatelessWidget {
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data!.docs[index]),
       appBar: AppBar(
-        title: Text("${clusterId} - Cluster"),
+        title: Text("$clusterId - Cluster"),
         actions: [
           bell(context),
           clusterMenu(context),
@@ -68,9 +69,9 @@ class ClusterViewerPage extends StatelessWidget {
           context,
           (_) => DocumentPage(db.collection("device").doc("__DeviceID__"))
             ..setDocWidget.textDocBody.text = """{
-  "dev": {"cluster":"${clusterId}"},
+  "dev": {"cluster":"$clusterId"},
   "type":{"device":{}},
-  "group":["${clusterId}"]
+  "group":["$clusterId"]
 }""",
         ),
       );

@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/AgentMfpMib.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
-import 'QueryViewPage.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
@@ -220,10 +223,11 @@ Timer runPeriodicTimer(int start) =>
       }
     });
 
+// ignore: must_be_immutable
 class MySwitchListTile extends StatefulWidget {
   MySwitchListTile({required this.title, this.value = false});
 
-  Widget title;
+  final Widget title;
   bool value;
 
   @override
@@ -260,12 +264,12 @@ extension MapExt on Map<String, dynamic?>? {
     dynamic t = (this as Map<String, dynamic?>)[key];
     if (t == null) return null;
     if (!(t is T)) return null;
-    return t as T;
+    return t;
   }
 
   T? getNested<T>(List<String> keys) {
     Map<String, dynamic?>? map = this;
-    dynamic t = null;
+    dynamic t;
     for (String key in keys) {
       if (map == null) return null;
       if (!map.containsKey(key)) return null;
@@ -274,7 +278,7 @@ extension MapExt on Map<String, dynamic?>? {
     }
     if (t == null) return null;
     if (!(t is T)) return null;
-    return t as T;
+    return t;
   }
 }
 
