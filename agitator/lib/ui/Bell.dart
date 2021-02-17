@@ -11,37 +11,6 @@ import 'QuerySpecViewPage.dart';
 
 final db = FirebaseFirestore.instance;
 
-class QueryWidget extends StatelessWidget {
-  QueryWidget({
-    required this.query,
-    required this.builder,
-  });
-
-  final Query query;
-
-  Widget Function(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots)
-      builder;
-
-  @override
-  Widget build(BuildContext context) {
-    return streamWidget(query, context);
-  }
-
-  Widget streamWidget(Query query, BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: query.snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-          if (snapshots.hasError)
-            return SelectableText("Snapshots Error: ${snapshots.toString()}");
-          if (!snapshots.hasData)
-            return Center(child: CircularProgressIndicator());
-          QuerySnapshot querySnapshotData = snapshots.data!;
-          return builder(context, snapshots);
-        });
-  }
-}
-
 extension DocumentOperatiron on DocumentReference {
   dynamic operator [](String k) async => (await get()).data()?[k];
 
@@ -59,7 +28,7 @@ Widget bell(BuildContext context) {
 
   docFilter_Bell.set({
     "collectionGroup": "logs",
-    "limit": 1,
+    "limit": 5,
     "where": [
       {"field": "time", "op": ">", "type": "string", "value": "0"} //TODO
     ]
@@ -100,6 +69,7 @@ Widget bell(BuildContext context) {
           naviPush(context,
               (_) => QuerySpecViewPage(queryDocument: docFilter_Alerts));
         },
+        onLongPress: () => showDocumentEditorDialog(docFilter_Bell, context),
       );
 
   return StreamBuilder<DocumentSnapshot>(
