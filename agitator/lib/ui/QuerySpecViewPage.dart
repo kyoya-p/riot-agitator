@@ -30,27 +30,39 @@ class QuerySpecViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar ?? defaultAppBar(context),
-      body: QuerySpecViewWidget(
-        queryDocument: queryDocument,
-        itemBuilder: itemBuilder,
-      ),
-      floatingActionButton:
-          floatingActionButton ?? defaultFloatingActionButton(context),
+    QuerySpecViewWidget querySpecViewWidget = QuerySpecViewWidget(
+      queryDocument: queryDocument,
+      itemBuilder: itemBuilder,
     );
-  }
 
-  AppBar defaultAppBar(BuildContext context) {
-    return AppBar(
-      title: Text("${queryDocument.path} - Collection"),
-      actions: [
-        IconButton(
+    Widget queryEditIcon(BuildContext context) => IconButton(
           icon: Icon(Icons.filter_list),
           onPressed: () => showDocumentEditorDialog(queryDocument, context),
-        ),
-        bell(context),
-      ],
+        );
+
+    Widget deleteIcon(BuildContext context) => IconButton(
+          icon: Icon(Icons.delete_forever),
+          onPressed: () {
+            querySpecViewWidget.deleteItems();
+          },
+        );
+
+    AppBar defaultAppBar(BuildContext context) {
+      return AppBar(
+        title: Text("${queryDocument.path} - Collection"),
+        actions: [
+          deleteIcon(context),
+          queryEditIcon(context),
+          bell(context),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: appBar ?? defaultAppBar(context),
+      body: querySpecViewWidget,
+      floatingActionButton:
+          floatingActionButton ?? defaultFloatingActionButton(context),
     );
   }
 
@@ -85,8 +97,6 @@ class QuerySpecViewWidget extends StatelessWidget {
 
   final DocumentReference queryDocument;
   dynamic? querySpec;
-
-  //QueryBuilder queryBuilder;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -150,6 +160,11 @@ class QuerySpecViewWidget extends StatelessWidget {
                   ));
                 });
           });
+
+  deleteItems() {
+    if (querySpec == null) return;
+    // TODO   QueryBuilder(querySpec!).build()?.
+  }
 
   Widget defaultCell(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> itemSnapshots) {
@@ -261,8 +276,7 @@ class QuerySpecViewWidget extends StatelessWidget {
                       ),
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
-                        onTap: () =>
-                            showDocumentOperationMenu(d, context),
+                        onTap: () => showDocumentOperationMenu(d, context),
                       )),
                 ),
               ),

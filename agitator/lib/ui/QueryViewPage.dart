@@ -31,8 +31,6 @@ class QueryViewPage extends StatelessWidget {
       appBar: appBar ?? defaultAppBar(context),
       body: QueryViewWidget(
         query: query,
-        //querySpec: querySpec,
-        //queryDocument: queryDocument,
         itemBuilder: itemBuilder,
       ),
       floatingActionButton: floatingActionButton,
