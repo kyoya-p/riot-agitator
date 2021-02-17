@@ -113,6 +113,9 @@ class QuerySpecViewWidget extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.data == null)
             return Center(child: CircularProgressIndicator());
+          print("query=${snapshot.data?.data()}"); //TODO
+          querySpec = snapshot.data?.data();
+
           Map<String, dynamic>? data = snapshot.data?.data();
           if (data == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
