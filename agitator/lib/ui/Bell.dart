@@ -26,14 +26,6 @@ Widget bell(BuildContext context) {
   DocumentReference docFilter_Bell = app1.doc("filter_bell_1");
   DocumentReference docFilter_Alerts = app1.doc("filter_alerts");
 
-  docFilter_Bell.set({
-    "collectionGroup": "logs",
-    "limit": 5,
-    "where": [
-      {"field": "time", "op": ">", "type": "string", "value": "0"} //TODO
-    ]
-  });
-
   Widget normalBell = IconButton(
     icon: Icon(Icons.wb_incandescent_outlined),
     onPressed: () => showDocumentEditorDialog(docFilter_Bell, context),
@@ -41,11 +33,11 @@ Widget bell(BuildContext context) {
   );
 
   Widget alertBell(
-          BuildContext context, int timeCheckNotification, bool exist) =>
+          BuildContext context, int timeCheckNotification, int bells) =>
       TextButton(
         child: Icon(
           Icons.wb_incandescent,
-          color: exist ? Colors.yellow : Theme.of(context).disabledColor,
+          color: bells != 0 ? Colors.yellow : Theme.of(context).disabledColor,
         ),
         onPressed: () async {
           int checked = DateTime.now().millisecondsSinceEpoch;
@@ -84,6 +76,7 @@ Widget bell(BuildContext context) {
           int lastChecked = snapshot.data?.data()["time"] ?? 0;
           queryBuilder = queryBuilder.where(
               field: "time", op: ">", type: "number", value: "$lastChecked");
+          docFilter_Bell.set(queryBuilder.querySpec);
           Query? q = queryBuilder.build();
           if (q == null) {
             return normalBell;
@@ -92,10 +85,8 @@ Widget bell(BuildContext context) {
             stream: queryBuilder.build()!.snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) return normalBell;
-              if (snapshot.data?.size == 0) {
-                return alertBell(context, lastChecked, false);
-              }
-              return alertBell(context, lastChecked, true);
+              int bellCount = snapshot.data?.size ?? 0;
+              return alertBell(context, lastChecked, bellCount);
             },
           );
         },
