@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
@@ -12,7 +13,7 @@ class DocumentPage extends StatelessWidget {
       : setDocWidget = DocumentWidget(dRef, isIdEditable: isIdEditable);
 
   final bool isIdEditable;
-  DocumentWidget setDocWidget;
+  final DocumentWidget setDocWidget;
 
   @override
   Widget build(BuildContext context) {

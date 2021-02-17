@@ -211,6 +211,7 @@ class _PrograssiveItemViewWidgetState extends State<PrograssiveItemViewWidget> {
   }
 }
 
+/*
 class FilterListConfigWidget extends StatelessWidget {
   FilterListConfigWidget(this.filterList);
 
@@ -219,7 +220,7 @@ class FilterListConfigWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      if (filterList == null) throw Exception();
+      //f (filterList == null) throw Exception();
     } catch (e, st) {
       print("Exception: $st");
     }
@@ -229,6 +230,8 @@ class FilterListConfigWidget extends StatelessWidget {
     );
   }
 }
+
+ */
 
 class FilterConfigWidget extends StatefulWidget {
   FilterConfigWidget(this.filter);

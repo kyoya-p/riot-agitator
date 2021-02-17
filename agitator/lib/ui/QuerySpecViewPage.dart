@@ -44,8 +44,12 @@ class QuerySpecViewPage extends StatelessWidget {
 
     Widget deleteIcon(BuildContext context) => IconButton(
           icon: Icon(Icons.delete_forever),
-          onPressed: () {
-            querySpecViewWidget.deleteItems();
+          onPressed: () async {
+            showConfirmDialog(context, "OK?", (_) {
+              print("OK!!"); //TODO
+              querySpecViewWidget.deleteItems();
+              print("Complete!!"); //TODO
+            });
           },
         );
 
@@ -128,6 +132,8 @@ class QuerySpecViewWidget extends StatelessWidget {
         },
       );
 
+  QuerySnapshot? querySnapshotData;
+
   Widget streamWidget(Query query, BuildContext context) =>
       StreamBuilder<QuerySnapshot>(
           stream: query.snapshots(),
@@ -137,7 +143,7 @@ class QuerySpecViewWidget extends StatelessWidget {
               return SelectableText("Snapshots Error: ${snapshots.toString()}");
             if (!snapshots.hasData)
               return Center(child: CircularProgressIndicator());
-            QuerySnapshot querySnapshotData = snapshots.data!;
+            querySnapshotData = snapshots.data!;
             return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: MediaQuery.of(context).size.width ~/ 220,
@@ -153,18 +159,21 @@ class QuerySpecViewWidget extends StatelessWidget {
                       print("long");
                     },
                     child: Dismissible(
-                      key: Key(querySnapshotData.docs[index].id),
+                      key: Key(querySnapshotData!.docs[index].id),
                       child: itemBuilder!(context, index, snapshots),
                       onDismissed: (_) =>
-                          querySnapshotData.docs[index].reference.delete(),
+                          querySnapshotData!.docs[index].reference.delete(),
                     ),
                   ));
                 });
           });
 
   deleteItems() {
-    if (querySpec == null) return;
-    // TODO   QueryBuilder(querySpec!).build()?.
+    if (querySpec == null || querySnapshotData == null) return;
+    querySnapshotData!.docs.forEach((e) {
+      print("Delete: ${e.id}"); //TODO
+      e.reference.delete();
+    });
   }
 
   Widget defaultCell(BuildContext context, int index,
@@ -226,11 +235,11 @@ class QuerySpecViewWidget extends StatelessWidget {
       );
     }
 
-    data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
+    if (data["type"] is List)
+      data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
     return wrapDocumentOperationMenu(itemDoc, context,
         child: Card(
-//          margin: EdgeInsets.all(3),
             color: Colors.grey[200],
             child: Padding(
               padding: EdgeInsets.all(3),

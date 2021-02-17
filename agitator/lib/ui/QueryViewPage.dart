@@ -59,6 +59,7 @@ class QueryViewPage extends StatelessWidget {
       );
 }
 
+// ignore: must_be_immutable
 class QueryViewWidget extends StatelessWidget {
   QueryViewWidget({
     required this.query,
@@ -67,7 +68,7 @@ class QueryViewWidget extends StatelessWidget {
 
   final Query query;
 
-  Widget Function(BuildContext context, int index,
+   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
 
   Widget defaultItemBuilder(

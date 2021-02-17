@@ -195,14 +195,27 @@ Future showAlertDialog(context, String value) async {
   await showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-              title: Text('AlertDialog'),
+              title: Text('Alert Dialog'),
               content: Text(value),
               actions: <Widget>[
-                new SimpleDialogOption(
-                    child: new Text('Close'),
+                SimpleDialogOption(
+                    child: Text('Close'),
                     onPressed: () => Navigator.pop(context)),
               ]));
 }
+
+Future<T?> showConfirmDialog<T>(context, String value, T Function(BuildContext) op) =>
+    showDialog<T>(
+        context: context,
+        builder: (BuildContext context) =>
+            SimpleDialog(title: Text('Alert Dialog'), children: [
+              SimpleDialogOption(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.pop(context, op(context))),
+              SimpleDialogOption(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(context)),
+            ]));
 
 Widget fsStreamBuilder(Query ref, AsyncWidgetBuilder builder) =>
     StreamBuilder<QuerySnapshot>(

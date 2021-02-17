@@ -30,7 +30,7 @@ class MultiSelectPage extends StatefulWidget {
   MultiSelectPage({Key key, this.title, this.itemBuilder}) : super(key: key);
 
   final String title;
-  IndexedWidgetBuilder itemBuilder;
+  final IndexedWidgetBuilder itemBuilder;
 
   @override
   _MultiSelectPageState createState() => _MultiSelectPageState();
@@ -38,12 +38,12 @@ class MultiSelectPage extends StatefulWidget {
 
 class _MultiSelectPageState extends State<MultiSelectPage> {
   //List<String> _imageList = List();
-  List<int> _selectedIndexList = List();
+  List<int> _selectedIndexList = [];
   bool _selectionMode = false;
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _buttons = List();
+    List<Widget> _buttons = [];
     if (_selectionMode) {
       _buttons.add(IconButton(
           icon: Icon(Icons.delete),
