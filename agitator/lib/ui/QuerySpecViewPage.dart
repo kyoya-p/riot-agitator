@@ -212,7 +212,7 @@ class QuerySpecViewWidget extends StatelessWidget {
 
     data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
-    return wrapDocumentOperationMenu(itemDoc.reference, context,
+    return wrapDocumentOperationMenu(itemDoc, context,
         child: Card(
 //          margin: EdgeInsets.all(3),
             color: Colors.grey[200],
@@ -262,7 +262,7 @@ class QuerySpecViewWidget extends StatelessWidget {
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
                         onTap: () =>
-                            showDocumentOperationMenu(d.reference, context),
+                            showDocumentOperationMenu(d, context),
                       )),
                 ),
               ),

@@ -196,7 +196,7 @@ class GroupWidget extends StatelessWidget {
             (_) => GroupTreePage(user: user, tgGroup: group.id),
           );
       },
-      onLongPress: () => showDocumentOperationMenu(group.reference, context),
+      onLongPress: () => showDocumentOperationMenu(group, context),
       child: Padding(
         padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 0),
         child: Container(

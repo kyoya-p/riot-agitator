@@ -124,7 +124,7 @@ class QueryViewWidget extends StatelessWidget {
     Map<String, dynamic> data = doc.data();
     DateTime time = DateTime.fromMillisecondsSinceEpoch(data["time"]);
 
-    return wrapDocumentOperationMenu(doc.reference, context,
+    return wrapDocumentOperationMenu(doc, context,
         child: Card(
 //          margin: EdgeInsets.all(3),
             color: Colors.black26,
@@ -169,7 +169,7 @@ class QueryViewWidget extends StatelessWidget {
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
                         onTap: () =>
-                            showDocumentOperationMenu(d.reference, context),
+                            showDocumentOperationMenu(d, context),
                       )),
                 ),
               ),

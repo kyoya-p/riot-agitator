@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'package:riotagitator/ui/QueryBuilder.dart';
-import 'package:riotagitator/ui/QueryViewPage.dart';
 import 'package:riotagitator/ui/documentPage.dart';
 
 import 'QuerySpecViewPage.dart';
