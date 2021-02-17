@@ -85,6 +85,7 @@ class QuerySpecViewWidget extends StatelessWidget {
 
   final DocumentReference queryDocument;
   dynamic? querySpec;
+
   //QueryBuilder queryBuilder;
 
   Widget Function(BuildContext context, int index,
@@ -109,7 +110,7 @@ class QuerySpecViewWidget extends StatelessWidget {
           if (data == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
 
-          print("data= $data");//TODO
+          print("data= $data"); //TODO
           QueryBuilder q = QueryBuilder(snapshot.data!.data());
           return streamWidget(q.build()!, context);
         },

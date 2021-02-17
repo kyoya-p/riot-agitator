@@ -71,9 +71,14 @@ Widget bell(BuildContext context) {
     onPressed: () => showDocumentEditorDialog(docFilter_Bell, context),
     color: Colors.grey,
   );
-  Widget alertBell(BuildContext context, int timeCheckNotification) =>
-      IconButton(
-        icon: Icon(Icons.wb_incandescent),
+
+  Widget alertBell(
+          BuildContext context, int timeCheckNotification, bool exist) =>
+      TextButton(
+        child: Icon(
+          Icons.wb_incandescent,
+          color: exist ? Colors.yellow : Theme.of(context).disabledColor,
+        ),
         onPressed: () async {
           int checked = DateTime.now().millisecondsSinceEpoch;
           int lastChecked = await docLastChecked["time"] ?? 0;
@@ -111,24 +116,17 @@ Widget bell(BuildContext context) {
           queryBuilder = queryBuilder.where(
               field: "time", op: ">", type: "number", value: "$lastChecked");
           Query? q = queryBuilder.build();
-          print("Query ${queryBuilder.querySpec}"); //TODO
           if (q == null) {
-            print("q=null"); //TODO
             return normalBell;
           }
-
           return StreamBuilder<QuerySnapshot>(
             stream: queryBuilder.build()!.snapshots(),
-            /*db
-                .collectionGroup("logs")
-                .where("time", isGreaterThanOrEqualTo: lastChecked)
-                .limit(1)
-                .snapshots(),*/
             builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data?.size == 0)
-                return normalBell;
-              print("Notifire: ${snapshot.data!.docs[0]}"); //TODO
-              return alertBell(context, lastChecked);
+              if (!snapshot.hasData) return normalBell;
+              if (snapshot.data?.size == 0) {
+                return alertBell(context, lastChecked, false);
+              }
+              return alertBell(context, lastChecked, true);
             },
           );
         },

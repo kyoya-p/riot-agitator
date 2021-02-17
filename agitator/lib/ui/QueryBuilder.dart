@@ -67,9 +67,6 @@ class QueryBuilder {
     dynamic value = filter["value"];
     dynamic values = filter["values"];
 
-    print("op=$filterOp"); //TODO
-    print("value=$value"); //TODO
-
     if (filterOp == "sort") {
       return query.orderBy(field, descending: value == "true");
     } else if (filterOp == "==") {
@@ -82,7 +79,6 @@ class QueryBuilder {
     } else if (filterOp == "<=") {
       return query.where(field, isLessThanOrEqualTo: parseValue(type, value));
     } else if (filterOp == ">") {
-      print("number=${parseValue(type, value)}"); //TODO
       return query.where(field, isGreaterThan: parseValue(type, value));
     } else if (filterOp == "<") {
       return query.where(field, isLessThan: parseValue(type, value));
