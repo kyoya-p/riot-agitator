@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
 
+import 'AnimatedChip.dart';
 import 'Common.dart';
 import 'QueryBuilder.dart';
 import 'documentPage.dart';
@@ -224,16 +225,16 @@ class QuerySpecViewWidget extends StatelessWidget {
     List<String> filterTypes = getTypeFilter(querySpec);
 
     List<Widget> chips = [];
-    Widget chip(String typeName) {
-      return ChoiceChip(
-        label: Text(typeName.split(".").last),
-        selected: filterTypes.any((e) => e == typeName),
-        onSelected: (isSelected) {
-          isSelected ? filterTypes.add(typeName) : filterTypes.remove(typeName);
-          queryDocument.set(setTypeFilter(querySpec, filterTypes));
-        },
-      );
-    }
+    Widget chip(String typeName) => ChoiceChip(
+          label: Text(typeName.split(".").last),
+          selected: filterTypes.any((e) => e == typeName),
+          onSelected: (isSelected) {
+            isSelected
+                ? filterTypes.add(typeName)
+                : filterTypes.remove(typeName);
+            queryDocument.set(setTypeFilter(querySpec, filterTypes));
+          },
+        );
 
     if (data["type"] is List)
       data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
@@ -246,13 +247,22 @@ class QuerySpecViewWidget extends StatelessWidget {
               child: Wrap(
                   children: chips +
                       [
-                        Chip(
-                          label: Text(time?.toString() ?? "no-time"),
-                          backgroundColor: Colors.orange[100],
-                        ),
+                        timeChip(data),
                         Text("$index: ${itemDoc.id}"),
                       ]),
             )));
+  }
+
+  Widget timeChip(Map<String, dynamic> data) {
+    DateTime? time = data["time"] != null
+        ? DateTime.fromMillisecondsSinceEpoch(data["time"])
+        : null;
+    return AnimatedChip();
+
+    return Chip(
+      label: Text(time?.toString() ?? "no-time"),
+      backgroundColor: Colors.orange[100],
+    );
   }
 
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
