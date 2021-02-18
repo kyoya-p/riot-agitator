@@ -180,7 +180,7 @@ class GroupWidget extends StatelessWidget {
                 "collection": "device",
                 "where": [
                   {
-                    "field": "dev.cluster",
+                    "field": "cluster",
                     "op": "==",
                     "type": "string",
                     "value": group.id

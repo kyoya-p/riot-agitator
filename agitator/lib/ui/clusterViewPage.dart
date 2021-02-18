@@ -23,7 +23,7 @@ class ClusterViewerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return QueryViewPage(
-      query: db.collection("device").where("dev.cluster", isEqualTo: clusterId),
+      query: db.collection("device").where("cluster", isEqualTo: clusterId),
       itemBuilder: (context, index, devSnapshots) =>
           buildCellWidget(context, devSnapshots.data!.docs[index]),
       appBar: AppBar(

@@ -69,7 +69,7 @@ class RiotAgentMfpMibAppWidget extends StatelessWidget {
     DocumentSnapshot snapshotData = snapshot.data!;
     name.text = snapshotData.data()["name"];
     password.text = snapshotData.data()["password"];
-    cluster.text = snapshotData.data()["dev.cluster"];
+    cluster.text = snapshotData.data()["cluster"];
     config.text =
         JsonEncoder.withIndent("  ").convert(snapshotData.data()["config"]);
 

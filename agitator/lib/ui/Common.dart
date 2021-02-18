@@ -9,6 +9,7 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'AnimatedChip.dart';
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
 import 'collectionGroupPage.dart';
@@ -329,6 +330,9 @@ Widget globalGroupMenu(BuildContext context) {
           child: Text("Log QueryView (admin)"),
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
+      PopupMenuItem(
+          child: Text("AnimationExampleView"),
+          value: (_) => AnimatedChip()),
     ],
     onSelected: (value) => naviPush(context, value),
   );
