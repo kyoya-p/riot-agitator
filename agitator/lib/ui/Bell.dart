@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// ignore: import_of_legacy_library_into_null_safe
-//import 'package:floatingpanel/floatingpanel.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
@@ -96,7 +94,7 @@ Widget bell(BuildContext context) {
               int bellCount = snapshot.data?.size ?? 0;
               if (bellCount == 0) return alertBell(context, lastChecked, "");
               int limit = queryBuilder.querySpec["limit"] - 1 ?? 99;
-              String badge = bellCount > limit ? "+$limit" : "$bellCount";
+              String badge = bellCount > limit ? "$limit+" : "$bellCount";
               return alertBell(context, lastChecked, badge);
             },
           );

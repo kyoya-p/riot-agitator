@@ -254,15 +254,15 @@ class QuerySpecViewWidget extends StatelessWidget {
   }
 
   Widget timeChip(Map<String, dynamic> data) {
-    DateTime? time = data["time"] != null
-        ? DateTime.fromMillisecondsSinceEpoch(data["time"])
-        : null;
-    return AnimatedChip();
-
-    return Chip(
-      label: Text(time?.toString() ?? "no-time"),
-      backgroundColor: Colors.orange[100],
-    );
+    int time = data["time"] ?? 0;
+    return AnimatedChip(
+        ago: DateTime.now().millisecondsSinceEpoch - time,
+        builder: (_, color) {
+          print("UPtime: ${DateTime.fromMillisecondsSinceEpoch(time)}"); //TODO
+          return Chip(
+              label: Text(DateTime.fromMillisecondsSinceEpoch(time).toString()),
+              backgroundColor: color.value);
+        });
   }
 
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {

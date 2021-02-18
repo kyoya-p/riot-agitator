@@ -205,7 +205,8 @@ Future showAlertDialog(context, String value) async {
               ]));
 }
 
-Future<T?> showConfirmDialog<T>(context, String value, T Function(BuildContext) op) =>
+Future<T?> showConfirmDialog<T>(
+        context, String value, T Function(BuildContext) op) =>
     showDialog<T>(
         context: context,
         builder: (BuildContext context) =>
@@ -330,9 +331,6 @@ Widget globalGroupMenu(BuildContext context) {
           child: Text("Log QueryView (admin)"),
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
-      PopupMenuItem(
-          child: Text("AnimationExampleView"),
-          value: (_) => AnimatedChip()),
     ],
     onSelected: (value) => naviPush(context, value),
   );
