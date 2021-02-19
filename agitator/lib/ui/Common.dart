@@ -309,17 +309,17 @@ Widget globalGroupMenu(BuildContext context) {
               queryDocument: db.doc("user/${user.uid}/app1/filterGeneral"))),
       PopupMenuItem(
           child: Text("User Viewer (admin)"),
-          value: (_) => CollectionGroupPage(db.collection("user"))),
+          value: (_) => QuerySpecViewPage(
+              queryDocument: db.doc("user/${user.uid}/app1/logFilter_user"))),
       PopupMenuItem(
           child: Text("Device Viewer (admin)"),
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_device"))),
       PopupMenuItem(
           child: Text("Group Viewer (admin)"),
-          value: (_) => CollectionGroupPage(
-              db.collection("group").where("users", arrayContains: user.uid),
-              filterConfigRef:
-                  db.doc("user/${user.uid}/app1/logFilter_group"))),
+          value: (_) => QuerySpecViewPage(
+              //db.collection("group").where("users", arrayContains: user.uid),
+              queryDocument: db.doc("user/${user.uid}/app1/logFilter_group"))),
       PopupMenuItem(
           child: Text("Notification Viewer (admin)"),
           value: (_) => CollectionGroupPage(db.collection("notification"))),

@@ -54,11 +54,12 @@ class QueryBuilder {
   }
 
   Query buildFilter(Query query, dynamic filter) {
-    dynamic parseValue(String op, var value) {
-      if (op == "boolean") return value == "true";
-      if (op == "number") return num.parse(value);
-      if (op == "string") return value as String;
-      if (op == "list<string>") return value.map((e) => e as String).toList();
+    dynamic parseValue(String type, var value) {
+      if (type == "boolean") return value == "true";
+      if (type == "number") return num.parse(value);
+      if (type == "string") return value as String;
+      if (type == "null") return null;
+      if (type == "list<string>") return value.map((e) => e as String).toList();
       return null;
     }
 

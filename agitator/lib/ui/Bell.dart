@@ -93,8 +93,8 @@ Widget bell(BuildContext context) {
               if (!snapshot.hasData) return normalBell;
               int bellCount = snapshot.data?.size ?? 0;
               if (bellCount == 0) return alertBell(context, lastChecked, "");
-              int limit = queryBuilder.querySpec["limit"] - 1 ?? 99;
-              String badge = bellCount > limit ? "$limit+" : "$bellCount";
+              int limit = queryBuilder.querySpec["limit"]  ?? 99;
+              String badge = bellCount >= limit ? "$limit+" : "$bellCount";
               return alertBell(context, lastChecked, badge);
             },
           );

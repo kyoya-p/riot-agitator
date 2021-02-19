@@ -117,10 +117,12 @@ class GroupTreePage extends StatelessWidget {
             (_) => DocumentPage(db.collection("group").doc("__GroupID__"))
               ..setDocWidget.textDocBody.text = """
 {
+  "id": "__GroupID__",
   "type":{"group":{}},
   "users":{
-    "${firebaseAuth.currentUser.uid}": true
-  }
+    "${firebaseAuth.currentUser.uid}": {"permissions":{}}}
+  },
+  "parent":"__ParentGroupId__"
 }""");
       });
 }
