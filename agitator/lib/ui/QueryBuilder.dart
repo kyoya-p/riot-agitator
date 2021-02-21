@@ -39,15 +39,17 @@ class QueryBuilder {
   }
 
   Query? makeCollRef() {
-    String? collection = querySpec["collection"];
     String? collectionGroup = querySpec["collectionGroup"];
+    return makeSimpleCollRef() ?? db.collectionGroup(collectionGroup);
+  }
+
+  CollectionReference? makeSimpleCollRef() {
+    String? collection = querySpec["collection"];
     if (collection != null) {
       CollectionReference c = db.collection(collection);
       querySpec["subCollections"]?.forEach(
           (e) => c = c.doc(e["document"]).collection(e["collection"]));
       return c;
-    } else if (collectionGroup != null) {
-      return db.collectionGroup(collectionGroup);
     } else {
       return null;
     }

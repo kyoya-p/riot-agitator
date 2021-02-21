@@ -66,7 +66,7 @@ class _CollectionGroupPageState extends State<CollectionGroupPage> {
         builder: (context) {
           DocumentWidget docWidget = DocumentWidget(widget.filterConfigRef!);
           TextButton applyButton = TextButton(
-              onPressed: () => docWidget.setDocument(context),
+              onPressed: () => docWidget.setDocumentWithTime(context),
               child: Text("Apply"));
           TextButton closeButton = TextButton(
               onPressed: () => naviPop(context), child: Text("Close"));

@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'Common.dart';
+
+FirebaseFirestore db = FirebaseFirestore.instance;
 
 // Document編集Widget
 class DocumentPage extends StatelessWidget {
@@ -22,7 +25,7 @@ class DocumentPage extends StatelessWidget {
       body: setDocWidget,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.send),
-        onPressed: () => setDocWidget.setDocument(context),
+        onPressed: () => setDocWidget.setDocumentWithTime(context),
       ),
     );
   }
@@ -41,15 +44,14 @@ class DocumentWidget extends StatefulWidget {
   TextEditingController docPath;
   final bool isIdEditable;
 
-  setDocument(BuildContext context) {
+  setDocumentWithTime(BuildContext context) {
     try {
-      FirebaseFirestore.instance
-          .doc(docPath.text)
-          .set(JsonDecoder().convert(textDocBody.text))
-          .then((_) {
+      dynamic newDoc = JsonDecoder().convert(textDocBody.text);
+      newDoc["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
+      FirebaseFirestore.instance.doc(docPath.text).set(newDoc).then((_) {
 //                  Navigator.pop(context);
       }).catchError((e) => showAlertDialog(context,
-              "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}"));
+          "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}"));
     } catch (ex) {
       showAlertDialog(context, ex.toString());
     }
@@ -75,8 +77,7 @@ class _DocumentWidgetState extends State<DocumentWidget> {
           ),
         ),
         StreamBuilder(
-            stream:
-                FirebaseFirestore.instance.doc(widget.docPath.text).snapshots(),
+            stream: db.doc(widget.docPath.text).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return Center(child: CircularProgressIndicator());
@@ -101,27 +102,34 @@ class _DocumentWidgetState extends State<DocumentWidget> {
   }
 }
 
-showDocumentEditorDialog(DocumentReference dRef, BuildContext context) {
-  return showDialog(
+AlertDialog documentEditorDialog(BuildContext context, DocumentReference dRef,
+    {Widget Function(BuildContext)? buttonBuilder}) {
+  DocumentWidget docWidget = DocumentWidget(dRef, isIdEditable: true);
+  TextButton applyButton = TextButton(
+      onPressed: () => docWidget.setDocumentWithTime(context),
+      child: Text("Apply"));
+  TextButton closeButton =
+      TextButton(onPressed: () => naviPop(context), child: Text("Close"));
+
+  List<Widget> additionalButton =
+      (buttonBuilder != null) ? [buttonBuilder(context)] : [];
+
+  return AlertDialog(
+    title: Row(
+        children: <Widget>[Expanded(child: Text("Document"))] +
+            additionalButton +
+            [applyButton, closeButton]),
+    insetPadding: EdgeInsets.only(top: 200.0, left: 10, right: 10, bottom: 10),
+    content: Column(children: [
+      Expanded(child: docWidget),
+    ]),
+  );
+}
+
+Future<String?> showDocumentEditorDialog(BuildContext context, DocumentReference dRef,
+    {Widget Function(BuildContext)? buttonBuilder}) {
+  return showDialog<String>(
       context: context,
-      builder: (context) {
-        DocumentWidget docWidget = DocumentWidget(dRef,isIdEditable: true);
-        TextButton applyButton = TextButton(
-            onPressed: () => docWidget.setDocument(context),
-            child: Text("Apply"));
-        TextButton closeButton =
-            TextButton(onPressed: () => naviPop(context), child: Text("Close"));
-        return AlertDialog(
-          title: Row(children: [
-            Expanded(child: Text("Document Editor")),
-            applyButton,
-            closeButton
-          ]),
-          insetPadding:
-              EdgeInsets.only(top: 200.0, left: 10, right: 10, bottom: 10),
-          content: Column(children: [
-            Expanded(child: docWidget),
-          ]),
-        );
-      });
+      builder: (context) =>
+          documentEditorDialog(context, dRef, buttonBuilder: buttonBuilder));
 }

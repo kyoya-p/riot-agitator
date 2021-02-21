@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
 
 import 'Common.dart';
+import 'QuerySpecViewPage.dart';
 import 'documentPage.dart';
 
 class QueryViewPage extends StatelessWidget {
@@ -168,7 +169,7 @@ class QueryViewWidget extends StatelessWidget {
                       ),
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
-                        onTap: () => showDocumentOperationMenu(d, context),
+                        onTap: () => showDocumentOperationMenu(d.reference, context),
                       )),
                 ),
               ),

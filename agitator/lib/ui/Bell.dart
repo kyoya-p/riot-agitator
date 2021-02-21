@@ -66,7 +66,7 @@ Widget bell(BuildContext context) {
           naviPush(context,
               (_) => QuerySpecViewPage(queryDocument: docFilterAlerts));
         },
-        onLongPress: () => showDocumentEditorDialog(docFilterBell, context),
+        onLongPress: () => showDocumentEditorDialog(context,docFilterBell),
       );
   Widget normalBell = alertBell(context,0,"");
 

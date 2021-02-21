@@ -28,7 +28,9 @@ class RiotApp extends StatelessWidget {
     return MaterialApp(
       title: 'RIOT HQ', //TODO
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+//        primarySwatch: Colors.blueGrey,
+//        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.deepOrange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),

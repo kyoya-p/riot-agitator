@@ -1,5 +1,3 @@
-//import 'dart:html';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +9,9 @@ import 'package:riotagitator/ui/Bell.dart';
 import 'AnimatedChip.dart';
 import 'Common.dart';
 import 'QueryBuilder.dart';
+import 'User.dart';
+import 'collectionGroupPage.dart';
+import 'collectionPage.dart';
 import 'documentPage.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
@@ -31,16 +32,18 @@ class QuerySpecViewPage extends StatelessWidget {
   final Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
 
+  late QuerySpecViewWidget querySpecViewWidget;
+
   @override
   Widget build(BuildContext context) {
-    QuerySpecViewWidget querySpecViewWidget = QuerySpecViewWidget(
+    querySpecViewWidget = QuerySpecViewWidget(
       queryDocument: queryDocument,
       itemBuilder: itemBuilder,
     );
 
     Widget queryEditIcon(BuildContext context) => IconButton(
           icon: Icon(Icons.filter_list),
-          onPressed: () => showDocumentEditorDialog(queryDocument, context),
+          onPressed: () => showDocumentEditorDialog(context, queryDocument),
         );
 
     Widget deleteIcon(BuildContext context) => IconButton(
@@ -48,7 +51,7 @@ class QuerySpecViewPage extends StatelessWidget {
           onPressed: () async {
             showConfirmDialog(context, "OK?", (_) {
               print("OK!!"); //TODO
-              querySpecViewWidget.deleteItems();
+              querySpecViewWidget.deleteItems(context);
               print("Complete!!"); //TODO
             });
           },
@@ -74,7 +77,7 @@ class QuerySpecViewPage extends StatelessWidget {
   }
 
   FloatingActionButton defaultFloatingActionButton(BuildContext context) {
-    String makeCollectionPath(DocumentSnapshot d) {
+    /*  String makeCollectionPath(DocumentSnapshot d) {
       dynamic query = d.data();
       return query["collection"] +
           ((query["subCollections"] as List?)
@@ -82,17 +85,15 @@ class QuerySpecViewPage extends StatelessWidget {
                   .join() ??
               "");
     }
-
+*/
     return FloatingActionButton(
-      child: Icon(Icons.note_add),
-      onPressed: () {
-        queryDocument.get().then((e) {
-          String docPath = makeCollectionPath(e);
-          print(docPath); //TODO
-          showDocumentEditorDialog(db.collection(docPath).doc(), context);
+        child: Icon(Icons.note_add),
+        onPressed: () {
+          queryDocument.get().then((dSs) {
+            Query? q = QueryBuilder(dSs.data()).build();
+            querySpecViewWidget.showDocumentEditDialog(context, null);
+          });
         });
-      },
-    );
   }
 }
 
@@ -157,7 +158,7 @@ class QuerySpecViewWidget extends StatelessWidget {
                   return Container(
                       child: InkResponse(
                     onLongPress: () {
-                      print("long");
+                      print("long"); //TODO
                     },
                     child: Dismissible(
                       key: Key(querySnapshotData!.docs[index].id),
@@ -169,11 +170,18 @@ class QuerySpecViewWidget extends StatelessWidget {
                 });
           });
 
-  deleteItems() {
+  deleteItems(BuildContext context) {
     if (querySpec == null || querySnapshotData == null) return;
-    querySnapshotData!.docs.forEach((e) {
-      print("Delete: ${e.id}"); //TODO
-      e.reference.delete();
+    db.runTransaction((transaction) async {
+      querySnapshotData!.docs.reversed.toList().asMap().forEach((i, e) {
+        e.reference.delete().then((_) {
+          print("Delete: $i: ${e.id}");
+          /*ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Delete: $i: ${e.id}")),
+          );
+         */
+        });
+      });
     });
   }
 
@@ -239,7 +247,36 @@ class QuerySpecViewWidget extends StatelessWidget {
     if (data["type"] is List)
       data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
+    Widget menuButtonBuilder(BuildContext context) => TextButton(
+        child: Text("Actions"),
+        onPressed: () {
+          showDialog<String>(
+            context: context,
+            builder: (context) => SimpleDialog(
+              children: [
+                ["Sub Collection [query]", "query"],
+                ["Sub Collection [state]", "state"],
+              ]
+                  .map((e) => SimpleDialogOption(
+                      child: Text(e[0] as String),
+                      onPressed: () => naviPop(context, e[1])))
+                  .toList(),
+            ),
+          ).then((res) {
+            if (res != null) {
+              naviPop(context);
+              naviPush(context, (_) {
+                itemDoc.reference.collection(res);
+                DocumentReference filter = appData("filter_$res");
+                filter.set({"collection": "${itemDoc.reference.path}/$res"});
+                return QuerySpecViewPage(queryDocument: filter);
+              });
+            }
+          });
+        });
+
     return wrapDocumentOperationMenu(itemDoc, context,
+        buttonBuilder: menuButtonBuilder,
         child: Card(
             color: Colors.grey[200],
             child: Padding(
@@ -258,7 +295,6 @@ class QuerySpecViewWidget extends StatelessWidget {
     return AnimatedChip(
         ago: DateTime.now().millisecondsSinceEpoch - time,
         builder: (_, color) {
-          print("UPtime: ${DateTime.fromMillisecondsSinceEpoch(time)}"); //TODO
           return Chip(
               label: Text(DateTime.fromMillisecondsSinceEpoch(time).toString()),
               backgroundColor: color.value);
@@ -285,7 +321,6 @@ class QuerySpecViewWidget extends StatelessWidget {
               },
               child: Dismissible(
                 key: Key(docs[index].id),
-//              child: buildGenericCard(context, dRef),
                 onDismissed: (_) => docs[index].reference.delete(),
                 child: Card(
                   color: Theme.of(context).cardColor,
@@ -296,7 +331,9 @@ class QuerySpecViewWidget extends StatelessWidget {
                       ),
                       child: GestureDetector(
                         child: Text(d.id, overflow: TextOverflow.ellipsis),
-                        onTap: () => showDocumentOperationMenu(d, context),
+                        //onTap: () => showDocumentOperationMenu(d.reference, context),
+                        onTap: () =>
+                            showDocumentEditDialog(context, d.reference),
                       )),
                 ),
               ),
@@ -305,20 +342,96 @@ class QuerySpecViewWidget extends StatelessWidget {
         });
   }
 
-  AppBar defaultAppBar(BuildContext context) => AppBar(
-      title: Text("${querySpec.parameters} - Query"), actions: [bell(context)]);
+  showDocumentEditDialog(BuildContext context, DocumentReference? dRef) {
+    if (dRef == null) {
+      //NoReferenceDocument
+      CollectionReference? cRef = QueryBuilder(querySpec).makeSimpleCollRef();
+      if (cRef == null) return;
+      dRef = cRef.doc();
+    }
+    Widget menuButton(BuildContext context) => TextButton(
+          child: Text("Actions"),
+          onPressed: () {
+            showDocumentOperationMenu(dRef!, context);
+          },
+        );
+    showDocumentEditorDialog(context, dRef, buttonBuilder: menuButton);
+  }
+}
 
-  FloatingActionButton defaultFloatingActionButton(
-          BuildContext context, DocumentReference dRef) =>
-      FloatingActionButton(
-        child: Icon(Icons.note_add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DocumentPage(dRef)),
-          );
-        },
+showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
+  return showDialog(
+    context: context,
+    builder: (dialogCtx) {
+      print("Dialog!!"); //TODO
+      return SimpleDialog(
+        title: Text(dRef.path),
+        children: [
+          SimpleDialogOption(
+              child: Text("Publish (Update 'time' and set)"),
+              onPressed: () {
+                dRef.get().then((DocumentSnapshot doc) {
+                  Map<String, dynamic> map = doc.data();
+                  map["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
+                  dRef.set(map);
+                });
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: query"),
+              onPressed: () {
+                DocumentReference filter = appData("filter_DeviceQuery");
+                filter.set({"collection": "${dRef.path}/query"});
+                naviPop(context);
+                naviPop(context);
+                naviPush(
+                  context,
+                  (_) => QuerySpecViewPage(queryDocument: filter),
+                );
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: results"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                    context, (_) => CollectionPage(dRef.collection("results")));
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: state"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                DocumentReference filter = appData("filter_DeviceState");
+                filter.set({
+                  "collection": "${dRef.path}/state",
+                  /*"where": [
+                    {
+                      "field": "cluster",
+                      "op": "==",
+                      "type": "string",
+                      "value": dRef.get().data()["dev"]["cluster"]
+                    }
+                  ] //TODO cluster?
+
+                   */
+                });
+                naviPush(
+                  context,
+                  (_) => QuerySpecViewPage(queryDocument: filter),
+                );
+              }),
+          SimpleDialogOption(
+              child: Text("SubCollection: logs"),
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                naviPush(
+                  context,
+                  (_) => CollectionGroupPage(dRef.collection("logs"),
+                      filterConfigRef: appData("filterConfig")),
+                );
+              }),
+        ],
       );
+    },
+  );
 }
 
 /* ================================================================================

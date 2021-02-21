@@ -6,7 +6,6 @@ typedef Builder = Widget Function(
 class AnimatedChip extends StatefulWidget {
   AnimatedChip(
       {required this.builder, required this.ago, this.duration = 15000}) {
-    print("AnimatedChip()"); //TODO
   }
 
   final Builder builder;

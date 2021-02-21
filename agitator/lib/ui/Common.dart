@@ -16,6 +16,9 @@ import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
 
+FirebaseFirestore db = FirebaseFirestore.instance;
+User user = FirebaseAuth.instance.currentUser;
+
 DecorationTween makeDecorationTween(Color c) => DecorationTween(
       begin: BoxDecoration(
         color: c,
@@ -60,118 +63,22 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) {
                 ),
                 child: GestureDetector(
                     child: Text(label, overflow: TextOverflow.ellipsis),
-                    onTap: () =>
-                        showDocumentOperationMenu(snapshot.data!, streamCtx)));
+                    onTap: () => showDocumentEditorDialog(
+                        streamCtx, snapshot.data!.reference)));
           }));
 }
 
 Widget wrapDocumentOperationMenu(DocumentSnapshot dRef, BuildContext context,
-    {Widget? child}) {
+    {Widget Function(BuildContext)? buttonBuilder, Widget? child}) {
   return GestureDetector(
     child: child,
-    onTap: () => showDocumentOperationMenu(dRef, context),
+    onTap: () => showDocumentEditorDialog(context, dRef.reference,
+        buttonBuilder: buttonBuilder),
   );
 }
 
-showDocumentOperationMenu(DocumentSnapshot dRef, BuildContext context) {
-  User user = FirebaseAuth.instance.currentUser;
-
-  return showDialog(
-    context: context,
-    builder: (dialogCtx) {
-      return SimpleDialog(
-        title: Text(dRef.reference.path),
-        children: [
-          SimpleDialogOption(
-              child: Text("View/Edit"),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                naviPush(context, (_) => DocumentPage(dRef.reference));
-              }),
-          SimpleDialogOption(
-              child: Text("Publish (Update 'time' and set)"),
-              onPressed: () {
-                //Navigator.pop(dialogCtx);
-                dRef.reference.get().then((DocumentSnapshot doc) {
-                  Map<String, dynamic> map = doc.data();
-                  map["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
-                  dRef.reference.set(map);
-                });
-              }),
-          SimpleDialogOption(
-              child: Text("SubCollection: query"),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                DocumentReference filter =
-                    db.doc("user/${user.uid}/app1/filter_DeviceQuery");
-                filter.set({"collection": "${dRef.reference.path}/query"});
-                naviPush(
-                  context,
-                  //(_) => CollectionPage(dRef.collection("query")),
-                  (_) => QuerySpecViewPage(queryDocument: filter),
-                );
-              }),
-          SimpleDialogOption(
-              child: Text("SubCollection: results"),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                naviPush(
-                    context,
-                    (_) =>
-                        CollectionPage(dRef.reference.collection("results")));
-              }),
-          SimpleDialogOption(
-              child: Text("SubCollection: state"),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                DocumentReference filter =
-                    db.doc("user/${user.uid}/app1/filter_DeviceState");
-                filter.set({
-                  "collection": "${dRef.reference.path}/state",
-                  "where": [
-                    {
-                      "field": "cluster",
-                      "op": "==",
-                      "type": "string",
-                      "value": dRef.data()["dev"]["cluster"]
-                    }
-                  ] //TODO cluster?
-                });
-                naviPush(
-                  context,
-                  (_) => QuerySpecViewPage(queryDocument: filter),
-                );
-              }),
-          SimpleDialogOption(
-              child: Text("SubCollection: logs"),
-              onPressed: () {
-                Navigator.pop(dialogCtx);
-                naviPush(
-                  context,
-                  (_) => CollectionGroupPage(
-                    //DeviceLogsPage(
-                    dRef.reference.collection("logs"),
-                    filterConfigRef: FirebaseFirestore.instance
-                        .collection("user")
-                        .doc(user.uid)
-                        .collection("app1")
-                        .doc("filterConfig"),
-                  ),
-                );
-              }),
-        ],
-      );
-    },
-  );
-}
-
-// Common Styles
-Decoration genericCellDecoration = BoxDecoration(
-  borderRadius: BorderRadius.circular(5),
-  color: Colors.black26,
-);
-
-naviPop(BuildContext context) => Navigator.pop(context);
+naviPop<T extends Object?>(BuildContext context, [T? result]) =>
+    Navigator.pop(context, result);
 
 // some snippet
 naviPush(BuildContext context, WidgetBuilder builder) {
@@ -299,7 +206,6 @@ extension MapExt on Map<String, dynamic?>? {
 
 Widget globalGroupMenu(BuildContext context) {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  User user = FirebaseAuth.instance.currentUser;
 
   return PopupMenuButton<Widget Function(BuildContext)>(
     itemBuilder: (BuildContext context) => [
