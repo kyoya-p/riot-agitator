@@ -50,10 +50,12 @@ class DocumentWidget extends StatefulWidget {
       newDoc["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
       FirebaseFirestore.instance.doc(docPath.text).set(newDoc).then((_) {
 //                  Navigator.pop(context);
-      }).catchError((e) => showAlertDialog(context,
-          "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}"));
+      }).catchError((e) => showAlertDialog(
+          context,
+          Text(
+              "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}")));
     } catch (ex) {
-      showAlertDialog(context, ex.toString());
+      showAlertDialog(context, Text(ex.toString()));
     }
   }
 
@@ -126,7 +128,8 @@ AlertDialog documentEditorDialog(BuildContext context, DocumentReference dRef,
   );
 }
 
-Future<String?> showDocumentEditorDialog(BuildContext context, DocumentReference dRef,
+Future<String?> showDocumentEditorDialog(
+    BuildContext context, DocumentReference dRef,
     {Widget Function(BuildContext)? buttonBuilder}) {
   return showDialog<String>(
       context: context,

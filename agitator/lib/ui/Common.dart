@@ -99,12 +99,12 @@ naviPushReplacement(BuildContext context, WidgetBuilder builder) {
   );
 }
 
-Future showAlertDialog(context, String value) async {
+Future showAlertDialog(context, Widget content) async {
   await showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
               title: Text('Alert Dialog'),
-              content: Text(value),
+              content: content,
               actions: <Widget>[
                 SimpleDialogOption(
                     child: Text('Close'),
