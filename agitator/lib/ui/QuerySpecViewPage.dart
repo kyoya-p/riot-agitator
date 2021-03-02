@@ -13,6 +13,7 @@ import 'User.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -148,7 +149,7 @@ class QuerySpecViewWidget extends StatelessWidget {
             querySnapshotData = snapshots.data!;
             return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.of(context).size.width ~/ 220,
+                    crossAxisCount: (MediaQuery.of(context).size.width) ~/ 240,
                     mainAxisSpacing: 5,
                     crossAxisSpacing: 5,
                     childAspectRatio: 2.0),
@@ -230,23 +231,6 @@ class QuerySpecViewWidget extends StatelessWidget {
       }
     }
 
-    List<String> filterTypes = getTypeFilter(querySpec);
-
-    List<Widget> chips = [];
-    Widget chip(String typeName) => ChoiceChip(
-          label: Text(typeName.split(".").last),
-          selected: filterTypes.any((e) => e == typeName),
-          onSelected: (isSelected) {
-            isSelected
-                ? filterTypes.add(typeName)
-                : filterTypes.remove(typeName);
-            queryDocument.set(setTypeFilter(querySpec, filterTypes));
-          },
-        );
-
-    if (data["type"] is List)
-      data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
-
     Widget menuButtonBuilder(BuildContext context) => TextButton(
         child: Text("Actions"),
         onPressed: () {
@@ -275,6 +259,34 @@ class QuerySpecViewWidget extends StatelessWidget {
           });
         });
 
+    List<String> filterTypes = getTypeFilter(querySpec);
+
+    List<Widget> chips = [];
+    Widget chip(String typeName) => ChoiceChip(
+          label: Text(typeName.split(".").last),
+          selected: filterTypes.any((e) => e == typeName),
+          onSelected: (isSelected) {
+            isSelected
+                ? filterTypes.add(typeName)
+                : filterTypes.remove(typeName);
+            queryDocument.set(setTypeFilter(querySpec, filterTypes));
+          },
+        );
+
+    if (data["type"] is List)
+      data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
+
+    String? ipAddr = data["dev"]?["ip"];
+    if (ipAddr != null) {
+      chips.add(ActionChip(
+        label: Text(ipAddr),
+        backgroundColor: Colors.green[200],
+        onPressed: () {
+          launch(
+              "https://10.36.102.184:8086/VNCConverter/$ipAddr:5900/?locale=en&modelName=SC&ipAddress=$ipAddr");
+        },
+      ));
+    }
     return wrapDocumentOperationMenu(itemDoc, context,
         buttonBuilder: menuButtonBuilder,
         child: Card(
@@ -306,7 +318,7 @@ class QuerySpecViewWidget extends StatelessWidget {
 
     return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: w ~/ 160,
+            crossAxisCount: (w + 300) ~/ 300,
             mainAxisSpacing: 5,
             crossAxisSpacing: 5,
             childAspectRatio: 2.0),
