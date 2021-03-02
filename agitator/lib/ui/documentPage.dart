@@ -52,6 +52,7 @@ class DocumentWidget extends StatefulWidget {
 //                  Navigator.pop(context);
       }).catchError((e) => showAlertDialog(
           context,
+          // ignore: return_of_invalid_type_from_catch_error
           Text(
               "${e.message}\nReq:${docPath.text}\nBody: ${textDocBody.text}")));
     } catch (ex) {

@@ -9,11 +9,13 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'AnimatedChip.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
+import 'WebSocketConsole.dart';
 import 'collectionGroupPage.dart';
-import 'collectionPage.dart';
 import 'documentPage.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
@@ -237,6 +239,16 @@ Widget globalGroupMenu(BuildContext context) {
           child: Text("Log QueryView (admin)"),
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
+      PopupMenuItem(
+          child: Text("Websocket Console"),
+          value: (_) {
+            print("WebSocke");// TODO
+            final channel =
+                IOWebSocketChannel.connect('ws://echo.websocket.org');
+            print("WebSocke");// TODO
+            return WebsocketConsolePage(
+                title: "Websocket Console", channel: channel);
+          }),
     ],
     onSelected: (value) => naviPush(context, value),
   );
