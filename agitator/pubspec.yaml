@@ -28,18 +28,18 @@ dependencies:
   #cupertino_icons: ^0.1.3
 
 dev_dependencies:
-  provider: ^4.1.0-dev+2
-  json_annotation: ^3.1.0
-  json_serializable: ^3.5.0
-  http: ^0.12.2
+  provider: ^4.3.3                  # https://pub.dev/packages/provider
+  json_annotation: ^3.1.1           # https://pub.dev/packages/json_annotation
+  json_serializable: ^3.5.1         # https://pub.dev/packages/json_serializable
+  http: ^0.12.2                     # https://pub.dev/packages/http
   flutter_test:
     sdk: flutter
   firebase_core: ^0.7.0             # https://pub.dev/packages/firebase_core
   cloud_firestore: ^0.16.0          # https://pub.dev/packages/cloud_firestore
-  firebase_auth: 0.20.0+1           # https://pub.dev/packages/firebase_auth
-  flutter_state_notifier: 0.6.1
-  charts_flutter: ^0.9.0
-  flutter_staggered_grid_view: ^0.3.2
+  firebase_auth: 0.20.1             # https://pub.dev/packages/firebase_auth
+  flutter_state_notifier: 0.6.1     # https://pub.dev/packages/flutter_state_notifier
+  charts_flutter: ^0.9.0            # https://pub.dev/packages/charts_flutter
+  flutter_staggered_grid_view: ^0.3.4 # https://pub.dev/packages/flutter_staggered_grid_view
   floatingpanel: ^1.1.3             # https://pub.dev/packages/floatingpanel
   badges: ^1.1.6                    # https://pub.dev/packages/badges
   url_launcher: 5.7.10              # https://pub.dev/packages/url_launcher

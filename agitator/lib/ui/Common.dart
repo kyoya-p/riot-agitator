@@ -119,7 +119,7 @@ Future<T?> showConfirmDialog<T>(
     showDialog<T>(
         context: context,
         builder: (BuildContext context) =>
-            SimpleDialog(title: Text('Alert Dialog'), children: [
+            SimpleDialog(title: Text('Confirm Dialog'), children: [
               SimpleDialogOption(
                   child: Text('OK'),
                   onPressed: () => Navigator.pop(context, op(context))),
@@ -240,15 +240,11 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
       PopupMenuItem(
-          child: Text("Websocket Console"),
-          value: (_) {
-            print("WebSocke");// TODO
-            final channel =
-                IOWebSocketChannel.connect('ws://echo.websocket.org');
-            print("WebSocke");// TODO
-            return WebsocketConsolePage(
-                title: "Websocket Console", channel: channel);
-          }),
+        child: Text("Websocket Console"),
+        value: (_) {
+          return WebsocketConsoleWidget();
+        },
+      ),
     ],
     onSelected: (value) => naviPush(context, value),
   );
