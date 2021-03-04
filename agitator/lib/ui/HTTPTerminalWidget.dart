@@ -3,24 +3,48 @@ import 'package:web_socket_channel/io.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class WebsocketConsoleWidget extends StatefulWidget {
+class HTTPTerminalWidget extends StatefulWidget {
   WebSocketChannel? channel;
 
-  WebsocketConsoleWidget({Key? key}) : super(key: key);
+  HTTPTerminalWidget({Key? key}) : super(key: key);
 
   @override
   _WebsocketConsoleWidgetState createState() => _WebsocketConsoleWidgetState();
 }
 
-class _WebsocketConsoleWidgetState extends State<WebsocketConsoleWidget> {
-  TextEditingController uri = TextEditingController(text: "ws://");
+class _WebsocketConsoleWidgetState extends State<HTTPTerminalWidget> {
+  TextEditingController uri =
+      TextEditingController(text: "wss://localhost:20443/");
   TextEditingController msg = TextEditingController();
+
+  List<String> _items = ["GET","POST","WebSocket"];
+  String _selectedItem = "WebSocket";
 
   @override
   Widget build(BuildContext context) {
+    DropdownButton method = DropdownButton<String>(
+      value: _selectedItem,
+      onChanged: (String? newValue) {
+        if (newValue != null) setState(() => _selectedItem = newValue);
+      },
+      selectedItemBuilder: (context) =>
+          _items.map((String item) => Text(item)).toList(),
+      items: _items.map((String item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(
+            item,
+            style: item == _selectedItem
+                ? TextStyle(fontWeight: FontWeight.bold)
+                : TextStyle(fontWeight: FontWeight.normal),
+          ),
+        );
+      }).toList(),
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Websocket Console"),
+        title: Text("HTTP Terminal"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -28,6 +52,7 @@ class _WebsocketConsoleWidgetState extends State<WebsocketConsoleWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(children: [
+              method,
               Expanded(
                   child: Form(
                 child: TextFormField(

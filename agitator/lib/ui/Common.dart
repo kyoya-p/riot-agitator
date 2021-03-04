@@ -14,7 +14,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
-import 'WebSocketConsole.dart';
+import 'HTTPTerminalWidget.dart';
+import 'WebsocketTerminal.dart';
 import 'collectionGroupPage.dart';
 import 'documentPage.dart';
 
@@ -240,9 +241,9 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
       PopupMenuItem(
-        child: Text("Websocket Console"),
+        child: Text("HTTP Terminal"),
         value: (_) {
-          return WebsocketConsoleWidget();
+          return WebsocketTerminalWidget();
         },
       ),
     ],
