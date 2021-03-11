@@ -22,8 +22,8 @@ class GroupTreePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Query queryMyClusters = db.collection("group");
     queryMyClusters = (user != null)
-        ? queryMyClusters.where("users.${user.uid}", //userログインしているなら
-            isEqualTo: true) // 自身が管轄するすべてのgroup
+        ? queryMyClusters.where("users.${user.uid}.active",
+            isEqualTo: true) //userログインしているなら自身が管轄するすべてのgroup
         : queryMyClusters; //デバッグ(管理者)モードは全グループ表示
 
     return Scaffold(
