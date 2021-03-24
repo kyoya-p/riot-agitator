@@ -296,7 +296,8 @@ class QuerySpecViewWidget extends StatelessWidget {
                           },
                         ),
                         Text("$index: ${itemDoc.id}"),
-                      ]),
+                      ] +
+                      [editableTagChip(context, "aaa")]),
             )));
   }
 
@@ -367,6 +368,24 @@ class QuerySpecViewWidget extends StatelessWidget {
         );
     showDocumentEditorDialog(context, dRef, buttonBuilder: menuButton);
   }
+}
+
+Widget editableTagChip(BuildContext context, String tagName) {
+  TextEditingController controller = TextEditingController(text: "-");
+  return ActionChip(
+      label: Text("-"),
+      onPressed: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+                    title: Text('Alert Dialog'),
+                    content: TextField(controller: controller),
+                    actions: <Widget>[
+                      SimpleDialogOption(
+                          child: Text('Close'),
+                          onPressed: () => Navigator.pop(context)),
+                    ]));
+      });
 }
 
 showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
