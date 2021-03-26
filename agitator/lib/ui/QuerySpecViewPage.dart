@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 
 import 'AnimatedChip.dart';
 import 'Common.dart';
@@ -13,7 +15,6 @@ import 'User.dart';
 import 'collectionGroupPage.dart';
 import 'collectionPage.dart';
 import 'documentPage.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -297,7 +298,7 @@ class QuerySpecViewWidget extends StatelessWidget {
                         ),
                         Text("$index: ${itemDoc.id}"),
                       ] +
-                      [editableTagChip(context, "aaa")]),
+                      [editableTagChip(context, itemDoc, "usertag0")]),
             )));
   }
 
@@ -370,22 +371,52 @@ class QuerySpecViewWidget extends StatelessWidget {
   }
 }
 
-Widget editableTagChip(BuildContext context, String tagName) {
-  TextEditingController controller = TextEditingController(text: "-");
-  return ActionChip(
-      label: Text("-"),
-      onPressed: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) => AlertDialog(
-                    title: Text('Alert Dialog'),
-                    content: TextField(controller: controller),
-                    actions: <Widget>[
-                      SimpleDialogOption(
-                          child: Text('Close'),
-                          onPressed: () => Navigator.pop(context)),
-                    ]));
-      });
+Widget editableTagChip(
+    BuildContext context, QueryDocumentSnapshot ssDev, String tagName) {
+  var tags = ssDev.data()?["tags"];
+  String tagValue = (tags is Map) ? tags[tagName] : "";
+  TextEditingController controller = TextEditingController(text: tagValue);
+
+  updateTag(String value) {
+    ssDev.reference.update({"tags.${tagName}": value});
+  }
+
+  Widget hyperLync = Linkify(
+    text: tagValue,
+    onOpen: (link) async {
+      if (await canLaunch(link.url)) {
+        await launch(link.url);
+      } else {
+        throw 'Could not launch $link';
+      }
+    },
+  );
+
+  editTag() => showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+              title: Text('${tagName} - Tag Value'),
+              content: TextField(
+                  controller: controller,
+                  onSubmitted: (value) => updateTag(value)),
+              actions: <Widget>[
+                SimpleDialogOption(
+                    child: Text('OK'),
+                    onPressed: () {
+                      updateTag(controller.text);
+                      Navigator.pop(context);
+                    }),
+              ]));
+
+  return Row(
+    children: [
+      IconButton(
+        icon: Icon(Icons.edit, size: 20),
+        onPressed: () => editTag(),
+      ),
+      hyperLync
+    ],
+  );
 }
 
 showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {

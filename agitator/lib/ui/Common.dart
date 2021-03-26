@@ -9,12 +9,8 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
-import 'HTTPTerminalWidget.dart';
 import 'WebsocketTerminal.dart';
 import 'collectionGroupPage.dart';
 import 'documentPage.dart';

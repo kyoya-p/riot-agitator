@@ -5,8 +5,7 @@ typedef Builder = Widget Function(
 
 class AnimatedChip extends StatefulWidget {
   AnimatedChip(
-      {required this.builder, required this.ago, this.duration = 15000}) {
-  }
+      {required this.builder, required this.ago, this.duration = 15000});
 
   final Builder builder;
   final int ago;
@@ -42,15 +41,16 @@ class _AnimatedChipState extends State<AnimatedChip>
   }
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: _animationController,
         builder: (BuildContext context, Widget? child) {
           return widget.builder(context, _color);
         });
   }
+
   start() {
-    setState((){
+    setState(() {
       _animationController.forward(from: 0.0);
     });
   }
