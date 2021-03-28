@@ -1,17 +1,20 @@
-# riot agitator
+riot agitator
+====
 
+
+## 環境
+- Flutter: 2.x
 
 # ビルド/開発環境設定
 ## SDK導入
 
 1. flutter SDKの設置
   https://flutter.dev/docs/get-started/install  
-  DartSDKも含まれるようだ  
+  DartSDKも含まれる 
   コマンドから利用するならpathを設定
   
-2. flutterのターゲットにwebを追加し Web(beta)を有効に
+2. flutterのターゲットにwebを追加
 ```
-flutter channel beta
 flutter upgrade  
 flutter config --enable-web (*1)
 flutter devices
@@ -21,7 +24,8 @@ flutter devices
 
 ## Intelli-J設定(使うなら)
 1. Flutter plugin導入: Settings > Plugin > flutterで検索
-2. Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
+2. - Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
+   - Dart SDK有効に: Settings > lang&Framework > Dart > Enable Dart チェック
 3. プロジェクト設定: Project Structure > Modules > Dependancies > [+] > Libraries > Flutter plugin, Dart SDK を追加
 
 # Build
