@@ -24,9 +24,9 @@ flutter devices
 
 ## Intelli-J設定(使うなら)
 1. Flutter plugin導入: Settings > Plugin > flutterで検索
-2. - Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
-   - Dart SDK有効に: Settings > lang&Framework > Dart > Enable Dart チェック
-3. プロジェクト設定: Project Structure > Modules > Dependancies > [+] > Libraries > Flutter plugin, Dart SDK を追加
+2. Flutter SDK設定: Settings > lang&Framework > Flutter > Path入力
+3. Dart SDK有効に: Settings > lang&Framework > Dart > Enable Dart チェック
+4. プロジェクト設定: Project Structure > Modules > Dependencies > [+] > Libraries > Flutter plugin, Dart SDK を追加
 
 # Build
 > flutter build web
