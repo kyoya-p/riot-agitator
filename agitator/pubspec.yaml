@@ -44,7 +44,7 @@ dev_dependencies:
   badges: ^1.1.6                    # https://pub.dev/packages/badges
   url_launcher: 5.7.10              # https://pub.dev/packages/url_launcher
   web_socket_channel: 1.2.0         # https://pub.dev/packages/web_socket_channel
-  flutter_linkify: 5.0.0            # https://pub.dev/packages/flutter_linkify
+  flutter_linkify: 4.1.0             # https://pub.dev/packages/flutter_linkify
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
