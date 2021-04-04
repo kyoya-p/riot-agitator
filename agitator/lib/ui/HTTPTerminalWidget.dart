@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class HTTPTerminalWidget extends StatefulWidget {

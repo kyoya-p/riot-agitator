@@ -5,10 +5,12 @@ import 'package:flutter/cupertino.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
+import 'package:riotagitator/ui/QuerySpecViewPageCell.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:url_launcher/url_launcher.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_linkify/flutter_linkify.dart';
 
-import 'AnimatedChip.dart';
 import 'Common.dart';
 import 'QueryBuilder.dart';
 import 'User.dart';
@@ -92,7 +94,7 @@ class QuerySpecViewPage extends StatelessWidget {
         child: Icon(Icons.note_add),
         onPressed: () {
           queryDocument.get().then((dSs) {
-            Query? q = QueryBuilder(dSs.data()).build();
+            //Query? q = QueryBuilder(dSs.data()).build();
             querySpecViewWidget.showDocumentEditDialog(context, null);
           });
         });
@@ -156,7 +158,13 @@ class QuerySpecViewWidget extends StatelessWidget {
                     childAspectRatio: 2.0),
                 itemCount: snapshots.data?.size,
                 itemBuilder: (BuildContext context, int index) {
-                  itemBuilder = itemBuilder ?? defaultCell;
+                  itemBuilder = itemBuilder ??
+                      (context, index, itemDoc) => defaultItemCell(
+                          context,
+                          index,
+                          itemDoc.data!.docs[index],
+                          querySpec,
+                          queryDocument);
                   return Container(
                       child: InkResponse(
                     onLongPress: () {
@@ -187,131 +195,6 @@ class QuerySpecViewWidget extends StatelessWidget {
     });
   }
 
-  Widget defaultCell(BuildContext context, int index,
-      AsyncSnapshot<QuerySnapshot> itemSnapshots) {
-    QueryDocumentSnapshot itemDoc = itemSnapshots.data!.docs[index];
-    Map<String, dynamic> data = itemDoc.data();
-    DateTime? time = data["time"] != null
-        ? DateTime.fromMillisecondsSinceEpoch(data["time"])
-        : null;
-
-    List<String> getTypeFilter(Map<String, dynamic> q) {
-      List<List<String>> f = (q["where"] as List<dynamic>?)
-              ?.where((e) => e["field"] == "type" && e["op"] == "containsAny")
-              .map(
-                  (e) => (e["values"] as List).map((e) => e as String).toList())
-              .toList() ??
-          [];
-      if (f.length == 0) return [];
-      return f[0];
-    }
-
-    Map<String, dynamic> setTypeFilter(
-        Map<String, dynamic> q, List<String> typeFilter) {
-      if (typeFilter.length > 0) {
-        Map<String, dynamic> newQuery = setTypeFilter(q, []);
-        if (newQuery["where"] == null) newQuery["where"] = [];
-        (newQuery["where"] as List).add({
-          "field": "type",
-          "op": "containsAny",
-          "type": "list<string>",
-          "values": typeFilter,
-        });
-        return newQuery;
-      } else {
-        return q.map((k, v) {
-          return k == "where"
-              ? MapEntry(
-                  k,
-                  (v as List)
-                      .where((e) =>
-                          e["field"] != "type" || e["op"] != "containsAny")
-                      .toList())
-              : MapEntry(k, v);
-        });
-      }
-    }
-
-    List<String> filterTypes = getTypeFilter(querySpec);
-
-    List<Widget> chips = [];
-    Widget chip(String typeName) => ChoiceChip(
-          label: Text(typeName.split(".").last),
-          selected: filterTypes.any((e) => e == typeName),
-          onSelected: (isSelected) {
-            isSelected
-                ? filterTypes.add(typeName)
-                : filterTypes.remove(typeName);
-            queryDocument.set(setTypeFilter(querySpec, filterTypes));
-          },
-        );
-
-    if (data["type"] is List)
-      data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
-
-    Widget menuButtonBuilder(BuildContext context) => TextButton(
-        child: Text("Actions"),
-        onPressed: () {
-          showDialog<String>(
-            context: context,
-            builder: (context) => SimpleDialog(
-              children: [
-                ["Sub Collection [query]", "query"],
-                ["Sub Collection [state]", "state"],
-              ]
-                  .map((e) => SimpleDialogOption(
-                      child: Text(e[0] as String),
-                      onPressed: () => naviPop(context, e[1])))
-                  .toList(),
-            ),
-          ).then((res) {
-            if (res != null) {
-              naviPop(context);
-              naviPush(context, (_) {
-                itemDoc.reference.collection(res);
-                DocumentReference filter = appData("filter_$res");
-                filter.set({"collection": "${itemDoc.reference.path}/$res"});
-                return QuerySpecViewPage(queryDocument: filter);
-              });
-            }
-          });
-        });
-
-    String ipAddr = data["dev"]?["ip"] ?? "IP:UNK";
-    return wrapDocumentOperationMenu(itemDoc, context,
-        buttonBuilder: menuButtonBuilder,
-        child: Card(
-            color: Colors.grey[200],
-            child: Padding(
-              padding: EdgeInsets.all(3),
-              child: Wrap(
-                  children: chips +
-                      [
-                        timeChip(data),
-                        ActionChip(
-                          label: Text(ipAddr),
-                          backgroundColor: Colors.green[200],
-                          onPressed: () {
-                            launch(
-                                "https://10.36.102.184:8086/VNCConverter/$ipAddr:5900/?locale=en&modelName=SC&ipAddress=$ipAddr");
-                          },
-                        ),
-                        Text("$index: ${itemDoc.id}"),
-                      ] +
-                      [editableTagChip(context, itemDoc, "usertag0")]),
-            )));
-  }
-
-  Widget timeChip(Map<String, dynamic> data) {
-    int time = data["time"] ?? 0;
-    return AnimatedChip(
-        ago: DateTime.now().millisecondsSinceEpoch - time,
-        builder: (_, color) {
-          return Chip(
-              label: Text(DateTime.fromMillisecondsSinceEpoch(time).toString()),
-              backgroundColor: color.value);
-        });
-  }
 
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
