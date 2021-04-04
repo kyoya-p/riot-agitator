@@ -101,6 +101,7 @@ Widget defaultItemCell(
             children: [
               ["Open Sub-Collection [query]", "query"],
               ["Open Sub-Collection [state]", "state"],
+              ["Open Sub-Collection [logs]", "logs"],
             ]
                 .map((e) => SimpleDialogOption(
                     child: Text(e[0] as String),
@@ -122,7 +123,8 @@ Widget defaultItemCell(
                     "type": "string",
                     "value": "G11"
                   }
-                ]
+                ],
+                "limit": 50
               });
               return QuerySpecViewPage(queryDocument: filter);
             });
