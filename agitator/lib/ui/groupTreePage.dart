@@ -7,6 +7,7 @@ import 'package:riotagitator/login.dart';
 import 'Common.dart';
 import 'Bell.dart';
 import 'QuerySpecViewPage.dart';
+import 'countPage.dart';
 import 'documentPage.dart';
 
 final db = FirebaseFirestore.instance;
@@ -30,6 +31,7 @@ class GroupTreePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("${tgGroup} - Group View"),
         actions: [
+          count(context),
           globalGroupMenu(context),
           bell(context),
           loginButton(context)

@@ -4,18 +4,14 @@ import 'package:flutter/cupertino.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:riotagitator/ui/Bell.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
 
 import 'AnimatedChip.dart';
 import 'Common.dart';
-import 'QueryBuilder.dart';
 import 'QuerySpecViewPage.dart';
 import 'User.dart';
-import 'collectionGroupPage.dart';
-import 'collectionPage.dart';
-import 'documentPage.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -104,8 +100,7 @@ Widget defaultItemCell(
               ["Open Sub-Collection [logs]", "logs"],
             ]
                 .map((e) => SimpleDialogOption(
-                    child: Text(e[0] as String),
-                    onPressed: () => naviPop(context, e[1])))
+                    child: Text(e[0]), onPressed: () => naviPop(context, e[1])))
                 .toList(),
           ),
         ).then((res) {

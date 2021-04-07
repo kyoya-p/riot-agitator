@@ -6,8 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Bell.dart';
 import 'package:riotagitator/ui/QuerySpecViewPageCell.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:url_launcher/url_launcher.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_linkify/flutter_linkify.dart';
 
@@ -195,7 +197,6 @@ class QuerySpecViewWidget extends StatelessWidget {
     });
   }
 
-
   Widget body(List<QueryDocumentSnapshot> docs, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
 
@@ -254,6 +255,31 @@ class QuerySpecViewWidget extends StatelessWidget {
   }
 }
 
+StreamBuilder filteredStreamBuilder(
+    {required DocumentReference queryDocument,
+    required Function(
+            BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots)
+        builder}) {
+  return StreamBuilder<DocumentSnapshot>(
+    stream: queryDocument.snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.data == null)
+        return Center(child: CircularProgressIndicator());
+      print("query=${snapshot.data?.data()}"); //TODO
+
+      Map<String, dynamic>? data = snapshot.data?.data();
+      if (data == null)
+        return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
+
+      QueryBuilder qb = QueryBuilder(snapshot.data!.data());
+      return StreamBuilder<QuerySnapshot>(
+        stream: qb.build()?.snapshots(),
+        builder: (context, snapshot) => builder(context, snapshot),
+      );
+    },
+  );
+}
+
 Widget editableTagChip(
     BuildContext context, QueryDocumentSnapshot ssDev, String tagName) {
   var tags = ssDev.data()?["tags"];
@@ -261,7 +287,7 @@ Widget editableTagChip(
   TextEditingController controller = TextEditingController(text: tagValue);
 
   updateTag(String value) {
-    ssDev.reference.update({"tags.${tagName}": value});
+    ssDev.reference.update({"tags.$tagName": value});
   }
 
   Widget hyperLync = Linkify(
