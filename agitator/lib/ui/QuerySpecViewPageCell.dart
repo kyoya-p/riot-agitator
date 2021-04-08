@@ -22,9 +22,6 @@ Widget defaultItemCell(
     dynamic querySpec,
     DocumentReference queryDocument) {
   Map<String, dynamic> data = itemDoc.data();
-  DateTime? time = data["time"] != null
-      ? DateTime.fromMillisecondsSinceEpoch(data["time"])
-      : null;
 
   List<String> getTypeFilter(Map<String, dynamic> q) {
     List<List<String>> f = (q["where"] as List<dynamic>?)

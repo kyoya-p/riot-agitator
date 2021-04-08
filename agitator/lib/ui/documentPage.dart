@@ -40,8 +40,8 @@ class DocumentWidget extends StatefulWidget {
   DocumentWidget(DocumentReference documentRef, {this.isIdEditable = false})
       : docPath = TextEditingController(text: documentRef.path);
 
-  TextEditingController textDocBody = TextEditingController(text: "");
-  TextEditingController docPath;
+  final TextEditingController textDocBody = TextEditingController(text: "");
+  final TextEditingController docPath;
   final bool isIdEditable;
 
   setDocumentWithTime(BuildContext context) {
@@ -50,6 +50,7 @@ class DocumentWidget extends StatefulWidget {
       newDoc["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
       FirebaseFirestore.instance.doc(docPath.text).set(newDoc).then((_) {
 //                  Navigator.pop(context);
+      // ignore: return_of_invalid_type_from_catch_error
       }).catchError((e) => showAlertDialog(
           context,
           // ignore: return_of_invalid_type_from_catch_error

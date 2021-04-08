@@ -1,3 +1,5 @@
+/*
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'documentPage.dart';
 
-/*
 class DeviceLogsPage_X extends StatefulWidget {
   DeviceLogsPage_X(this.logsRef, this.filterConfigRef);
 

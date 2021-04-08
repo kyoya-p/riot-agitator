@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:riotagitator/ui/Common.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+// ignore: must_be_immutable
 class WebsocketTerminalWidget extends StatefulWidget {
   WebSocketChannel? channel;
 

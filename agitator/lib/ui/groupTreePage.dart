@@ -1,7 +1,11 @@
-import 'dart:html';
+//import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riotagitator/login.dart';
 import 'Common.dart';
@@ -17,22 +21,20 @@ class GroupTreePage extends StatelessWidget {
 
   final User user;
   final String? tgGroup;
-  bool v = false;
+  final bool v = false;
 
   @override
   Widget build(BuildContext context) {
     Query queryMyClusters = db.collection("group");
-    queryMyClusters = (user != null)
-        ? queryMyClusters.where("users.${user.uid}.active",
-            isEqualTo: true) //userログインしているなら自身が管轄するすべてのgroup
-        : queryMyClusters; //デバッグ(管理者)モードは全グループ表示
+    queryMyClusters = queryMyClusters.where("users.${user.uid}.active",
+        isEqualTo: true); //自身が管轄するすべてのgroup
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${tgGroup} - Group View"),
+        title: Text("$tgGroup - Group View"),
         actions: [
-          count(context),
           globalGroupMenu(context),
+          counter(context),
           bell(context),
           loginButton(context)
         ],
@@ -107,7 +109,6 @@ class GroupTreePage extends StatelessWidget {
         docGroup["type"] = {
           "group": sw.value ? {"cluster": {}} : {}
         };
-        print("${name.text}: ${docGroup}"); //TODO
         db.collection("group").doc(name.text).set(docGroup);
       });
 

@@ -22,6 +22,7 @@ import 'documentPage.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
+// ignore: must_be_immutable
 class QuerySpecViewPage extends StatelessWidget {
   QuerySpecViewPage({
     required this.queryDocument,
@@ -304,7 +305,7 @@ Widget editableTagChip(
   editTag() => showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-              title: Text('${tagName} - Tag Value'),
+              title: Text('$tagName - Tag Value'),
               content: TextField(
                   controller: controller,
                   onSubmitted: (value) => updateTag(value)),

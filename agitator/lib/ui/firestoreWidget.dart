@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:http/http.dart' as http;
 
 import 'package:riotagitator/login.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:riotagitator/main.dart';
 
 /*
@@ -44,7 +47,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
               Container(height: 32),
               Row(
                 children: [
-                  RaisedButton(
+                  ElevatedButton(
                     child: Text("Sign in"),
                     onPressed: () =>
                         loginAsUser(loginUserEmail, loginUserPassword),
@@ -77,7 +80,7 @@ class _FbLoginPageState extends State<FbLoginPage> {
       );
     } catch (e) {
       setState(() {
-        debugMsg = "Failed: ${e}\n login: $mailAddr";
+        debugMsg = "Failed: $e\n login: $mailAddr";
         print(debugMsg);
       });
     }
