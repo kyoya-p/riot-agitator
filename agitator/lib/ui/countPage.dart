@@ -20,27 +20,19 @@ Widget counter(BuildContext context) {
   CollectionReference app1 = db.collection("user/${user.uid}/app1");
   DocumentReference docFilterAlerts = app1.doc("count_log");
 
-  Widget alertBell(BuildContext context, String bells) => ActionChip(
+  Widget countChip(BuildContext context, String bells) =>
+      ActionChip(
         label: Text(bells),
-        //badgeColor: Theme.of(context).backgroundColor,
-        //shape: BadgeShape.square,
-        //borderRadius: BorderRadius.circular(8),
-        //child: Icon(
-        //  Icons.shopping_cart,
-        //  color: Theme.of(context).primaryIconTheme.color,
-        //),
-
         onPressed: () async {
           docFilterAlerts.set({
             "collectionGroup": "counter",
             "limit": 500,
-//            "orderBy": [{"field": "time", "descending": true}],
           });
           naviPush(context,
-              (_) => QuerySpecViewPage(queryDocument: docFilterAlerts));
+                  (_) => QuerySpecViewPage(queryDocument: docFilterAlerts));
         },
       );
-  Widget normalBell = alertBell(context, "Loading..");
+  Widget normalBell = countChip(context, "Loading..");
 
   return StreamBuilder<DocumentSnapshot>(
     stream: docFilterAlerts.snapshots(),
@@ -55,12 +47,13 @@ Widget counter(BuildContext context) {
             print(e.data());
           });
           var sum = snapshot.data?.docs
-                  .map((e) => e.data()?["count"])
-                  .fold<int>(0, (a, e) => a + e as int) ??
+              .map((e) => e.data() ? ["count"])
+              .fold<int>(0, (a, e) => a + e as int) ??
               -9999;
-          return alertBell(context, "$sum");
+          return countChip(context, "$sum");
         },
       );
     },
   );
 }
+
