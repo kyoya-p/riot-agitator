@@ -12,7 +12,7 @@ import 'Common.dart';
 import 'QueryBuilder.dart';
 import 'QuerySpecViewPage.dart';
 
-Widget counter(BuildContext context) {
+Widget counter(BuildContext context,String collectionGroup ,String counterField) {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final User user = FirebaseAuth.instance.currentUser;
   if (user.uid == null) return Center(child: CircularProgressIndicator());
@@ -25,7 +25,7 @@ Widget counter(BuildContext context) {
         label: Text(bells),
         onPressed: () async {
           docFilterAlerts.set({
-            "collectionGroup": "counter",
+            "collectionGroup": collectionGroup,
             "limit": 500,
           });
           naviPush(context,
@@ -47,7 +47,7 @@ Widget counter(BuildContext context) {
             print(e.data());
           });
           var sum = snapshot.data?.docs
-              .map((e) => e.data() ? ["count"])
+              .map((e) => e.data() ? [counterField])
               .fold<int>(0, (a, e) => a + e as int) ??
               -9999;
           return countChip(context, "$sum");

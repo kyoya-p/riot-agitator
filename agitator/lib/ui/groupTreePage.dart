@@ -34,7 +34,7 @@ class GroupTreePage extends StatelessWidget {
         title: Text("$tgGroup - Group View"),
         actions: [
           globalGroupMenu(context),
-          counter(context),
+          counter(context,"counter","count"),
           bell(context),
           loginButton(context)
         ],
