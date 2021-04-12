@@ -6,7 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:charts_flutter/flutter.dart' as charts;
+
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:charts_common/common.dart' as common;
 
 class Sample {
@@ -56,7 +59,7 @@ class SynchroScopePage extends StatelessWidget {
           ],
           "startTime": now - 24 * 3600 * 1000,
           "endTime": now,
-          "reso": 3600 * 1000,
+          "resolution": 3600 * 1000,
         };
         synchro.set(query);
       }
