@@ -8,6 +8,7 @@ import 'package:riotagitator/ui/AgentMfpMib.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riotagitator/ui/synchroScope.dart';
 
 import 'Demo.dart';
 import 'QuerySpecViewPage.dart';
@@ -166,7 +167,7 @@ class _MySwitchTileState extends State<MySwitchListTile> {
       );
 }
 
-// extention functions for debug
+// extension functions for debug
 extension Debug on Object {
   pby(Function f) {
     print(f(this));
@@ -236,6 +237,12 @@ Widget globalGroupMenu(BuildContext context) {
           child: Text("Log QueryView (admin)"),
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
+      PopupMenuItem(
+        child: Text("Synchro Scope"),
+        value: (_) {
+          return SynchroScopePage();
+        },
+      ),
       PopupMenuItem(
         child: Text("HTTP Terminal"),
         value: (_) {
