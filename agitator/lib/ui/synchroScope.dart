@@ -11,6 +11,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:charts_common/common.dart' as common;
+import 'package:riotagitator/ui/QueryBuilder.dart';
 
 class Sample {
   final DateTime time;
@@ -45,14 +46,14 @@ class SynchroScopePage extends StatelessWidget {
       data: samples,
     );
 
-/*    Future<List<Sample>> sampling() async {
+    Stream<List<Sample>> sampler() async* {
+      int now = DateTime.now().microsecondsSinceEpoch;
       DocumentSnapshot querySs = await synchro.get();
-      Map<String, dynamic> query;
+      Map<String, dynamic> queryData;
       if (querySs.exists) {
-        query = querySs.data();
+        queryData = querySs.data();
       } else {
-        int now = DateTime.now().microsecondsSinceEpoch;
-        query = {
+        queryData = {
           "collectionGroup": "logs",
           "orderBy": [
             {"field": "time", "descending": false}
@@ -60,38 +61,70 @@ class SynchroScopePage extends StatelessWidget {
           "startTime": now - 24 * 3600 * 1000,
           "endTime": now,
           "resolution": 3600 * 1000,
+          //"peak": 1,
         };
-        synchro.set(query);
+        synchro.set(queryData);
       }
-      return List<Sample>(0);
+      Query? query = QueryBuilder(queryData).build();
+      if (query == null) return;
+
+      List<Sample> smpl = [];
+      int res = queryData["resolution"] ?? 3600 * 1000;
+      int start = queryData["startTime"] ?? now - 24 * 3600 * 1000;
+      start = (start ~/ res) * res;
+      int end = queryData["endTime"] ?? now;
+      end = (end ~/ res) * res;
+      //int peak = queryData["peak"] ?? 1;
+
+      for (int i = 0;i<100; ++i) { //TODO 安全が確認されるまでmax100
+        Query query1 = query
+            .where("time", isGreaterThanOrEqualTo: start)
+            .where("time", isLessThan: end)
+            .limit(1);
+        print("Query: $query1"); //TODO
+        await Future.delayed(Duration(microseconds: 100)); //TODO
+        Map<String, dynamic> s = (await query1.get()).docs[0].data();
+        int t = s["time"];
+        if (t < 1893456000) t = t * 1000;
+        t = (t ~/ res) * res;
+
+        if (smpl.length >= 1 & smpl.last.time.millisecondsSinceEpoch == t) {
+//          smpl.last = Sample(DateTime.fromMillisecondsSinceEpoch(t), 1);
+        } else {
+          smpl.add(Sample(DateTime.fromMillisecondsSinceEpoch(t), 1));
+        }
+
+        start = t + res;
+        yield smpl;
+      }
     }
-*/
+
     return StreamBuilder(
-        stream: synchro.snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+        stream: sampler(),
+        builder: (BuildContext context, AsyncSnapshot<List<Sample>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              !snapshot.hasData)
             return Center(child: CircularProgressIndicator());
           return Scaffold(
-              appBar: AppBar(),
-              body: charts.TimeSeriesChart(
-                [
-                  common.Series<Sample, DateTime>(
-                    id: 'Sales',
-                    colorFn: (_, __) =>
-                        charts.MaterialPalette.blue.shadeDefault,
-                    domainFn: (Sample s, _) => s.time,
-                    measureFn: (Sample s, _) => s.value,
-                    data: samples,
-                  )
-                ],
-                animate: true,
-                defaultRenderer: new charts.BarRendererConfig<DateTime>(),
-                defaultInteractions: false,
-                behaviors: [
-                  new charts.SelectNearest(),
-                  new charts.DomainHighlighter()
-                ],
-              ));
+            appBar: AppBar(),
+            body: synchroScopeWidget(snapshot.data!),
+          );
         });
   }
 }
+
+Widget synchroScopeWidget(List<Sample> samples) => charts.TimeSeriesChart(
+      [
+        common.Series<Sample, DateTime>(
+          id: 'Sales',
+          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+          domainFn: (Sample s, _) => s.time,
+          measureFn: (Sample s, _) => s.value,
+          data: samples,
+        )
+      ],
+      animate: true,
+      defaultRenderer: new charts.BarRendererConfig<DateTime>(),
+      defaultInteractions: false,
+      behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
+    );
