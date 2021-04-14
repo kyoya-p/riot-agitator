@@ -43,9 +43,6 @@ Widget counter(BuildContext context,String collectionGroup ,String counterField)
         stream: queryBuilder.build()!.snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return normalBell;
-          snapshot.data?.docs.toList().forEach((e) {
-            print(e.data());
-          });
           var sum = snapshot.data?.docs
               .map((e) => e.data() ? [counterField])
               .fold<int>(0, (a, e) => a + e as int) ??

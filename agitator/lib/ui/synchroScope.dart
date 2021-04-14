@@ -47,55 +47,72 @@ class SynchroScopePage extends StatelessWidget {
     );
 
     Stream<List<Sample>> sampler() async* {
-      int now = DateTime.now().microsecondsSinceEpoch;
-      DocumentSnapshot querySs = await synchro.get();
-      Map<String, dynamic> queryData;
-      if (querySs.exists) {
-        queryData = querySs.data();
-      } else {
-        queryData = {
-          "collectionGroup": "logs",
-          "orderBy": [
-            {"field": "time", "descending": false}
-          ],
-          "startTime": now - 24 * 3600 * 1000,
-          "endTime": now,
-          "resolution": 3600 * 1000,
-          //"peak": 1,
-        };
-        synchro.set(queryData);
-      }
-      Query? query = QueryBuilder(queryData).build();
-      if (query == null) return;
-
-      List<Sample> smpl = [];
-      int res = queryData["resolution"] ?? 3600 * 1000;
-      int start = queryData["startTime"] ?? now - 24 * 3600 * 1000;
-      start = (start ~/ res) * res;
-      int end = queryData["endTime"] ?? now;
-      end = (end ~/ res) * res;
-      //int peak = queryData["peak"] ?? 1;
-
-      for (int i = 0;i<100; ++i) { //TODO 安全が確認されるまでmax100
-        Query query1 = query
-            .where("time", isGreaterThanOrEqualTo: start)
-            .where("time", isLessThan: end)
-            .limit(1);
-        print("Query: $query1"); //TODO
-        await Future.delayed(Duration(microseconds: 100)); //TODO
-        Map<String, dynamic> s = (await query1.get()).docs[0].data();
-        int t = s["time"];
-        if (t < 1893456000) t = t * 1000;
-        t = (t ~/ res) * res;
-
-        if (smpl.length >= 1 & smpl.last.time.millisecondsSinceEpoch == t) {
-//          smpl.last = Sample(DateTime.fromMillisecondsSinceEpoch(t), 1);
+      try {
+        int now = DateTime.now().millisecondsSinceEpoch;
+        DocumentSnapshot querySs = await synchro.get();
+        Map<String, dynamic> queryData;
+        if (querySs.exists) {
+          queryData = querySs.data();
         } else {
-          smpl.add(Sample(DateTime.fromMillisecondsSinceEpoch(t), 1));
+          queryData = {
+            "collectionGroup": "logs",
+            "orderBy": [
+              {"field": "time", "descending": false}
+            ],
+            "startTime": now - 24 * 3600 * 1000,
+            "endTime": now,
+            "resolution": 3600 * 1000,
+            //"peak": 1,
+          };
+          synchro.set(queryData);
         }
+        Query? query = QueryBuilder(queryData).build();
+        if (query == null) return;
 
-        start = t + res;
+        List<Sample> smpl = [];
+        int res = queryData["resolution"] ?? 3600;
+        int start = queryData["startTime"] ?? now - 24 * 3600 * 1000;
+        start = (start ~/ res) * res;
+        int end = queryData["endTime"] ?? now;
+        end = (end ~/ res) * res;
+        //int peak = queryData["peak"] ?? 1;
+
         yield smpl;
+        for (int i = 0; i < 100; ++i) {          //TODO 安全が確認されるまでmax100(破産防止)
+          await Future.delayed(Duration(microseconds: 100)); //TODO 安全が確認されるまでディレイを入れる(破産防止)
+
+          res = 60;
+          start = (now ~/ 1000 - 3600) ~/ res * res;
+          end = now ~/ 1000 ~/ res * res;
+          print("start-end: $start-$end"); //TODO
+
+          Query query1 = db //TODO logのtimeの多単位を仮に1secとしている
+              .collectionGroup("logs")
+              .where("time", isGreaterThanOrEqualTo: start)
+              .where("time", isLessThan: end)
+              .limit(1);
+
+          List<DocumentSnapshot> docs = (await query1.get()).docs;
+          if (docs.length == 0) break;
+          Map<String, dynamic> s = docs[0].data();
+          int t = s["time"] as int;
+          if (t < 1893456000) t = t * 1000;
+          t = (t ~/ res) * res;
+
+          if (smpl.length >= 1 &&
+              smpl.last.time.millisecondsSinceEpoch == t * 1000) {
+//          smpl.last = Sample(DateTime.fromMillisecondsSinceEpoch(t*1000), 1);
+          } else {
+            smpl.add(Sample(DateTime.fromMillisecondsSinceEpoch(t * 1000), 1));
+            yield smpl;
+            print("Yield: smpl[${smpl.length}]"); //TODO
+          }
+
+          start = t + res ;
+        }
+        print("Done:NoData "); //TOD
+      } catch (ex) {
+        print("ex: $ex"); //TODO
       }
     }
 
