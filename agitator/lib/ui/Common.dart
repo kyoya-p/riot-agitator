@@ -244,6 +244,36 @@ Widget globalGroupMenu(BuildContext context) {
         },
       ),
       PopupMenuItem(
+        child: Text("Synchro Scope - Last 24 hours logs"),
+        value: (_) {
+          db.doc("user/${user.uid}/app1/synchro").set({
+            "collectionGroup": "logs",
+            "orderBy": [
+              {"field": "time", "descending": false}
+            ],
+            "range": 24 * 3600 * 1000,
+            "resolution": 3600 * 1000,
+            "levelLimit": 10,
+          });
+          return SynchroScopePage();
+        },
+      ),
+      PopupMenuItem(
+        child: Text("Synchro Scope - Last 30 days logs"),
+        value: (_) {
+          db.doc("user/${user.uid}/app1/synchro").set({
+            "collectionGroup": "logs",
+            "orderBy": [
+              {"field": "time", "descending": false}
+            ],
+            "range": 30 * 24 * 3600 * 1000,
+            "resolution": 24 * 3600 * 1000,
+            "levelLimit": 10,
+          });
+          return SynchroScopePage();
+        },
+      ),
+      PopupMenuItem(
         child: Text("HTTP Terminal"),
         value: (_) {
           return WebsocketTerminalWidget();
