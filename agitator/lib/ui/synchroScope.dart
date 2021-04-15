@@ -139,7 +139,7 @@ class SynchroScopePage extends StatelessWidget {
 Widget synchroScopeWidget(List<Sample> samples) => charts.TimeSeriesChart(
       [
         common.Series<Sample, DateTime>(
-          id: 'Llevel',
+          id: 'Level',
           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
           domainFn: (Sample s, _) => s.time,
           measureFn: (Sample s, _) => s.value,
