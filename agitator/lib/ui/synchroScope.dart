@@ -34,6 +34,7 @@ class SynchroScopePage extends StatelessWidget {
     int leftEnd = 0;
     int rightEnd = 0;
     int reso = 0;
+    int limit = 0;
     Stream<List<Sample>> sampler() async* {
       try {
         int now = DateTime.now().millisecondsSinceEpoch;
@@ -62,7 +63,7 @@ class SynchroScopePage extends StatelessWidget {
           int end = queryData["endTime"] ?? now;
           end = (end ~/ reso) * reso;
           int start = end - range;
-          int peak = queryData["levelLimit"] ?? 3;
+          limit = queryData["levelLimit"] ?? 3;
 
           leftEnd = start;
           rightEnd = end;
@@ -82,7 +83,7 @@ class SynchroScopePage extends StatelessWidget {
                 .collectionGroup("logs")
                 .where("time", isGreaterThanOrEqualTo: start ~/ 1000)
                 .where("time", isLessThan: end ~/ 1000)
-                .limit(peak);
+                .limit(limit);
 
             List<DocumentSnapshot> docs = (await query1.get()).docs;
             if (docs.length == 0) break;
@@ -95,7 +96,7 @@ class SynchroScopePage extends StatelessWidget {
                 .collectionGroup("logs")
                 .where("time", isGreaterThanOrEqualTo: start ~/ 1000)
                 .where("time", isLessThan: (start + reso) ~/ 1000)
-                .limit(peak)
+                .limit(limit)
                 .get();
             int level = levelSnapshot.docs.length;
             int idx = (t - leftEnd) ~/ reso;
@@ -127,7 +128,7 @@ class SynchroScopePage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                  "${DateTime.fromMillisecondsSinceEpoch(leftEnd)} ~ ${DateTime.fromMillisecondsSinceEpoch(rightEnd)} / ${reso ~/ 1000}[sec]"),
+                  "${DateTime.fromMillisecondsSinceEpoch(leftEnd)} ~ ${DateTime.fromMillisecondsSinceEpoch(rightEnd)} / ${reso ~/ 1000}[sec] LMT:$limit"),
               actions: [queryEditIcon(context)],
             ),
             body: synchroScopeWidget(snapshot.data!),

@@ -244,7 +244,7 @@ Widget globalGroupMenu(BuildContext context) {
         },
       ),
       PopupMenuItem(
-        child: Text("Synchro Scope - Last 24 hours logs"),
+        child: Text("  - Last 24 hours logs"),
         value: (_) {
           db.doc("user/${user.uid}/app1/synchro").set({
             "collectionGroup": "logs",
@@ -259,7 +259,7 @@ Widget globalGroupMenu(BuildContext context) {
         },
       ),
       PopupMenuItem(
-        child: Text("Synchro Scope - Last 30 days logs"),
+        child: Text("  - Last 30 days logs"),
         value: (_) {
           db.doc("user/${user.uid}/app1/synchro").set({
             "collectionGroup": "logs",
