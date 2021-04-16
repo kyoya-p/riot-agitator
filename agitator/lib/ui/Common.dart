@@ -238,12 +238,26 @@ Widget globalGroupMenu(BuildContext context) {
           value: (_) => QuerySpecViewPage(
               queryDocument: db.doc("user/${user.uid}/app1/logFilter_logs"))),
       PopupMenuItem(
-        child: Text("Synchro Scope"),
+        child: Text("Series Histogram"),
         value: (_) {
           return SynchroScopePage();
         },
       ),
       PopupMenuItem(
+        child: Text("  - Last 1 hour logs"),
+        value: (_) {
+          db.doc("user/${user.uid}/app1/synchro").set({
+            "collectionGroup": "logs",
+            "orderBy": [
+              {"field": "time", "descending": false}
+            ],
+            "range": 3600 * 1000,
+            "resolution": 1 * 1000,
+            "levelLimit": 3,
+          });
+          return SynchroScopePage();
+        },
+      ),      PopupMenuItem(
         child: Text("  - Last 24 hours logs"),
         value: (_) {
           db.doc("user/${user.uid}/app1/synchro").set({
@@ -268,7 +282,7 @@ Widget globalGroupMenu(BuildContext context) {
             ],
             "range": 30 * 24 * 3600 * 1000,
             "resolution": 24 * 3600 * 1000,
-            "levelLimit": 10,
+            "levelLimit": 50,
           });
           return SynchroScopePage();
         },

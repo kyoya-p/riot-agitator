@@ -92,25 +92,24 @@ class SynchroScopePage extends StatelessWidget {
             if (t < 1893456000) t = t * 1000;
             t = (t ~/ reso) * reso;
 
-            QuerySnapshot levelSnapshot = await db
-                .collectionGroup("logs")
-                .where("time", isGreaterThanOrEqualTo: start ~/ 1000)
-                .where("time", isLessThan: (start + reso) ~/ 1000)
-                .limit(limit)
-                .get();
-            int level = levelSnapshot.docs.length;
+            int level = (await db
+                    .collectionGroup("logs")
+                    .where("time", isGreaterThanOrEqualTo: start ~/ 1000)
+                    .where("time", isLessThan: (start + reso) ~/ 1000)
+                    .limit(limit)
+                    .get())
+                .docs
+                .length;
             int idx = (t - leftEnd) ~/ reso;
             smpl[idx] = Sample(DateTime.fromMillisecondsSinceEpoch(t), level);
-            yield smpl;
             print(
                 "Yield: smpl[$idx]=Sample(${DateTime.fromMillisecondsSinceEpoch(t)},$level)"); //TODO
-
+            yield smpl;
             start = t + reso;
           }
-          print("Done:NoData "); //TOD0
         }
       } catch (ex) {
-        print("ex: $ex"); //TODO
+        print("Exception: $ex");
       }
     }
 
@@ -131,9 +130,29 @@ class SynchroScopePage extends StatelessWidget {
                   "${DateTime.fromMillisecondsSinceEpoch(leftEnd)} ~ ${DateTime.fromMillisecondsSinceEpoch(rightEnd)} / ${reso ~/ 1000}[sec] LMT:$limit"),
               actions: [queryEditIcon(context)],
             ),
-            body: synchroScopeWidget(snapshot.data!),
+            body: customGesture(context,
+                child: synchroScopeWidget(snapshot.data!)),
           );
         });
+  }
+
+  Widget customGesture(BuildContext context, {required Widget? child}) {
+    late Offset org;
+    return GestureDetector(
+      child: child,
+      onHorizontalDragDown: (DragDownDetails details) {
+        org = details.localPosition;
+        print("org=${org}"); //TODO
+      },
+      onHorizontalDragUpdate: (details) {
+        if (org.dx + 100 < details.localPosition.dx) {
+          print("next");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('next')),
+          );
+        }
+      },
+    );
   }
 }
 

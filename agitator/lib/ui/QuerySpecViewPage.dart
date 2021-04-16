@@ -421,7 +421,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
         { "field":"filterFieldName",
           "op" : "==", // "==", "!=", ">", ">=", "<", "<=", "contains"
           "type": "number", // "number", "string", "boolean"
-          "value": "fieldValue", // if with scalor-operator
+          "value": "fieldValue", // if with scalar-operator
         },
         { "field":"fieldName",
           "op" : "in", // "in", "notIn", "containsAny"
