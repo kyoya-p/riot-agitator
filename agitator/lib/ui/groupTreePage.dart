@@ -34,7 +34,7 @@ class GroupTreePage extends StatelessWidget {
         title: Text("$tgGroup - Group View"),
         actions: [
           globalGroupMenu(context),
-          counter(context,"counter","count"),
+          counter(context, "counter", "count"),
           bell(context),
           loginButton(context)
         ],
@@ -53,15 +53,15 @@ class GroupTreePage extends StatelessWidget {
               key: (e) => e.id,
               value: (e) => e,
             );
-            Map<String, QueryDocumentSnapshot> dispGrs;
+            Map<String, QueryDocumentSnapshot> listedGrs;
             if (tgGroup == null) // topGroupが指定されていなければ自分の属する全グループのうち最上位のGroup
-              dispGrs = Map.fromIterable(
+              listedGrs = Map.fromIterable(
                   myGrs.entries.where(
                       (e) => !myGrs.containsKey(e.value.data()["parent"])),
                   key: (e) => e.key,
                   value: (e) => e.value);
             else // topGroupが指定されていればそれに含まれるGroup
-              dispGrs = Map.fromIterable(
+              listedGrs = Map.fromIterable(
                   myGrs.entries
                       .where((e) => e.value.data()["parent"] == tgGroup),
                   key: (e) => e.key,
@@ -69,50 +69,17 @@ class GroupTreePage extends StatelessWidget {
             return SingleChildScrollView(
                 child: Column(
               children: [
-                GroupTreeWidget(user: user, myGrs: myGrs, listGrs: dispGrs),
+                GroupTreeWidget(user: user, myGrs: myGrs, listGrs: listedGrs),
               ],
             ));
           }),
 
       floatingActionButton:
-          (user.uid == null) ? null : floatingActionButtonBuilder2(context),
+          (user.uid == null) ? null : floatingActionButtonBuilder(context),
     );
   }
 
-  floatingActionButtonBuilder1(BuildContext context) => FloatingActionButton(
-      child: Icon(Icons.create_new_folder),
-      onPressed: () async {
-        MySwitchListTile sw =
-            MySwitchListTile(title: Text("As device cluster"));
-        TextEditingController name = TextEditingController();
-
-        await showDialog(
-            context: context,
-            builder: (BuildContext context) => AlertDialog(
-                    title: Text('Create Group/Cluster'),
-                    content: Column(children: [
-                      TextField(
-                          controller: name,
-                          decoration: InputDecoration(labelText: "Name")),
-                      sw,
-                    ]),
-                    actions: <Widget>[
-                      new SimpleDialogOption(
-                          child: new Text('OK'),
-                          onPressed: () => Navigator.pop(context)),
-                    ]));
-
-        Map<String, Object> docGroup = {
-          "parent": tgGroup ?? "world",
-          "users": {user.uid: true},
-        };
-        docGroup["type"] = {
-          "group": sw.value ? {"cluster": {}} : {}
-        };
-        db.collection("group").doc(name.text).set(docGroup);
-      });
-
-  floatingActionButtonBuilder2(BuildContext context) => FloatingActionButton(
+  floatingActionButtonBuilder(BuildContext context) => FloatingActionButton(
       child: Icon(Icons.create_new_folder),
       onPressed: () async {
         naviPush(
@@ -121,9 +88,9 @@ class GroupTreePage extends StatelessWidget {
               ..setDocWidget.textDocBody.text = """
 {
   "id": "__GroupID__",
-  "type":{"group":{}},
+  "type":["group","group.cluster"],
   "users":{
-    "${firebaseAuth.currentUser.uid}": {"permissions":{}}}
+    "${firebaseAuth.currentUser.uid}":{"active":true}
   },
   "parent":"__ParentGroupId__"
 }""");

@@ -245,47 +245,15 @@ Widget globalGroupMenu(BuildContext context) {
       ),
       PopupMenuItem(
         child: Text("  - Last 1 hour logs"),
-        value: (_) {
-          db.doc("user/${user.uid}/app1/synchro").set({
-            "collectionGroup": "logs",
-            "orderBy": [
-              {"field": "time", "descending": false}
-            ],
-            "range": 3600 * 1000,
-            "resolution": 1 * 1000,
-            "levelLimit": 3,
-          });
-          return SynchroScopePage();
-        },
-      ),      PopupMenuItem(
-        child: Text("  - Last 24 hours logs"),
-        value: (_) {
-          db.doc("user/${user.uid}/app1/synchro").set({
-            "collectionGroup": "logs",
-            "orderBy": [
-              {"field": "time", "descending": false}
-            ],
-            "range": 24 * 3600 * 1000,
-            "resolution": 3600 * 1000,
-            "levelLimit": 10,
-          });
-          return SynchroScopePage();
-        },
+        value: (_) => naviSynchroPage(12, 5 * 60, 3),
       ),
       PopupMenuItem(
-        child: Text("  - Last 30 days logs"),
-        value: (_) {
-          db.doc("user/${user.uid}/app1/synchro").set({
-            "collectionGroup": "logs",
-            "orderBy": [
-              {"field": "time", "descending": false}
-            ],
-            "range": 30 * 24 * 3600 * 1000,
-            "resolution": 24 * 3600 * 1000,
-            "levelLimit": 50,
-          });
-          return SynchroScopePage();
-        },
+        child: Text("  - Last 24 hours logs"),
+        value: (_) => naviSynchroPage(12, 2 * 60 * 60, 10),
+      ),
+      PopupMenuItem(
+        child: Text("  - Last 12 days logs"),
+        value: (_) => naviSynchroPage(12, 12 * 24 * 60 * 60, 10),
       ),
       PopupMenuItem(
         child: Text("HTTP Terminal"),
@@ -296,4 +264,18 @@ Widget globalGroupMenu(BuildContext context) {
     ],
     onSelected: (value) => naviPush(context, value),
   );
+}
+
+Widget naviSynchroPage(int samples, int resolution, int levelLimit) {
+  db.doc("user/${user.uid}/app1/synchro").set({
+    "collectionGroup": "logs",
+    "orderBy": [
+      {"field": "time", "descending": false}
+    ],
+    "endTime": DateTime.now().millisecondsSinceEpoch ~/ 1000 * 1000,
+    "samples": samples,
+    "resolution": resolution * 1000,
+    "levelLimit": levelLimit,
+  });
+  return SynchroScopePage();
 }
