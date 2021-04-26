@@ -109,13 +109,13 @@ Widget defaultItemCell(
               filter.set({
                 "collection": "${itemDoc.reference.path}/$res",
                 "where": [
-                  {
+/*                  {
                     "field": "cluster",
                     "op": "==",
                     "type": "string",
                     "value": "G11"
                   }
-                ],
+*/                ],
                 "limit": 50
               });
               return QuerySpecViewPage(queryDocument: filter);

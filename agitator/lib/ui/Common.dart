@@ -180,23 +180,23 @@ extension Debug on Object {
   }
 }
 
-extension MapExt on Map<String, dynamic?>? {
+extension MapExt on Map<String, dynamic>? {
   T? get<T>(String key) {
     if (this == null) return null;
-    dynamic t = (this as Map<String, dynamic?>)[key];
+    dynamic t = (this as Map<String, dynamic>)[key];
     if (t == null) return null;
     if (!(t is T)) return null;
     return t;
   }
 
   T? getNested<T>(List<String> keys) {
-    Map<String, dynamic?>? map = this;
+    Map<String, dynamic>? map = this;
     dynamic t;
     for (String key in keys) {
       if (map == null) return null;
       if (!map.containsKey(key)) return null;
       t = map[key];
-      if (map[key] is Map<String, dynamic?>?) map = map[key];
+      if (map[key] is Map<String, dynamic>?) map = map[key];
     }
     if (t == null) return null;
     if (!(t is T)) return null;

@@ -11,25 +11,37 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'Common.dart';
 import 'QueryBuilder.dart';
 import 'QuerySpecViewPage.dart';
+import 'documentPage.dart';
 
-Widget counter(BuildContext context,String collectionGroup ,String counterField) {
+Widget counter(
+    BuildContext context, String collectionGroup, String counterField) {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final User user = FirebaseAuth.instance.currentUser;
   if (user.uid == null) return Center(child: CircularProgressIndicator());
 
   CollectionReference app1 = db.collection("user/${user.uid}/app1");
-  DocumentReference docFilterAlerts = app1.doc("count_log");
+  DocumentReference docFilterAlerts = app1.doc("countLog");
 
-  Widget countChip(BuildContext context, String bells) =>
-      ActionChip(
+  Widget countChip(BuildContext context, String bells) => ActionChip(
         label: Text(bells),
-        onPressed: () async {
-          docFilterAlerts.set({
-            "collectionGroup": collectionGroup,
-            "limit": 500,
-          });
-          naviPush(context,
-                  (_) => QuerySpecViewPage(queryDocument: docFilterAlerts));
+        onPressed: () {
+          showDocumentEditorDialog(
+              context, docFilterAlerts);
+          /* showDialog(
+            context: context,
+            builder: (BuildContext context1) => SimpleDialog(children: [
+              SimpleDialogOption(
+                  child: Text("Close"), onPressed: () => naviPop(context1)),
+              SimpleDialogOption(
+                  child: Text("Open Conter Configuration"),
+                  onPressed: () => naviPush(
+                      context1,
+                      (_) => documentEditorDialog(
+                          _, db.doc("user/${user.uid}/app1/logFilter"))))
+            ]),
+          );
+
+          */
         },
       );
   Widget normalBell = countChip(context, "Loading..");
@@ -44,8 +56,8 @@ Widget counter(BuildContext context,String collectionGroup ,String counterField)
         builder: (context, snapshot) {
           if (!snapshot.hasData) return normalBell;
           var sum = snapshot.data?.docs
-              .map((e) => e.data() ? [counterField])
-              .fold<int>(0, (a, e) => a + e as int) ??
+                  .map((e) => e.data()?[counterField])
+                  .fold<int>(0, (a, e) => a + e as int) ??
               -9999;
           return countChip(context, "$sum");
         },
@@ -53,4 +65,3 @@ Widget counter(BuildContext context,String collectionGroup ,String counterField)
     },
   );
 }
-
