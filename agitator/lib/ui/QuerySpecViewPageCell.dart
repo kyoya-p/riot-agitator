@@ -85,44 +85,47 @@ Widget defaultItemCell(
   if (data["type"] is List)
     data["type"]?.forEach((typeName) => chips.add(chip(typeName)));
 
-  Widget menuButtonBuilder(BuildContext context) => TextButton(
-      child: Text("Actions"),
-      onPressed: () {
-        showDialog<String>(
-          context: context,
-          builder: (context) => SimpleDialog(
-            children: [
-              ["Open Sub-Collection [query]", "query"],
-              ["Open Sub-Collection [state]", "state"],
-              ["Open Sub-Collection [logs]", "logs"],
-            ]
-                .map((e) => SimpleDialogOption(
-                    child: Text(e[0]), onPressed: () => naviPop(context, e[1])))
-                .toList(),
-          ),
-        ).then((res) {
-          if (res != null) {
-            naviPop(context);
-            naviPush(context, (_) {
-              itemDoc.reference.collection(res);
-              DocumentReference filter = appData("filter_$res");
-              filter.set({
-                "collection": "${itemDoc.reference.path}/$res",
-                "where": [
+  List<Widget> menuButtonBuilder(BuildContext context) => [
+        TextButton(
+            child: Text("Actions"),
+            onPressed: () {
+              showDialog<String>(
+                context: context,
+                builder: (context) => SimpleDialog(
+                  children: [
+                    ["Open Sub-Collection [query]", "query"],
+                    ["Open Sub-Collection [state]", "state"],
+                    ["Open Sub-Collection [logs]", "logs"],
+                  ]
+                      .map((e) => SimpleDialogOption(
+                          child: Text(e[0]),
+                          onPressed: () => naviPop(context, e[1])))
+                      .toList(),
+                ),
+              ).then((res) {
+                if (res != null) {
+                  naviPop(context);
+                  naviPush(context, (_) {
+                    itemDoc.reference.collection(res);
+                    DocumentReference filter = appData("filter_$res");
+                    filter.set({
+                      "collection": "${itemDoc.reference.path}/$res",
+                      "where": [
 /*                  {
                     "field": "cluster",
                     "op": "==",
                     "type": "string",
                     "value": "G11"
                   }*/
-               ],
-                "limit": 50
+                      ],
+                      "limit": 50
+                    });
+                    return QuerySpecViewPage(queryDocument: filter);
+                  });
+                }
               });
-              return QuerySpecViewPage(queryDocument: filter);
-            });
-          }
-        });
-      });
+            })
+      ];
 
   String ipAddr = data["dev"]?["ip"] ?? "IP:UNK";
   return wrapDocumentOperationMenu(itemDoc, context,

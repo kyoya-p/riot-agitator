@@ -48,9 +48,33 @@ class QuerySpecViewPage extends StatelessWidget {
       itemBuilder: itemBuilder,
     );
 
+    List<Widget> menuBuilder(BuildContext context) => [
+          TextButton(
+              child: Text("Samples"),
+              onPressed: () {
+                showDialog<String>(
+                  context: context,
+                  builder: (context) => SimpleDialog(
+                    children: [
+                      ["Query Sample1", "sample1"],
+                    ]
+                        .map((e) => SimpleDialogOption(
+                            child: Text(e[0]),
+                            onPressed: () {
+                              naviPop(context);
+                              showDocumentEditorDialog(context,
+                                  db.doc("/apps/app1/sampleDocs/${e[1]}"));
+                            }))
+                        .toList(),
+                  ),
+                );
+              })
+        ];
+
     Widget queryEditIcon(BuildContext context) => IconButton(
           icon: Icon(Icons.filter_list),
-          onPressed: () => showDocumentEditorDialog(context, queryDocument),
+          onPressed: () => showDocumentEditorDialog(context, queryDocument,
+              buttonBuilder: menuBuilder),
         );
 
     Widget deleteIcon(BuildContext context) => IconButton(
@@ -112,7 +136,7 @@ class QuerySpecViewWidget extends StatelessWidget {
   });
 
   final DocumentReference queryDocument;
-  dynamic? querySpec;
+  dynamic querySpec;
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -174,7 +198,8 @@ class QuerySpecViewWidget extends StatelessWidget {
                       print("long"); //TODO
                     },
                     child: Dismissible(
-                      key: Key(querySnapshotData!.docs[index].reference.path),//if these are 'id',there are conflict in collectionGroup
+                      key: Key(querySnapshotData!.docs[index].reference.path),
+                      //if these are 'id',there are conflict in collectionGroup
                       child: itemBuilder!(context, index, snapshots),
                       onDismissed: (_) {
                         print(
@@ -249,12 +274,19 @@ class QuerySpecViewWidget extends StatelessWidget {
       if (cRef == null) return;
       dRef = cRef.doc();
     }
-    Widget menuButton(BuildContext context) => TextButton(
-          child: Text("Actions"),
-          onPressed: () {
-            showDocumentOperationMenu(dRef!, context);
-          },
-        );
+    List<Widget> menuButton(BuildContext context) => [
+          TextButton(
+              child: Text("Samples"),
+              onPressed: () {
+                showDocumentOperationMenu(dRef!, context);
+              }),
+          TextButton(
+            child: Text("Actions"),
+            onPressed: () {
+              showDocumentOperationMenu(dRef!, context);
+            },
+          )
+        ];
     showDocumentEditorDialog(context, dRef, buttonBuilder: menuButton);
   }
 }

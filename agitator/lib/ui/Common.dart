@@ -69,7 +69,7 @@ Widget buildGenericCard(BuildContext context, DocumentReference dRef) {
 }
 
 Widget wrapDocumentOperationMenu(DocumentSnapshot dRef, BuildContext context,
-    {Widget Function(BuildContext)? buttonBuilder, Widget? child}) {
+    {List<Widget> Function(BuildContext)? buttonBuilder, Widget? child}) {
   return GestureDetector(
     child: child,
     onTap: () => showDocumentEditorDialog(context, dRef.reference,

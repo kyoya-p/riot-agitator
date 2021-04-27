@@ -13,7 +13,6 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_common/common.dart' as common;
 import 'package:riotagitator/ui/QueryBuilder.dart';
 
-import 'Common.dart';
 import 'documentPage.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -178,7 +177,7 @@ class SynchroScopePage extends StatelessWidget {
       onHorizontalDragEnd: (DragEndDetails details) async {
         if (details.velocity.pixelsPerSecond.dx.abs() > 500) {
           DocumentReference query = db.doc("user/${user.uid}/app1/synchro");
-          Map<String, dynamic?> syncroData = (await query.get()).data();
+          Map<String, dynamic> syncroData = (await query.get()).data();
           int endTime =
               syncroData["endTime"] ?? DateTime.now().millisecondsSinceEpoch;
           int samples = syncroData["samples"]!;
@@ -191,7 +190,7 @@ class SynchroScopePage extends StatelessWidget {
       onVerticalDragEnd: (DragEndDetails details) async {
         if (details.velocity.pixelsPerSecond.dy.abs() > 500) {
           DocumentReference query = db.doc("user/${user.uid}/app1/synchro");
-          Map<String, dynamic?> syncroData = (await query.get()).data();
+          Map<String, dynamic> syncroData = (await query.get()).data();
           int resolution = syncroData["resolution"]!;
           if (details.velocity.pixelsPerSecond.dy >= 0) {
             query.update({"resolution": (resolution + 999) ~/ 2000 * 1000});

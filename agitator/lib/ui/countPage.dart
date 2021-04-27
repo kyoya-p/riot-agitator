@@ -8,9 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'Common.dart';
 import 'QueryBuilder.dart';
-import 'QuerySpecViewPage.dart';
 import 'documentPage.dart';
 
 Widget counter(

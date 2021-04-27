@@ -50,7 +50,7 @@ class DocumentWidget extends StatefulWidget {
       newDoc["time"] = DateTime.now().toUtc().millisecondsSinceEpoch;
       FirebaseFirestore.instance.doc(docPath.text).set(newDoc).then((_) {
 //                  Navigator.pop(context);
-      // ignore: return_of_invalid_type_from_catch_error
+        // ignore: return_of_invalid_type_from_catch_error
       }).catchError((e) => showAlertDialog(
           context,
           // ignore: return_of_invalid_type_from_catch_error
@@ -107,7 +107,7 @@ class _DocumentWidgetState extends State<DocumentWidget> {
 }
 
 AlertDialog documentEditorDialog(BuildContext context, DocumentReference dRef,
-    {Widget Function(BuildContext)? buttonBuilder}) {
+    {List<Widget> Function(BuildContext)? buttonBuilder}) {
   DocumentWidget docWidget = DocumentWidget(dRef, isIdEditable: true);
   TextButton applyButton = TextButton(
       onPressed: () => docWidget.setDocumentWithTime(context),
@@ -116,7 +116,7 @@ AlertDialog documentEditorDialog(BuildContext context, DocumentReference dRef,
       TextButton(onPressed: () => naviPop(context), child: Text("Close"));
 
   List<Widget> additionalButton =
-      (buttonBuilder != null) ? [buttonBuilder(context)] : [];
+      (buttonBuilder != null) ? buttonBuilder(context) : [];
 
   return AlertDialog(
     title: Row(
@@ -132,7 +132,7 @@ AlertDialog documentEditorDialog(BuildContext context, DocumentReference dRef,
 
 Future<String?> showDocumentEditorDialog(
     BuildContext context, DocumentReference dRef,
-    {Widget Function(BuildContext)? buttonBuilder}) {
+    {List<Widget> Function(BuildContext)? buttonBuilder}) {
   return showDialog<String>(
       context: context,
       builder: (context) =>
