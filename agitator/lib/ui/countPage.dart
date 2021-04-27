@@ -25,6 +25,7 @@ Widget counter(
   Widget countChip(BuildContext context, String bells) => ActionChip(
         label: Text(bells),
         onPressed: () {
+
           showDocumentEditorDialog(
               context, docFilterAlerts);
           /* showDialog(
