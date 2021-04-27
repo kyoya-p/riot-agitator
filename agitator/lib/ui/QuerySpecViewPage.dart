@@ -174,10 +174,13 @@ class QuerySpecViewWidget extends StatelessWidget {
                       print("long"); //TODO
                     },
                     child: Dismissible(
-                      key: Key(querySnapshotData!.docs[index].id),
+                      key: Key(querySnapshotData!.docs[index].reference.path),//if these are 'id',there are conflict in collectionGroup
                       child: itemBuilder!(context, index, snapshots),
-                      onDismissed: (_) =>
-                          querySnapshotData!.docs[index].reference.delete(),
+                      onDismissed: (_) {
+                        print(
+                            "Dismissed() ${querySnapshotData!.docs[index].reference.path}"); //TODO
+                        querySnapshotData!.docs[index].reference.delete();
+                      },
                     ),
                   ));
                 });

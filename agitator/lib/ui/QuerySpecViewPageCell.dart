@@ -114,8 +114,8 @@ Widget defaultItemCell(
                     "op": "==",
                     "type": "string",
                     "value": "G11"
-                  }
-*/                ],
+                  }*/
+               ],
                 "limit": 50
               });
               return QuerySpecViewPage(queryDocument: filter);
