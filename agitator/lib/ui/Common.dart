@@ -113,11 +113,11 @@ Future showAlertDialog(context, Widget content) async {
 }
 
 Future<T?> showConfirmDialog<T>(
-        context, String value, T Function(BuildContext) op) =>
+        context, String msg, T Function(BuildContext) op) =>
     showDialog<T>(
         context: context,
         builder: (BuildContext context) =>
-            SimpleDialog(title: Text('Confirm Dialog'), children: [
+            SimpleDialog(title: Text(msg), children: [
               SimpleDialogOption(
                   child: Text('OK'),
                   onPressed: () => Navigator.pop(context, op(context))),

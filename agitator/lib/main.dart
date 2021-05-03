@@ -30,7 +30,7 @@ class RiotApp extends StatelessWidget {
       theme: ThemeData(
 //        primarySwatch: Colors.blueGrey,
 //        primarySwatch: Colors.cyan,
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: GroupTreePage(user: user),

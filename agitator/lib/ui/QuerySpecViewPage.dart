@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
@@ -29,12 +30,14 @@ class QuerySpecViewPage extends StatelessWidget {
     this.itemBuilder,
     this.appBar,
     this.floatingActionButton,
+    this.additionalActions,
   });
 
   final DocumentReference queryDocument;
 
   final AppBar? appBar;
   final Widget? floatingActionButton;
+  final List<Widget>? additionalActions;
 
   final Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -55,18 +58,17 @@ class QuerySpecViewPage extends StatelessWidget {
                 showDialog<String>(
                   context: context,
                   builder: (context) => SimpleDialog(
-                    children: [
-                      ["Query Sample1", "sample1"],
-                    ]
-                        .map((e) => SimpleDialogOption(
-                            child: Text(e[0]),
-                            onPressed: () {
-                              naviPop(context);
-                              showDocumentEditorDialog(context,
-                                  db.doc("/apps/app1/sampleDocs/${e[1]}"));
-                            }))
-                        .toList(),
-                  ),
+                      children: [
+                    ["Query Sample1", "sample1"],
+                  ]
+                          .map((e) => SimpleDialogOption(
+                              child: Text(e[0]),
+                              onPressed: () {
+                                naviPop(context);
+                                showDocumentEditorDialog(context,
+                                    db.doc("/apps/app1/sampleDocs/${e[1]}"));
+                              }))
+                          .toList()),
                 );
               })
         ];
@@ -90,12 +92,18 @@ class QuerySpecViewPage extends StatelessWidget {
 
     AppBar defaultAppBar(BuildContext context) {
       return AppBar(
-        title: Text("${queryDocument.path} - Collection"),
-        actions: [
-          deleteIcon(context),
-          queryEditIcon(context),
-          bell(context),
-        ],
+        title: StreamBuilder<Map<String, dynamic>>(
+          stream: querySpecViewWidget.querySpecStream.stream,
+          builder: (context, snapshot) => Text(snapshot.data!["collectionGroup"] ??
+              snapshot.data!["collection"]!),
+        ),
+        //titleX: Text("${querySpecViewWidget.querySpec} ${queryDocument.path} - Collection"),
+        actions: (additionalActions ?? []) +
+            [
+              deleteIcon(context),
+              queryEditIcon(context),
+              bell(context),
+            ],
       );
     }
 
@@ -108,20 +116,10 @@ class QuerySpecViewPage extends StatelessWidget {
   }
 
   FloatingActionButton defaultFloatingActionButton(BuildContext context) {
-    /*  String makeCollectionPath(DocumentSnapshot d) {
-      dynamic query = d.data();
-      return query["collection"] +
-          ((query["subCollections"] as List?)
-                  ?.map((e) => "/${e["document"]}/${e["collection"]}")
-                  .join() ??
-              "");
-    }
-*/
     return FloatingActionButton(
         child: Icon(Icons.note_add),
         onPressed: () {
           queryDocument.get().then((dSs) {
-            //Query? q = QueryBuilder(dSs.data()).build();
             querySpecViewWidget.showDocumentEditDialog(context, null);
           });
         });
@@ -136,7 +134,8 @@ class QuerySpecViewWidget extends StatelessWidget {
   });
 
   final DocumentReference queryDocument;
-  dynamic querySpec;
+  Map<String, dynamic>? querySpec;
+  StreamController<Map<String, dynamic>> querySpecStream = StreamController();
 
   Widget Function(BuildContext context, int index,
       AsyncSnapshot<QuerySnapshot> snapshots)? itemBuilder;
@@ -153,11 +152,10 @@ class QuerySpecViewWidget extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.data == null)
             return Center(child: CircularProgressIndicator());
-          print("query=${snapshot.data?.data()}"); //TODO
           querySpec = snapshot.data?.data();
+          querySpecStream.sink.add(querySpec!);
 
-          Map<String, dynamic>? data = snapshot.data?.data();
-          if (data == null)
+          if (querySpec == null)
             return Center(child: Text("Query Error: ${snapshot.data?.data()}"));
 
           QueryBuilder q = QueryBuilder(snapshot.data!.data());
@@ -268,9 +266,9 @@ class QuerySpecViewWidget extends StatelessWidget {
   }
 
   showDocumentEditDialog(BuildContext context, DocumentReference? dRef) {
+    if (querySpec == null) return;
     if (dRef == null) {
-      //NoReferenceDocument
-      CollectionReference? cRef = QueryBuilder(querySpec).makeSimpleCollRef();
+      CollectionReference? cRef = QueryBuilder(querySpec!).makeSimpleCollRef();
       if (cRef == null) return;
       dRef = cRef.doc();
     }
@@ -405,19 +403,7 @@ showDocumentOperationMenu(DocumentReference dRef, BuildContext context) {
               onPressed: () {
                 Navigator.pop(dialogCtx);
                 DocumentReference filter = appData("filter_DeviceState");
-                filter.set({
-                  "collection": "${dRef.path}/state",
-                  /*"where": [
-                    {
-                      "field": "cluster",
-                      "op": "==",
-                      "type": "string",
-                      "value": dRef.get().data()["dev"]["cluster"]
-                    }
-                  ] //TODO cluster?
-
-                   */
-                });
+                filter.set({"collection": "${dRef.path}/state"});
                 naviPush(
                   context,
                   (_) => QuerySpecViewPage(queryDocument: filter),

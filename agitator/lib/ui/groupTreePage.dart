@@ -34,7 +34,7 @@ class GroupTreePage extends StatelessWidget {
         title: Text("$tgGroup - Group View"),
         actions: [
           globalGroupMenu(context),
-          counter(context, "counter", "count"),
+          counter(context, counterFieldSpec: "count"),
           bell(context),
           loginButton(context)
         ],
@@ -157,7 +157,8 @@ class GroupWidget extends StatelessWidget {
                     "type": "string",
                     "value": group.id
                   }
-                ]
+                ],
+                "limit": 100
               });
               return QuerySpecViewPage(queryDocument: filter);
             },

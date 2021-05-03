@@ -135,12 +135,12 @@ class DemoHumanHeatSensorCellStatus extends State<DemoHumanHeatSensorCell>
           Color c = Colors.black26;
           if (logsSnapshotData.size != 0) {
             Map<String, dynamic> log = logsSnapshotData.docs[0].data();
-            int intr = DateTime.now().toUtc().millisecondsSinceEpoch -
+            int t = DateTime.now().toUtc().millisecondsSinceEpoch -
                 log["time"] as int;
             Color c = log["value"] > 0
                 ? Color.fromRGBO(255, 0, 0, 1)
                 : Color.fromRGBO(0, 0, 255, 1);
-            controllerAA.value = intr / 10000;
+            controllerAA.value = t / 10000;
             makeDecorationTween(c).animate(controllerAA..forward());
           }
 
