@@ -14,12 +14,15 @@ riot agitator
   コマンドから利用するならpathを設定
   
 2. flutterのターゲットにwebを追加
+
 ```
+git clone https://github.com/flutter/flutter.git -b stable
+// flutter/bin にpathを通す
 flutter upgrade  
-flutter config --enable-web (*1)
+flutter config --enable-web (*1) 
 flutter devices
 ```                   
-*1: この設定は ~/.flutter_settings に格納される
+*1: この設定は ~/.flutter_settings に格納される (いまでも必要か?)
 
 
 ## Intelli-J設定(使うなら)
